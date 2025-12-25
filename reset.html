@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Reset Password</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="firebase-config.js"></script>
+<script src="auth.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="card" style="max-width:420px;margin:auto">
+      <h2>Reset Kata Laluan</h2>
+      <input id="email" class="input" placeholder="Masukkan email anda">
+      <div class="form-actions">
+        <button id="sendReset" class="btn" style="background:var(--brand);color:white">Hantar Email Reset</button>
+        <a href="login.html" class="btn btn-outline">Kembali Login</a>
+      </div>
+      <div id="resetMsg" class="small" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+<script>
+document.getElementById('sendReset').addEventListener('click', async ()=>{
+  const email = document.getElementById('email').value.trim();
+  const msg = document.getElementById('resetMsg'); msg.textContent='';
+  if(!email){ msg.textContent='Sila masukkan email.'; return; }
+  try{
+    await resetPassword(email);
+    msg.style.color='green';
+    msg.textContent = 'Email reset telah dihantar (periksa folder spam).';
+  } catch(err){ msg.style.color='red'; msg.textContent = err.message; }
+});
+
+ document.addEventListener('DOMContentLoaded', function() {
+      // Fade in page
+      document.body.classList.add('fade-in');
+
+      // Semua link dashboard-nav (if present)
+      const links = document.querySelectorAll('.dashboard-nav .nav-link');
+
+      links.forEach(link => {
+          link.addEventListener('click', function(e) {
+              e.preventDefault(); // prevent immediate redirect
+
+              const href = this.getAttribute('href');
+
+              // Fade out
+              document.body.style.opacity = 0;
+
+              setTimeout(() => {
+                  window.location.href = href; // redirect selepas fade out
+              }, 400); // 400ms sama dengan transition
+          });
+      });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,964 @@
+    <!DOCTYPE html>
+    <html lang="ms">
+    <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Calculator Gaji — Awam</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+<style>
+/* ===== FLOATING BLOBS ===== */
+.blob {position:absolute; border-radius:50%; filter:blur(120px); opacity:0.9; z-index:0; pointer-events:none; max-width:100vw; max-height:100vh; transition: transform 0.1s;}
+.blob1 {width:350px; height:350px; background:linear-gradient(135deg,#FF6B6B,#5E2A84); top:-100px; left:-90px;}
+</style>
+    </head>
+    <body data-kiraan="awam">
+<!-- FLOATING BLOBS -->
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+   
+ <nav class="dashboard-nav">
+    <div class="nav-left">
+        <img src="image/HASA.png" class="nav-logo">
+        <span class="nav-title">DASHBOARD CALCULATOR GAJI</span>
+    </div>
+
+
+    
+    <div class="nav-right">
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="contohawam.html" class="nav-link active">Kiraan Awam</a>        
+        <a href="swasta.html" class="nav-link">Kiraan Swasta</a>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
+</nav>
+
+
+        <header class="custom-header">
+            <h1>CALON BERKHIDMAT DI KERAJAAN PERSEKUTUAN / KERAJAAN NEGERI /</h1> 
+            <h1>PIHAK BERKUASA BADAN BERKANUN / PIHAK BERKUASA TEMPATAN</h1>
+            <p>Pilih jenis kiraan (Awam atau Swasta) di bulatan di bawah</p>
+        </header>
+
+    <br><br>
+
+    <!-- NAVIGATION -->
+    <div class="navwrap">
+    <div class="nav">
+        <a href="contohawam.html">
+        <div class="circle active">AWAM</div>
+        </a>
+        <a href="swasta.html">
+        <div class="circle inactive">SWASTA</div>
+        </a>
+    </div>
+    </div>
+
+
+  <!-- Button Petunjuk -->
+<button id="petunjukBtn" class="petunjuk-btn">?</button>
+
+<!-- Popup Petunjuk -->
+<div id="petunjukPopup" class="petunjuk-popup">
+      <h2 style="color: #5E2A84;">PETUNJUK</h2>
+    <table>
+      <tr>
+        <td class="left-col">ITKA</td>
+        <td class="right-col">IMBUHAN TETAP KHIDMAT AWAM</td>
+      </tr>
+      <tr>
+        <td class="left-col">ITK </td>
+        <td class="right-col">IMBUHAN TETAP KERAIAN</td>
+      </tr>
+      <tr>
+        <td class="left-col">BISH</td>
+        <td class="right-col">BANTUAN INSENTIF SARA HIDUP</td>
+      </tr>
+      <tr>
+        <td class="left-col">BIW</td>
+        <td class="right-col">BANTUAN INSENTIF WILAYAH</td>
+      </tr>
+      <tr>
+        <td class="left-col">BIPK</td>
+        <td class="right-col">BAYARAN INSENTIF PERKHIDMATAN KRITIKAL</td>
+      </tr>
+      <tr>
+        <td class="left-col">BIP</td>
+        <td class="right-col">BAYARAN INSENTIF PAKAR</td>
+      </tr>
+    </table>
+</div>
+ 
+    
+
+
+<div class="main">
+<div class="panel">
+
+    <!-- Kotak Penerangan / Info -->
+    <div class="info-box">
+    <h3>Panduan Kiraan</h3>
+    <p><strong>Kiraan Awam:</strong> Pilih Jawatan dan pilih Wilayah Asal Pemohon. Kemudian pilih sama ada telah terima PGT tahun ini atau tidak dan Tarikh PGT. Elaun adalah tetap dan tidak boleh diubah. Tekan butang <em>KIRA GAJI AWAM</em> untuk melihat hasil.</p>
+  <p><strong>Kiraan Swasta:</strong> Isikan Jawatan, Wilayah Asal Pemohon dan tempoh pengalaman (Tarikh Mula & Tamat). Sistem akan kira tempoh hari → tahun → 'Boleh Ambil Kira' secara automatik. Gaji Permulaan ditambah dengan KGT layak dan Elaun tetap. Tekan butang <em>KIRA GAJI SWASTA</em> untuk lihat hasil.</p>
+    </div>
+
+
+                <!-- Dropdown Jawatan -->
+                <center>
+                    <div class="dropdown-wrapper">
+                        <label>Pilih Jawatan Awam</label>
+                        <div class="custom-dropdown">
+                            <select id="jawatan_awam">
+                                <option value="" disabled selected class="placeholder">Pilih Jawatan Awam</option>
+                                <option value="Juruteknik Perubatan U1">JURUTEKNIK PERUBATAN U1</option>
+                                <option value="Pembantu Perawatan Kesihatan U1">PEMBANTU PEMBEDAHAN PERGIGIAN U1</option>
+                                <option value="Pembantu Pembedahan Pergigian U1">PEMBANTU PEMBEDAHAN PERGIGIAN U1</option>
+                                <option value="Penolong Pegawai Kesihatan Persekitaran U5">PENOLONG PEGAWAI KESIHATAN PERSEKITARAN U5</option>
+                                <option value="Juruteknologi Makmal Perubatan U5">JURUTEKNOLOGI MAKMAL PERUBATAN U5</option>
+                                <option value="Penolong Pegawai Farmasi U5">PENOLONG PEGAWAI FARMASI U5</option>
+                                <option value="Juru X-Ray U5">JURU X-RAY U5</option>
+                                <option value="Jurupulih Perubatan U5 - Diploma Fisioterapi">JURUPULIH PERUBATAN U5 - DIPLOMA FISIOTERAPI</option>
+                                <option value="Jurupulih Perubatan U5 - DLKM">JURUPULIH PERUBATAN U5 - DLKM</option>
+                                <option value="Jurupulih Perubatan U5 - DKM">JURUPULIH PERUBATAN U5 - DKM</option>
+                                <option value="Penolong Pegawai Perubatan U5">PENOLONG PEGAWAI PERUBATAN U5</option>
+                                <option value="Jururawat U5">JURURAWAT U5</option>
+                                <option value="Penolong Pegawai Perubatan U9">PENOLONG PEGAWAI PERUBATAN U9</option>
+                                <option value="Pegawai kesihatan Persekitaran U9">PEGAWAI KESIHATAN PERSEKITARAN U9</option>
+                                <option value="Pegawai Pemulihan Perubatan U9">PEGAWAI PEMULIHAN PERUBATAN U9</option>
+                                <option value="Pegawai Dietetik U9">PEGAWAI DIETETIK U9</option>
+                                <option value="Pegawai Optometri U9">PEGAWAI OPTOMETRI U9</option>
+                                <option value="Juru X-Ray U9">JURU X-RAY U9</option>
+                                <option value="Jururawat U9">JURURAWAT U9</option>
+                                <option value="Pegawai Farmasi U9">PEGAWAI FARMASI U9</option>
+                                <option value="Pegawai Pergigian UG9">PEGAWAI PERGIGIAN UG9</option>
+                                <option value="Pegawai Perubatan UD10">PEGAWAI PERUBATAN UD10</option>
+                                <option value="Pegawai Perubatan UD12">PEGAWAI PERUBATAN UD12</option>
+                                <option value="Pegawai Perubatan UD13">PEGAWAI PERUBATAN UD13</option>
+                                <option value="Pegawai Perubatan UD14">PaEGAWAI PERUBATAN UD14</option>
+                                <option value="Pegawai Perubatan Pakar UD13">PEGAWAI PERUBATAN Pakar UD13</option>
+                                <option value="Pegawai Perubatan Pakar UD14">PEGAWAI PERUBATAN Pakar UD14</option>
+                                <option value="Pegawai Perubatan Pakar UD15">PEGAWAI PERUBATAN Pakar UD15</option>
+                            </select>
+                        </div>
+                    </div>
+        <div class="dropdown-wrapper">
+            <label>Pilih Wilayah Asal Pemohon</label>
+            <div class="custom-dropdown">
+                <select id="wilayah_awam">
+                    <option value="" disabled selected class="placeholder">Pilih Wilayah Asal Pemohon</option>
+                    <option value="Semenanjung">Semenanjung</option>
+                    <option value="Sabah">Sabah</option>
+                    <option value="Sarawak">Sarawak</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="dropdown-wrapper">
+            <label>Kategori Jawatan</label>
+            <input type="text" id="kategoriJawatan" readonly>
+        </div>
+            </center><br>
+<div id="formAwam">
+    <div class="row">
+        <div class="col">
+            <label>Jawatan Kini</label>
+            <input type="text" id="awamJawatan" readonly>
+        </div>
+        <div class="col">
+            <label>Gaji Pokok (RM)</label>
+            <input type="number" id="awamGajiPokok">
+        </div>
+    </div>
+<br>
+<!-- Elaun -->
+<center><div class="result-title-box-1" style="margin-top:10px; font-size:20px; ">ELAUN</div></center>
+    <div class="row">
+        <div class="col">
+            <label>ITKA</label>
+            <input type="number" id="elaun_itka_awam" readonly>
+        </div>
+        <div class="col">
+            <label>ITK</label>
+            <input type="number" id="elaun_itk_awam" readonly>
+        </div>
+        <div class="col">
+            <label>ITP</label>
+            <input type="number" id="elaun_itp_awam" readonly>
+        </div> 
+    </div>    
+
+    <div class="row">
+        <div class="col">
+            <label>BISH (Semenanjung)</label>
+            <input type="number" id="elaun_bish_awam" readonly>
+        </div>
+        <div class="col">
+            <label>BIW (Sabah / Sarawak)</label>
+            <input type="number" id="elaun_biw_awam" readonly>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label>BIPK</label>
+            <input type="number" id="elaun_bipk_awam" readonly>
+        </div>
+        <div class="col">
+            <label>BIP</label>
+            <input type="number" id="elaun_bip_awam" readonly>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label>KGT (Tahun Ini)</label>
+            <input type="number" id="kgt_tahun_ini" readonly>
+        </div>
+        <div class="col">
+            <label>KGT Tambahan</label>
+            <input type="number" id="kgt_tambahan" readonly>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label>Telah Terima PGT Tahun Ini?</label>
+            <select id="awamTelah">
+                <option value="YA">YA</option>
+                <option value="TIDAK" selected>TIDAK</option>
+            </select>
+        </div>
+
+        <div class="col">
+            <label>Tarikh PGT</label>
+            <select id="awamPGT">
+                <option value="Jan">Januari</option>
+                <option value="Apr">April</option>
+                <option value="Jul">Julai</option>
+                <option value="Oct">Oktober</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="btn" onclick="computeAwam()">KIRA GAJI AWAM</button>
+
+<div class="action-buttons">
+    <button class="btn secondary" onclick="resetForm()">RESET</button>
+    <button class="btn print" id="printBtn" onclick="printResult()" style="display:none;">
+        CETAK SLIP GAJI
+    </button>
+</div>
+
+</div>
+</div>
+<br>
+<!-- RIGHT: Result -->
+    <div class="result panel">
+<center><div class="result-title-box">
+    Ringkasan Keputusan
+    </div></center>
+<center>   <div id="resultContent">
+                <div id="disclaimer" class="info-box small" style="margin-top:10px;">
+                    <strong>PERHATIAN:</strong> Jumlah yang dipaparkan hanyalah sebagai rujukan dan panduan sahaja.
+                    Ketetapan sebenar adalah berdasarkan semakan dokumen dan pertimbangan pihak UiTM.
+                </div>
+            </div>
+        </div>
+    </div>
+<footer class="custom-footer">
+  <div class="footer-content">
+    © 2025 HASA UiTM — SISTEM KIRAAN GAJI
+  </div>
+</footer>
+
+
+
+
+    <script>
+    window.addEventListener("load", () => {
+        setTimeout(() => {
+            window.scrollTo(0, 0);
+        }, 10);
+    });
+
+            // Data jawatan awam dengan ITK baru
+            const jawatanAwam = {
+                "Juruteknik Perubatan U1": {
+        kategori: "Pelaksana (KUMP. C)",
+        gajiPokok: 2000,
+        KGT_tahun_ini: 100,
+        KGT_tambahan: 100,
+        elaun: {
+            "Semenanjung": { ITKA:115, ITK:0, ITP:300, BISH:300, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:0, ITK:115, ITP:300, BISH:0, BIW:0, BIPK:300, BIP:0 },
+            "Sarawak": { ITKA:0, ITK:115, ITP:300, BISH:0, BIW:0, BIPK:300, BIP:0 }
+        }
+
+                },
+                "Pembantu Perawatan Kesihatan U1": {
+        kategori: "PELAKSANA (KUMP. C)",
+        gajiPokok: 2000,
+        KGT_tahun_ini: 100,
+        KGT_tambahan: 100,
+        elaun: {
+            "Semenanjung": { ITKA:115, ITK:0, ITP:300, BISH:300, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:0, ITK:115, ITP:300, BISH:0, BIW:0, BIPK:300, BIP:0 },
+            "Sarawak": { ITKA:0, ITK:115, ITP:300, BISH:0, BIW:0, BIPK:300, BIP:0 }
+        }
+
+                },
+                "Pembantu Pembedahan Pergigian U1": {
+        kategori: "PELAKSANA (KUMP. C)",
+        gajiPokok: 2000,
+        KGT_tahun_ini: 100,
+        KGT_tambahan: 100,
+        elaun: {
+            "Semenanjung": { ITKA:115, ITK:0, ITP:300, BISH:300, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:0, ITK:115, ITP:300, BISH:0, BIW:0, BIPK:300, BIP:0 },
+            "Sarawak": { ITKA:0, ITK:115, ITP:300, BISH:0, BIW:0, BIPK:300, BIP:0 }
+        }
+
+                },
+                "Penolong Pegawai Kesihatan Persekitaran U5": {
+        kategori: "PELAKSANA (KUMP. C)",
+        gajiPokok: 2100,
+        KGT_tahun_ini: 100,
+        KGT_tambahan: 100,
+        elaun: {
+            "Semenanjung": { ITKA:0, ITK:115, ITP:300, BISH:300, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:115, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:115, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 }
+        }
+
+                },
+                "Juruteknologi Makmal Perubatan U5": {
+        kategori: "PELAKSANA (KUMP. B)",
+        gajiPokok: 2000,
+        KGT_tahun_ini: 145,
+        KGT_tambahan: 145,
+        elaun: {
+            "Semenanjung": { ITKA:160, ITK:0, ITP:300, BISH:300, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 }
+        }
+
+                },
+                "Penolong Pegawai Farmasi U5": {
+        kategori: "PELAKSANA (KUMP. B)",
+        gajiPokok: 2000,
+        KGT_tahun_ini: 145,
+        KGT_tambahan: 145,
+        elaun: {
+            "Semenanjung": { ITKA:160, ITK:0, ITP:300, BISH:300, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 }
+        }
+
+                },
+                "Juru X-Ray U5": {
+        kategori: "PELAKSANA (KUMP. B)",
+        gajiPokok: 2000,
+        KGT_tahun_ini: 145,
+        KGT_tambahan: 145,
+        elaun: {
+            "Semenanjung": { ITKA:160, ITK:0, ITP:300, BISH:300, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 }
+        }
+
+                },
+                "Jurupulih Perubatan U5 - Diploma Fisioterapi": {
+        kategori: "PELAKSANA (KUMP. B)",
+        gajiPokok: 2000,
+        KGT_tahun_ini: 145,
+        KGT_tambahan: 145,
+        elaun: {
+            "Semenanjung": { ITKA:160, ITK:0, ITP:300, BISH:300, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 }
+        }
+
+                },
+                "Jurupulih Perubatan U5 - DLKM": {
+        kategori: "PELAKSANA (KUMP. B)",
+        gajiPokok: 2000,
+        KGT_tahun_ini: 145,
+        KGT_tambahan: 145,
+        elaun: {
+            "Semenanjung": { ITKA:160, ITK:0, ITP:300, BISH:300, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 }
+        }
+                },
+                "Jurupulih Perubatan U5 - DKM": {
+        kategori: "PELAKSANA (KUMP. B)",
+        gajiPokok: 2000,
+        KGT_tahun_ini: 145,
+        KGT_tambahan: 145,
+        elaun: {
+            "Semenanjung": { ITKA:160, ITK:0, ITP:300, BISH:300, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 }
+        }
+                },
+                "Penolong Pegawai Perubatan U5": {
+        kategori: "PELAKSANA (KUMP. B)",
+        gajiPokok: 2000,
+        KGT_tahun_ini: 145,
+        KGT_tambahan: 145,
+        elaun: {
+            "Semenanjung": { ITKA:160, ITK:0, ITP:300, BISH:300, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:0, BIP:0 }
+        }
+
+                },
+                "Jururawat U5": {
+        kategori: "PELAKSANA (KUMP. B)",
+        gajiPokok: 2000,
+        KGT_tahun_ini: 145,
+        KGT_tambahan: 145,
+        elaun: {
+            "Semenanjung": { ITKA:160, ITK:0, ITP:300, BISH:300, BIW:0, BIPK:150, BIP:0 },
+            "Sabah": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:150, BIP:0 },
+            "Sarawak": { ITKA:160, ITK:0, ITP:300, BISH:0, BIW:300, BIPK:150, BIP:0 }
+        }
+
+                },
+                "Penolong Pegawai Perubatan U9": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 2580,
+        KGT_tahun_ini: 225,
+        KGT_tambahan: 225,
+        elaun: {
+            "Semenanjung": { ITKA:300, ITK:0, ITP:300, BISH:250, BIW:0, BIPK:165, BIP:0 },
+            "Sabah": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:165, BIP:0 },
+            "Sarawak": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:165, BIP:0 }
+        }
+
+                },
+                "Pegawai kesihatan Persekitaran U9": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 2580,
+        KGT_tahun_ini: 225,
+        KGT_tambahan: 225,
+        elaun: {
+            "Semenanjung": { ITKA:300, ITK:0, ITP:300, BISH:250, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:0, BIP:0 }
+        }
+
+                },
+                "Pegawai Pemulihan Perubatan U9": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 2580,
+        KGT_tahun_ini: 225,
+        KGT_tambahan: 225,
+        elaun: {
+            "Semenanjung": { ITKA:300, ITK:0, ITP:300, BISH:250, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:0, BIP:0 }
+        }
+
+                },
+                "Pegawai Dietetik U9": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 2580,
+        KGT_tahun_ini: 225,
+        KGT_tambahan: 225,
+        elaun: {
+            "Semenanjung": { ITKA:300, ITK:0, ITP:300, BISH:250, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:0, BIP:0 }
+        }
+
+                },
+                "Pegawai Optometri U9": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 5000,
+        KGT_tahun_ini: 225,
+        KGT_tambahan: 225,
+        elaun: {
+            "Semenanjung": { ITKA:300, ITK:0, ITP:300, BISH:250, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:0, BIP:0 }
+        }
+
+                },
+                "Juru X-Ray U9": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 3000,
+        KGT_tahun_ini: 225,
+        KGT_tambahan: 225,
+        elaun: {
+            "Semenanjung": { ITKA:300, ITK:0, ITP:300, BISH:250, BIW:0, BIPK:0, BIP:0 },
+            "Sabah": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:0, BIP:0 },
+            "Sarawak": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:0, BIP:0 }
+        }
+
+                },
+                "Jururawat U9": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 2580,
+        KGT_tahun_ini: 225,
+        KGT_tambahan: 225,
+        elaun: {
+            "Semenanjung": { ITKA:300, ITK:0, ITP:300, BISH:250, BIW:0, BIPK:165, BIP:0 },
+            "Sabah": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:165, BIP:0 },
+            "Sarawak": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:165, BIP:0 }
+        }
+
+                },
+                "Pegawai Farmasi U9": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 2910,
+        KGT_tahun_ini: 225,
+        KGT_tambahan: 225,
+        elaun: {
+            "Semenanjung": { ITKA:300, ITK:0, ITP:300, BISH:250, BIW:0, BIPK:750, BIP:0 },
+            "Sabah": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:750, BIP:0 },
+            "Sarawak": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:750, BIP:0 }
+        }
+
+                },
+                "Pegawai Pergigian UG9": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 3020,
+        KGT_tahun_ini: 225,
+        KGT_tambahan: 225,
+        elaun: {
+            "Semenanjung": { ITKA:300, ITK:0, ITP:300, BISH:250, BIW:0, BIPK:750, BIP:0 },
+            "Sabah": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:750, BIP:0 },
+            "Sarawak": { ITKA:300, ITK:0, ITP:300, BISH:0, BIW:360, BIPK:750, BIP:0 }
+        }
+
+                },
+                "Pegawai Perubatan UD10": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 3840,
+        KGT_tahun_ini: 250,
+        KGT_tambahan: 250,
+        elaun: {
+            "Semenanjung": { ITKA:0, ITK:400, ITP:400, BISH:250, BIW:0, BIPK:750, BIP:0 },
+            "Sabah": { ITKA:0, ITK:400, ITP:400, BISH:0, BIW:360, BIPK:750, BIP:0 },
+            "Sarawak": { ITKA:0, ITK:400, ITP:400, BISH:0, BIW:360, BIPK:750, BIP:0 }
+        }
+
+                },
+                "Pegawai Perubatan UD12": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 5530,
+        KGT_tahun_ini: 270,
+        KGT_tambahan: 270,
+        elaun: {
+            "Semenanjung": { ITKA:0, ITK:550, ITP:700, BISH:250, BIW:0, BIPK:750, BIP:0 },
+            "Sabah": { ITKA:0, ITK:550, ITP:700, BISH:0, BIW:360, BIPK:750, BIP:0 },
+            "Sarawak": { ITKA:0, ITK:550, ITP:700, BISH:0, BIW:360, BIPK:750, BIP:0 }
+        }
+
+                },
+                "Pegawai Perubatan UD13": {
+        kategori: "PPENGURUSAN & PROFESIONAL",
+        gajiPokok: 6210,
+        KGT_tahun_ini: 290,
+        KGT_tambahan: 290,
+        elaun: {
+            "Semenanjung": { ITKA:0, ITK:600, ITP:700, BISH:250, BIW:0, BIPK:750, BIP:0 },
+            "Sabah": { ITKA:0, ITK:600, ITP:700, BISH:0, BIW:360, BIPK:750, BIP:0 },
+            "Sarawak": { ITKA:0, ITK:600, ITP:700, BISH:0, BIW:360, BIPK:750, BIP:0 }
+        }
+
+                },
+                "Pegawai Perubatan UD14": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 6560,
+        KGT_tahun_ini: 320,
+        KGT_tambahan: 320,
+        elaun: {
+            "Semenanjung": { ITKA:0, ITK:800, ITP:900, BISH:250, BIW:0, BIPK:750, BIP:0 },
+            "Sabah": { ITKA:0, ITK:800, ITP:900, BISH:0, BIW:360, BIPK:750, BIP:0 },
+            "Sarawak": { ITKA:0, ITK:800, ITP:900, BISH:0, BIW:360, BIPK:750, BIP:0 }
+        }
+
+                },
+                "Pegawai Perubatan Pakar UD13": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 6210,
+        KGT_tahun_ini: 290,
+        KGT_tambahan: 290,
+        elaun: {
+            "Semenanjung": { ITKA:0, ITK:600, ITP:700, BISH:250, BIW:0, BIPK:750, BIP:2500 },
+            "Sabah": { ITKA:0, ITK:600, ITP:700, BISH:0, BIW:360, BIPK:750, BIP:2500 },
+            "Sarawak": { ITKA:0, ITK:600, ITP:700, BISH:0, BIW:360, BIPK:750, BIP:2500 }
+        }
+
+                },
+                "Pegawai Perubatan Pakar UD14": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 6560,
+        KGT_tahun_ini: 320,
+        KGT_tambahan: 320,
+        elaun: {
+            "Semenanjung": { ITKA:0, ITK:800, ITP:900, BISH:250, BIW:0, BIPK:750, BIP:2800 },
+            "Sabah": { ITKA:0, ITK:800, ITP:900, BISH:0, BIW:360, BIPK:750, BIP:2800 },
+            "Sarawak": { ITKA:0, ITK:800, ITP:900, BISH:0, BIW:360, BIPK:750, BIP:2800 }
+        }
+
+                },
+                "Pegawai Perubatan Pakar UD15": {
+        kategori: "PENGURUSAN & PROFESIONAL",
+        gajiPokok: 7030,
+        KGT_tahun_ini: 320,
+        KGT_tambahan: 320,
+        elaun: {
+            "Semenanjung": { ITKA:0, ITK:2100, ITP:1100, BISH:250, BIW:0, BIPK:750, BIP:3000 },
+            "Sabah": { ITKA:0, ITK:2100, ITP:1100, BISH:0, BIW:360, BIPK:750, BIP:3000 },
+            "Sarawak": { ITKA:0, ITK:2100, ITP:1100, BISH:0, BIW:360, BIPK:750, BIP:3000 }
+        }
+                }
+            };
+
+// Update form when dropdown berubah
+const dropdownJawatan = document.getElementById("jawatan_awam");
+const dropdownWilayah = document.getElementById("wilayah_awam");
+
+function updateForm() {
+    const valJawatan = dropdownJawatan.value;
+    const valWilayah = dropdownWilayah.value;
+    if (!jawatanAwam[valJawatan]) return;
+    const data = jawatanAwam[valJawatan];
+
+    document.getElementById('awamJawatan').value = valJawatan;
+    document.getElementById('kategoriJawatan').value = data.kategori;
+    document.getElementById('awamGajiPokok').value = data.gajiPokok;
+    document.getElementById('kgt_tahun_ini').value = data.KGT_tahun_ini;
+    document.getElementById('kgt_tambahan').value = data.KGT_tambahan;
+
+    const elaunData = data.elaun[valWilayah];
+    document.getElementById('elaun_itka_awam').value = elaunData.ITKA;
+    document.getElementById('elaun_itk_awam').value = elaunData.ITK;
+    document.getElementById('elaun_itp_awam').value = elaunData.ITP;
+    document.getElementById('elaun_bish_awam').value = elaunData.BISH;
+    document.getElementById('elaun_biw_awam').value = elaunData.BIW;
+    document.getElementById('elaun_bipk_awam').value = elaunData.BIPK;
+    document.getElementById('elaun_bip_awam').value = elaunData.BIP;
+}
+
+dropdownJawatan.addEventListener("change", updateForm);
+dropdownWilayah.addEventListener("change", updateForm);
+
+// Kiraan Gaji Awam
+function computeAwam() {
+    const jawatan = document.getElementById('awamJawatan').value;
+    if (!jawatan) { alert("Sila pilih jawatan terlebih dahulu"); return; }
+
+    const gajiPokok = parseFloat(document.getElementById('awamGajiPokok').value) || 0;
+    const kgtTahunIni = parseFloat(document.getElementById('kgt_tahun_ini').value) || 0;
+    const kgtTambahan = parseFloat(document.getElementById('kgt_tambahan').value) || 0;
+
+    const telahTerima = document.getElementById('awamTelah').value;
+    const bulanPGT = document.getElementById('awamPGT').value;
+
+    let nilaiKGT_tahun_ini = 0;
+    if (telahTerima === "TIDAK") nilaiKGT_tahun_ini = kgtTahunIni;
+
+    const ITKA = parseFloat(document.getElementById('elaun_itka_awam').value) || 0;
+    const ITK = parseFloat(document.getElementById('elaun_itk_awam').value) || 0;
+    const ITP = parseFloat(document.getElementById('elaun_itp_awam').value) || 0;
+    const BISH = parseFloat(document.getElementById('elaun_bish_awam').value) || 0;
+    const BIW = parseFloat(document.getElementById('elaun_biw_awam').value) || 0;
+    const BIPK = parseFloat(document.getElementById('elaun_bipk_awam').value) || 0;
+    const BIP = parseFloat(document.getElementById('elaun_bip_awam').value) || 0;
+
+    const totalElaun = ITKA + ITK + ITP + BISH + BIW + BIPK + BIP;
+    const gajiLepasKGT = gajiPokok + nilaiKGT_tahun_ini + kgtTambahan;
+    const kasar = gajiLepasKGT + totalElaun;
+
+document.getElementById("resultContent").innerHTML = `
+    <div class="item"><div class="label">Jawatan</div><div class="value">${jawatan}</div></div>
+    <div class="item"><div class="label">Kategori Jawatan</div><div class="value">${document.getElementById('kategoriJawatan').value}</div></div>
+    <div class="item"><div class="label">Status PGT</div><div class="value">${telahTerima}</div></div>
+    <div class="item"><div class="label">Tarikh PGT</div><div class="value">${bulanPGT}</div></div>
+    <div class="item"><div class="label">Gaji Pokok</div><div class="value">RM ${gajiPokok.toFixed(2)}</div></div>
+    <div class="item"><div class="label">KGT Tahun Ini</div><div class="value">RM ${nilaiKGT_tahun_ini.toFixed(2)}</div></div>
+    <div class="item"><div class="label">KGT Tambahan</div><div class="value">RM ${kgtTambahan.toFixed(2)}</div></div>
+    <div class="item"><div class="label">ITKA</div><div class="value">RM ${ITKA.toFixed(2)}</div></div>
+    <div class="item"><div class="label">ITK</div><div class="value">RM ${ITK.toFixed(2)}</div></div>
+    <div class="item"><div class="label">ITP</div><div class="value">RM ${ITP.toFixed(2)}</div></div>
+    <div class="item"><div class="label">BISH</div><div class="value">RM ${BISH.toFixed(2)}</div></div>
+    <div class="item"><div class="label">BIW</div><div class="value">RM ${BIW.toFixed(2)}</div></div>
+    <div class="item"><div class="label">BIPK</div><div class="value">RM ${BIPK.toFixed(2)}</div></div>
+    <div class="item"><div class="label">BIP</div><div class="value">RM ${BIP.toFixed(2)}</div></div>
+
+    <div class="total">
+        <div>Jumlah Pendapatan Kasar</div>
+        <div>RM ${kasar.toFixed(2)}</div>
+    </div>
+
+    <div class="info-box small" style="margin-top:15px;">
+        <strong>PERHATIAN:</strong>
+        Jumlah yang dipaparkan hanyalah sebagai rujukan dan panduan sahaja.
+        Ketetapan sebenar adalah berdasarkan semakan dokumen dan pertimbangan pihak UiTM.
+    </div>
+`;
+
+    document.querySelector('.result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById("printBtn").style.display = "inline-block";
+
+}
+
+// Pastikan button logout wujud
+const logoutBtn = document.getElementById('logoutBtn');
+
+if(logoutBtn){
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      // Log keluar user dari Firebase
+      await firebase.auth().signOut();
+
+      // Optional: alert user
+      alert('Anda telah logout.');
+
+      // Redirect ke login page
+      location.href = 'login.html';
+    } catch (error) {
+      console.error('Logout gagal:', error);
+      alert('Logout gagal. Sila cuba lagi.');
+    }
+  });
+}
+
+/* ===== Go Top Button ===== */
+document.addEventListener("DOMContentLoaded", function() {
+  const goTopBtn = document.getElementById("goTopBtn");
+  window.addEventListener("scroll", function() {
+    goTopBtn.style.display = window.scrollY > 200 ? "block" : "none";
+  });
+  goTopBtn.addEventListener("click", ()=>window.scrollTo({ top: 0, behavior: 'smooth' }));
+});
+
+document.getElementById("petunjukBtn").onclick = function() {
+    const box = document.getElementById("petunjukPopup");
+    box.style.display = (box.style.display === "block") ? "none" : "block";
+};
+
+let lastScroll = 0;
+const nav = document.querySelector('.dashboard-nav');
+
+window.addEventListener('scroll', () => {
+  const scrollTop = window.pageYOffset;
+
+  if (scrollTop < 150) {
+    // Dekat atas → tunjuk navbar
+    nav.style.top = '0';
+  } else {
+    // Jauh ke bawah → sembunyikan navbar
+    nav.style.top = '-80px';
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    // Fade in page
+    document.body.classList.add("fade-in");
+
+    // Semua link dashboard-nav
+    const links = document.querySelectorAll(".dashboard-nav .nav-link");
+
+    links.forEach(link => {
+        link.addEventListener("click", function(e) {
+            e.preventDefault(); // prevent immediate redirect
+
+            const href = this.getAttribute("href");
+
+            // Fade out
+            document.body.style.opacity = 0;
+
+            setTimeout(() => {
+                window.location.href = href; // redirect selepas fade out
+            }, 400); // 400ms sama dengan transition
+        });
+    });
+});
+
+
+/* ===== SHOW PRINT AFTER RESULT ===== */
+const originalComputeAwam = computeAwam;
+computeAwam = async function() {
+    console.log("computeAwam dipanggil"); // DEBUG
+    await originalComputeAwam();
+
+    const printBtn = document.getElementById("printBtn");
+    if(printBtn) printBtn.style.display = "inline-block";
+};
+
+/* ===== RESET FORM ===== */
+function resetForm() {
+    console.log("resetForm dipanggil"); // DEBUG
+    document.querySelectorAll("input").forEach(i => i.value = "");
+    document.querySelectorAll("select").forEach(s => s.selectedIndex = 0);
+
+    const resultDiv = document.getElementById("resultContent");
+    if(resultDiv) resultDiv.innerHTML = "";
+
+    const printBtn = document.getElementById("printBtn");
+    if(printBtn) printBtn.style.display = "none";
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ===== GENERATE SLIP REF ===== */
+async function generateSlipRef() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth()+1).padStart(2,'0');
+    const d = String(now.getDate()).padStart(2,'0');
+    const random = Math.floor(1000 + Math.random()*9000);
+    return `SLIP-${y}${m}${d}-${random}`;
+}
+
+/* ===== PRINT & SAVE SLIP ===== */
+async function printResult() {
+    console.log("printResult dipanggil"); // DEBUG
+
+    // Ambil data user dari Firestore
+    let userName = "Pengguna";
+    let userRole = "Pengguna";
+    let userGender = "-";
+
+    try {
+        const { data } = await getCurrentUserDoc(); // pastikan function ni exist
+        userName = data?.fullname || "Pengguna";
+        userRole = data?.role?.toLowerCase() || "Pengguna";
+        userGender = data?.gender || "-";
+    } catch(err) {
+        console.warn("Gagal dapat data user:", err);
+    }
+
+    // Ambil kandungan result dari dashboard
+    const contentDiv = document.getElementById("resultContent");
+    if(!contentDiv || !contentDiv.querySelectorAll('.item').length) {
+        alert("Tiada data untuk dicetak!");
+        return;
+    }
+
+    // Bina baris jadual dari DOM supaya kita boleh kawal format (RM vs teks)
+    let tableRows = '';
+    const items = contentDiv.querySelectorAll('.item');
+    items.forEach(item => {
+        const label = item.querySelector('.label')?.innerText || '';
+        const rawValue = item.querySelector('.value')?.innerText || '';
+        const labelLower = label.toLowerCase();
+
+        const isNonCurrency = /\b(status pgt|tarikh pgt|nama jabatan|kategori jawatan|jawatan)\b/.test(labelLower);
+        const isCurrencyLabel = /rm|gaji|kgt|itka|itk|itp|bish|biw|bipk|bip|jumlah|pendapatan|kasar/.test(labelLower) || /rm/i.test(rawValue);
+
+        if(isNonCurrency){
+            tableRows += `<tr><td>${label}</td><td>${rawValue}</td></tr>`;
+        } else if(isCurrencyLabel){
+            const m = rawValue.match(/[\d,.]+/);
+            const num = m ? parseFloat(m[0].replace(/,/g,'')) || 0 : 0;
+            tableRows += `<tr><td>${label}</td><td>RM ${num.toLocaleString()}</td></tr>`;
+        } else {
+            tableRows += `<tr><td>${label}</td><td>${rawValue}</td></tr>`;
+        }
+    });
+
+    // Tambah jumlah pendapatan kasar (highlight)
+    const totalDiv = contentDiv.querySelector('.total');
+    let totalValue = null;
+    if(totalDiv){
+        const left = totalDiv.children[0]?.innerText || 'Jumlah Pendapatan Kasar';
+        const rightRaw = totalDiv.children[1]?.innerText || '';
+        const m = rightRaw.match(/[\d,.]+/);
+        const num = m ? parseFloat(m[0].replace(/,/g,'')) || 0 : 0;
+        totalValue = num;
+        tableRows += `<tr class="total"><td>${left}</td><td>RM ${num.toLocaleString()}</td></tr>`;
+    }
+
+    const now = new Date().toLocaleString("ms-MY");
+    const slipRef = await generateSlipRef();
+
+    // Tentukan jenis kiraan (awam/swasta) untuk disimpan
+    const jenisKiraan = (document.body.dataset.kiraan || 'awam').toString().toLowerCase();
+    const jenisLabel = jenisKiraan.charAt(0).toUpperCase() + jenisKiraan.slice(1);
+
+    // SIMPAN KE FIRESTORE (termasuk totalValue jika ada)
+    try {
+        const authUser = firebase.auth().currentUser;
+        const payload = {
+            slipRef: slipRef,
+            userName: userName,
+            userRole: userRole,
+            userGender: userGender,
+            jenis_kiraan: jenisKiraan,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if(authUser){ payload.userId = authUser.uid; payload.email = authUser.email; }
+        if(totalValue !== null) payload.total = totalValue;
+
+        await firebase.firestore().collection("printedSlips").add(payload);
+        console.log("Data slip disimpan di Firestore", payload);
+    } catch(err) {
+        console.error("Gagal simpan slip:", err);
+    }
+
+    // CETAK SLIP
+    const win = window.open("", "", "width=900,height=700");
+    win.document.write(`
+    <html>
+    <head>
+        <title>Slip Kiraan Gaji</title>
+        <style>
+            body{ font-family: Arial, sans-serif; padding: 25px; color:#111; }
+            .header{ display:flex; align-items:center; gap:15px; border-bottom:2px solid #ddd; padding-bottom:10px; }
+            .header img{ height:60px; }
+            .header-text{ font-size:14px; }
+            h2{ text-align:center; margin:20px 0; letter-spacing:1px; }
+            .info{ font-size:13px; margin-bottom:10px; display:flex; justify-content:space-between; flex-wrap: wrap; }
+            .info div{ margin-bottom:5px; }
+            table{ width:100%; border-collapse:collapse; margin-top:15px; }
+            td{ padding:10px; border:1px solid #ddd; }
+            td:first-child{ font-weight:bold; background:#f8f9fa; width:55%; }
+            .total td{ font-size:16px; font-weight:bold; background:#eef2ff; }
+            .watermark{ position:fixed; top:45%; left:50%; transform:translate(-50%,-50%) rotate(-30deg); font-size:64px; color:rgba(0,0,0,0.08); pointer-events:none; white-space:nowrap; }
+            .footer{ margin-top:25px; font-size:12px; text-align:center; color:#555; }
+            @media print{ body{ padding:10px } table td{ font-size:12px; } .info{ font-size:12px; } }
+        </style>
+    </head>
+    <body>
+        <div class="watermark">RUJUKAN SAHAJA</div>
+        <div class="header">
+            <img src="image/HASA.png">
+            <div class="header-text">
+                <strong>HASA UiTM</strong><br>Sistem Kiraan Gaji
+            </div>
+        </div>
+        <h2>SLIP KIRAAN GAJI</h2>
+        <div class="info">
+            <div><strong>Nama:</strong> ${userName}</div>
+            <div><strong>Jenis Kiraan:</strong> ${jenisLabel}</div>
+            <div><strong>Dicetak:</strong> ${now}</div>
+            <div><strong>Rujukan:</strong> ${slipRef}</div>
+        </div>
+        <table>
+            ${tableRows}
+        </table>
+        <div class="footer">
+            Dokumen ini dijana secara automatik oleh Sistem Kiraan Gaji HASA UiTM.<br>
+            Cetakan ini adalah untuk tujuan rujukan sahaja.
+        </div>
+    </body>
+    </html>
+    `);
+    win.document.close();
+    win.print();
+}
+</script>
+<button id="goTopBtn" title="Go to Top">↑</button>
+</body>
+</html>

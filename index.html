@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator Gaji HASA UiTM</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="firebase-config.js"></script>
+<script src="auth.js"></script>
+<style>
+/* ===== GLOBAL RESET ===== */
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; scroll-behavior:smooth;}
+html, body {overflow-x:hidden;}
+body {background:#f0e6ff; color:#333; display:flex; flex-direction:column; min-height:100vh;}
+
+/* ===== FLOATING BLOBS ===== */
+.blob {position:absolute; border-radius:50%; filter:blur(120px); opacity:0.6; z-index:0; pointer-events:none; transition: transform 0.1s; max-width:100vw; max-height:100vh;}
+.blob1 {width:350px; height:350px; background:linear-gradient(135deg,#FF6B6B,#5E2A84); top:-100px; left:-80px;}
+.blob2 {width:400px; height:400px; background:linear-gradient(135deg,#A445B2,#FFB2E6); bottom:-120px; right:-100px;}
+.blob3 {width:300px; height:300px; background:linear-gradient(135deg,#FF9F1C,#FF6B6B); top:30%; right:20%;}
+
+/* ===== CONTAINER ===== */
+.container {text-align:center; padding:120px 20px; position:relative; z-index:2; max-width:1200px; margin:0 auto; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;}
+
+/* ===== HERO ===== */
+.header-hero {position:relative; text-align:center; margin-bottom:40px;}
+.header-hero h1 {font-size:3rem; color:#2C1E3A; text-shadow:1px 1px 5px rgba(0,0,0,0.2); margin-bottom:20px;}
+.header-hero p {font-size:1.2rem; color:#3C2A50; margin-bottom:40px; line-height:1.6; max-width:700px;}
+
+/* ===== ICON ===== */
+.hero-icon {font-size:100px; margin-bottom:20px; animation: floatIcon 4s ease-in-out infinite; color:#5E2A84;}
+@keyframes floatIcon {0%,100%{transform:translateY(0);}50%{transform:translateY(-20px);}}
+
+/* ===== CTA BUTTONS ===== */
+.hero-cta {display:flex; justify-content:center; gap:25px; margin-bottom:50px; flex-wrap:wrap;}
+.btn {padding:14px 36px; border-radius:50px; font-weight:700; transition:all 0.4s ease; border:none; cursor:pointer; font-size:1.1rem; box-shadow:0 6px 20px rgba(0,0,0,0.2);}
+.btn-primary {background:linear-gradient(45deg,#FF6B6B,#5E2A84); color:white; background-size:200% 200%; animation:bgAnimate 4s ease infinite; position:relative; overflow:hidden;}
+.btn-primary:hover {transform:scale(1.1); box-shadow:0 10px 30px rgba(0,0,0,0.3);}
+.btn-primary::after {content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:rgba(255,255,255,0.15); transform:skewX(-20deg); transition:all 0.5s ease;}
+.btn-primary:hover::after {left:200%;}
+.btn-outline {background:rgba(255,255,255,0.2); color:#2C1E3A; border:2px solid #5E2A84;}
+.btn-outline:hover {background:#5E2A84; color:white; transform:scale(1.1);}
+@keyframes bgAnimate {0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* ===== GLASSMORPHISM CARD ===== */
+.card {background: rgba(255,255,255,0.15); backdrop-filter: blur(18px); border-radius:30px; padding:40px 30px; box-shadow:0 12px 35px rgba(0,0,0,0.2); margin:40px auto; max-width:900px; text-align:center; opacity:0; transform:translateY(40px); transition: all 0.8s ease;}
+.card.visible {opacity:1; transform:translateY(0);}
+.card h3 {color:#2C1E3A; margin-bottom:20px;}
+.card ul {list-style-type: disc; padding-left:25px; color:#3C2A50; font-weight:500; text-align:left; margin:0 auto; max-width:80%;}
+.card ul li {margin-bottom:12px;}
+
+/* ===== STATISTICS ===== */
+.stats {display:flex; justify-content:center; flex-wrap:wrap; gap:20px; margin-top:50px; z-index:2; position:relative;}
+.stat-card {flex:1 1 250px; background: rgba(255,255,255,0.15); backdrop-filter: blur(18px); color:#2C1E3A; border-radius:25px; padding:35px; text-align:center; box-shadow:0 12px 30px rgba(0,0,0,0.2); opacity:0; transform:translateY(30px); transition:all 0.8s ease;}
+.stat-card.visible {opacity:1; transform:translateY(0);}
+.stat-card h2 {font-size:2rem; margin-bottom:8px;}
+.stat-card p {font-size:1.1rem; font-weight:600;}
+.stat-card:hover {transform:translateY(-10px) scale(1.05); box-shadow:0 18px 40px rgba(0,0,0,0.3); transition:0.5s ease; cursor:pointer;}
+
+/* ===== GO TO TOP BUTTON ===== */
+#goTopBtn {position:fixed; bottom:40px; right:40px; padding:15px 20px; border:none; border-radius:50px; background: linear-gradient(45deg,#FF6B6B,#5E2A84); color:white; font-size:18px; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.25); display:none; z-index:999; transition:all 0.4s ease;}
+#goTopBtn:hover {transform:scale(1.1); box-shadow:0 12px 28px rgba(0,0,0,0.3);}
+
+/* ===== PRINT STAT BOXES ===== */
+.print-stats {display:flex; justify-content:center; padding:28px 20px; margin-top:28px;}
+.print-container {max-width:1100px; width:100%; display:flex; gap:20px; justify-content:center; flex-wrap:wrap;}
+.print-card {flex:1 1 300px; background:linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); border-radius:18px; padding:22px 24px; display:flex; align-items:center; gap:18px; box-shadow:0 12px 30px rgba(32,20,60,0.12); transition:transform .35s ease, box-shadow .35s ease;}
+.print-card .print-icon{font-size:34px; padding:12px; background:rgba(255,255,255,0.04); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#fff}
+.print-info {text-align:left;}
+.print-number {font-size:1.9rem; font-weight:800; color:#fff; text-shadow:0 4px 18px rgba(92,41,132,0.4);}
+.print-card p {margin:4px 0 0 0; color:rgba(255,255,255,0.95); font-weight:700;}
+.print-card:hover {transform:translateY(-8px); box-shadow:0 22px 46px rgba(33,18,70,0.18); cursor:pointer;}
+@media(max-width:720px){ .print-card{width:100%; justify-content:flex-start;} .print-number{font-size:1.6rem;} }
+
+/* ===== FOOTER ===== */
+footer {text-align:center; padding:28px 0; color:#fff; font-weight:600; background:linear-gradient(135deg,#5E2A84,#FF6B6B); border-radius:15px 15px 0 0; box-shadow:0 -4px 20px rgba(0,0,0,0.2); margin-top:auto;}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){ .stats{flex-direction:column;} .header-hero h1{font-size:2.2rem;} .header-hero p{font-size:1rem;} .btn{padding:12px 28px; font-size:1rem;} }
+</style>
+
+</head>
+<body>
+
+<!-- FLOATING BLOBS -->
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="header-hero">
+    <div class="hero-icon">💰</div>
+    <h1>Calculator Gaji HASA UiTM</h1>
+    <p>Sistem pengiraan gaji sektor <b>Awam</b> & <b>Swasta</b> — sesuai untuk latihan akademik & projek UiTM.</p>
+  </div>
+
+  <!-- CTA BUTTONS -->
+  <div class="hero-cta">
+    <a href="login.html" class="btn btn-primary">Login</a>
+    <a href="signup.html" class="btn btn-primary">Daftar Akaun</a>
+  </div>
+
+  <!-- INFO CARD -->
+  <div class="card scroll-reveal">
+    <h3>Kenapa guna Calculator HASA?</h3>
+    <ul>
+      <li>Pengiraan gaji berasingan untuk sektor <b>Awam</b> & <b>Swasta</b>.</li>
+      <li>Data pengguna disimpan menggunakan <b>Firebase Authentication</b> & <b>Firestore</b>.</li>
+      <li>Boleh diakses melalui dashboard selepas login.</li>
+      <li>Sesuai untuk latihan, simulasi & projek akademik UiTM.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- GO TO TOP BUTTON -->
+<button id="goTopBtn">↑</button>
+
+<!-- FOOTER -->
+<footer>© 2025 HASA UiTM — SISTEM KIRAAN GAJI</footer>
+
+<script>
+// ===== SCROLL REVEAL =====
+const scrollElems = document.querySelectorAll('.scroll-reveal');
+const revealOnScroll = () => {
+  const triggerBottom = window.innerHeight * 0.85;
+  scrollElems.forEach(elem => {
+    const top = elem.getBoundingClientRect().top;
+    if(top < triggerBottom){ elem.classList.add('visible'); }
+  });
+};
+window.addEventListener('scroll', revealOnScroll);
+window.addEventListener('load', revealOnScroll);
+
+// ===== GO TO TOP BUTTON =====
+const goTopBtn = document.getElementById('goTopBtn');
+window.addEventListener('scroll', ()=>{ goTopBtn.style.display = (window.scrollY > 300) ? 'block' : 'none'; });
+goTopBtn.addEventListener('click', ()=>{ window.scrollTo({top:0,behavior:'smooth'}); });
+
+// ===== SCROLL TO TOP ON LOAD =====
+window.addEventListener('load', () => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+});
+document.addEventListener("DOMContentLoaded", function() {
+    // Fade in page
+    document.body.classList.add("fade-in");
+
+    // Semua link dashboard-nav
+    const links = document.querySelectorAll(".dashboard-nav .nav-link");
+
+    links.forEach(link => {
+        link.addEventListener("click", function(e) {
+            e.preventDefault(); // prevent immediate redirect
+
+            const href = this.getAttribute("href");
+
+            // Fade out
+            document.body.style.opacity = 0;
+
+            setTimeout(() => {
+                window.location.href = href; // redirect selepas fade out
+            }, 400); // 400ms sama dengan transition
+        });
+    });
+
+    // ===== PRINT COUNTERS =====
+    const counters = document.querySelectorAll('.print-number');
+    const animateCount = (el, to, duration=1200) => {
+      let start = null;
+      const from = Number(el.textContent) || 0;
+      const step = (timestamp) => {
+        if (!start) start = timestamp;
+        const progress = Math.min((timestamp - start) / duration, 1);
+        el.textContent = Math.floor(progress * (to - from) + from);
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = to;
+      };
+      requestAnimationFrame(step);
+    };
+
+    // helper to mark a counter element
+    const setCounter = (el, value) => {
+      if(!el) return;
+      el.setAttribute('data-count', value);
+      animateCount(el, Number(value) || 0);
+    };
+
+    // Basic intersection observer to animate when visible (fallback for static values)
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting){
+            const el = entry.target;
+            const to = parseInt(el.getAttribute('data-count') || el.textContent || '0', 10);
+            animateCount(el, to);
+            obs.unobserve(el);
+          }
+        });
+      }, {threshold:0.55});
+      counters.forEach(c => observer.observe(c));
+    } else {
+      // fallback
+      counters.forEach(c => animateCount(c, parseInt(c.getAttribute('data-count')||c.textContent||'0',10)));
+    }
+
+    // ===== Firestore sync for live counts (collection: slipGaji) =====
+    const looksLikePayslip = (dt) => {
+      if(!dt) return false;
+      const boolFields = ['hasPrintedSlip','printedPayslip','printed_slip','printed','isPayslip','is_printed'];
+      for(const f of boolFields){ if(dt[f] === true) return true; }
+      const numFields = ['printedCount','prints','printCount','print_count'];
+      for(const f of numFields){ if(typeof dt[f] === 'number' && dt[f] > 0) return true; }
+      const keywords = ['slip','payslip','gaji','print','cetak'];
+      for(const k in dt){ const v = dt[k]; if(typeof v === 'string'){ const lv = v.toLowerCase(); if(keywords.some(w=>lv.includes(w))) return true; } }
+      if(dt.type && typeof dt.type === 'string' && ['slip_gaji','payslip','slip','print'].some(s=>dt.type.toLowerCase().includes(s))) return true;
+      if(dt.action && typeof dt.action === 'string' && dt.action.toLowerCase().includes('print')) return true;
+      return false;
+    };
+
+    const syncFromFirestore = () => {
+      // ensure firebase SDK present
+      if(typeof firebase === 'undefined' || !firebase.firestore){
+        console.warn('Firestore SDK not found — counters will remain static. Provide Firebase SDK and config to enable live counts.');
+        return;
+      }
+
+      // initialize if config exists but no app initialized
+      try{
+        if(!(firebase.apps && firebase.apps.length)){
+          if(window.firebaseConfig){
+            firebase.initializeApp(window.firebaseConfig);
+          } else {
+            console.warn('Firebase not initialized and no config found on window.firebaseConfig. Place your config in a `firebase-config.js` that sets window.firebaseConfig or initializes Firebase.');
+            // don't return; some hosts may initialize elsewhere later; continue to attempt attaching listener
+          }
+        }
+      }catch(e){ console.warn('Firebase init check error', e); }
+
+      if(!(firebase.apps && firebase.apps.length)){
+        // If still not initialized, try waiting shortly
+        let tries = 0;
+        const wait = setInterval(()=>{
+          tries++;
+          if(window.firebaseConfig && window.firebase){ try{ firebase.initializeApp(window.firebaseConfig); }catch(e){} }
+          if(firebase && firebase.firestore && firebase.apps && firebase.apps.length){ clearInterval(wait); attachListener(); }
+          if(tries>20) clearInterval(wait);
+        }, 250);
+      } else {
+        attachListener();
+      }
+
+      function attachListener(){
+        const db = firebase.firestore();
+        const coll = db.collection('slipGaji');
+
+        // initial fetch
+        coll.get().then(snap => {
+          applySnapshotToCounters(snap);
+        }).catch(err => console.error('Initial slipGaji read failed', err));
+
+        // realtime updates
+        coll.onSnapshot(snap => applySnapshotToCounters(snap), err => console.error('Realtime slipGaji listener error', err));
+      }
+
+      function applySnapshotToCounters(snap){
+        let awam = 0, swasta=0, total=0;
+        const uniqueUsers = new Set();
+        snap.forEach(d => {
+          const dt = d.data();
+          // quick filter
+          if(!looksLikePayslip(dt)) return;
+          total++;
+          if(dt.userId) uniqueUsers.add(dt.userId); else if(dt.uid) uniqueUsers.add(dt.uid); else if(dt.email) uniqueUsers.add(dt.email);
+          const jk = (dt.jenis_kiraan || dt.jenis || dt.type || '').toString().toLowerCase();
+          if(jk.includes('awam')) awam++; else if(jk.includes('swasta')) swasta++; else {
+            // try keyword-based mapping: if document contains 'sector' or 'sektor'
+            const txt = JSON.stringify(dt).toLowerCase();
+            if(txt.includes('awam')) awam++; else if(txt.includes('swasta')) swasta++; else {}
+          }
+        });
+
+        // prefer unique users if that makes sense
+        const displayAwam = awam || 0;
+        const displaySwasta = swasta || 0;
+
+        // update DOM counters
+        const els = document.querySelectorAll('.print-number');
+        // assumes order: [Awam, Swasta]
+        setCounter(els[0], displayAwam);
+        setCounter(els[1], displaySwasta);
+        console.info('Updated print counters:', {awam:displayAwam, swasta:displaySwasta, total});
+      }
+    };
+
+    // Start sync (attempt immediately)
+    syncFromFirestore();
+});
+</script>
+
+</body>
+</html>

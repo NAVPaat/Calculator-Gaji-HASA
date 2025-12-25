@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sign Up — Calculator Gaji HASA UiTM</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script src="firebase-config.js"></script>
+<script src="auth.js"></script>
+
+<style>
+/* ===== SIGNUP PAGE SPECIFIC ===== */
+html {
+  overflow-anchor: none; /* ⬅️ PENTING: elak page "lari" */
+}
+
+body.signup-page {
+  background:#f0e6ff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  position:relative;
+  overflow-x:hidden;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {position:relative; z-index:2; text-align:center;}
+.card {background: rgba(255,255,255,0.15); backdrop-filter: blur(18px); border-radius:25px; padding:40px 30px; box-shadow:0 12px 30px rgba(0,0,0,0.2); max-width:400px; margin:auto; position:relative;}
+.input, select {width:100%; padding:12px 16px; margin-bottom:15px; border-radius:10px; border:1px solid #ccc;}
+.password-wrapper {position:relative;}
+.toggle-password {position:absolute; top:35%; right:10px; transform:translateY(-50%); border:none; background:none; cursor:pointer; font-size:16px; color:#5E2A84;}
+.btn {width:100%; padding:12px 0; margin-bottom:12px; border:none; border-radius:50px; font-weight:700; cursor:pointer; font-size:1rem; box-shadow:0 6px 20px rgba(0,0,0,0.2);}
+.btn-primary {background:linear-gradient(45deg,#FF6B6B,#5E2A84); color:white; transition:0.3s;}
+.btn-primary:hover {transform:scale(1.05);}
+.btn-outline {background:rgba(255,255,255,0.2); color:#2C1E3A; border:2px solid #5E2A84;}
+.btn-outline:hover {background:#5E2A84; color:white; transform:scale(1.05);}
+.small, .link-center {font-size:0.85rem; display:block; margin-top:10px; color:#3C2A50; text-decoration:none;}
+
+/* ===== FLOATING BLOBS ===== */
+.blob {position:absolute; border-radius:50%; filter:blur(120px); opacity:0.6; z-index:0; pointer-events:none;}
+.blob1 {width:350px; height:350px; background:linear-gradient(135deg,#FF6B6B,#5E2A84); top:-100px; left:-80px;}
+.blob2 {width:400px; height:400px; background:linear-gradient(135deg,#A445B2,#FFB2E6); bottom:-120px; right:-100px;}
+.blob3 {width:300px; height:300px; background:linear-gradient(135deg,#FF9F1C,#FF6B6B); top:30%; right:20%;}
+</style>
+</head>
+
+<body class="signup-page">
+
+<!-- FLOATING BLOBS -->
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<div class="container">
+  <div class="card signup-card">
+    <h2>Daftar Akaun</h2>
+    <p>Sila isi maklumat dengan lengkap</p>
+
+    <input id="fullname" class="input" type="text" placeholder="Nama Penuh">
+    <input id="email" class="input" type="email" placeholder="Email">
+    <input id="phone" class="input" type="tel" placeholder="No Telefon">
+
+    <select id="gender" class="input">
+      <option value="" disabled selected>Pilih Jantina</option>
+      <option value="lelaki">Lelaki</option>
+      <option value="perempuan">Perempuan</option>
+    </select>
+
+    <div class="password-wrapper">
+      <input id="password" class="input" type="password" placeholder="Kata Laluan">
+      <button type="button" class="toggle-password" onclick="togglePassword()">👁</button>
+    </div>
+
+    <button id="signupBtn" class="btn btn-primary full">Daftar Akaun</button>
+    <a href="login.html" class="link-center">Sudah ada akaun? <b>Login</b></a>
+    <div id="signupMsg" class="small msg-center"></div>
+  </div>
+</div>
+
+<script>
+// ===== SHOW/HIDE PASSWORD =====
+function togglePassword() {
+  const pwdInput = document.getElementById('password');
+  pwdInput.type = (pwdInput.type === 'password') ? 'text' : 'password';
+}
+
+// ===== SIGNUP FUNCTIONALITY =====
+document.getElementById('signupBtn').addEventListener('click', async () => {
+    const name  = document.getElementById('fullname').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const pwd   = document.getElementById('password').value;
+    const gender = document.getElementById('gender').value;
+    const msg = document.getElementById('signupMsg');
+    msg.textContent = '';
+
+    // Semak semua field lengkap
+    if (!name || !email || !phone || !pwd || !gender) {
+        msg.style.color = 'red';
+        msg.textContent = 'Sila lengkapkan semua ruangan.';
+        return;
+    }
+
+    // Tentukan role berdasarkan email
+    let role = 'pengguna';
+    if(email.endsWith('@uitm.edu.my')) role = 'pentadbir';
+
+    try {
+        // Panggil sekali sahaja
+        await signupUser(name, email, phone, pwd, role, gender);
+
+        msg.style.color = 'green';
+        msg.textContent = 'Pendaftaran berjaya. Sila login untuk masuk ke akaun anda.';
+
+        // Redirect selepas 2 saat
+        setTimeout(() => {
+            location.href = 'login.html';
+        }, 2000);
+    } catch(err) {
+        msg.style.color = 'red';
+        msg.textContent = err.message;
+    }
+});
+
+
+// ===== INTERACTIVE BLOB MOUSE FOLLOW =====
+const blobs = document.querySelectorAll('.blob');
+document.addEventListener('mousemove', e=>{
+  blobs.forEach((b,i)=>{
+    const speed = (i+1)*0.02;
+    const x = (e.clientX - window.innerWidth/2)*speed;
+    const y = (e.clientY - window.innerHeight/2)*speed;
+    b.style.transform = `translate(${x}px, ${y}px)`;
+  });
+});
+
+/* ===== FIX REFRESH SCROLL & SIDE SHIFT ===== */
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+window.addEventListener('load', () => {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'smooth'
+  });
+});
+document.addEventListener("DOMContentLoaded", function() {
+    // Fade in page
+    document.body.classList.add("fade-in");
+
+    // Semua link dashboard-nav
+    const links = document.querySelectorAll(".dashboard-nav .nav-link");
+
+    links.forEach(link => {
+        link.addEventListener("click", function(e) {
+            e.preventDefault(); // prevent immediate redirect
+
+            const href = this.getAttribute("href");
+
+            // Fade out
+            document.body.style.opacity = 0;
+
+            setTimeout(() => {
+                window.location.href = href; // redirect selepas fade out
+            }, 400); // 400ms sama dengan transition
+        });
+    });
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Profile</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="firebase-config.js"></script>
+<script src="auth.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="dashboard-nav">
+  <div class="nav-left">
+      <img src="image/images (1).png" class="nav-logo">
+      <span class="nav-title">PROFILE PENGGUNA</span>
+  </div>
+  <div class="nav-right">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="contohawam.html" class="nav-link">Kiraan Awam</a>
+      <a href="swasta.html" class="nav-link">Kiraan Swasta</a>
+      <button id="logoutBtn" class="logout-btn">Logout</button>
+  </div>
+</nav>
+
+
+<!-- PROFILE CARD -->
+<div class="container profile-container">
+  <div class="profile-card">
+    <h2>Profil Saya</h2>
+    <form id="profileForm" class="profile-form">
+      <label>Nama Penuh</label>
+      <input type="text" id="fullname" class="input" required>
+
+      <label>No Telefon</label>
+      <input type="text" id="phone" class="input" required>
+
+      <label>Email</label>
+      <input type="email" id="email" class="input" readonly>
+
+      <label>Role</label>
+      <input type="text" id="role" class="input" readonly>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Simpan</button>
+        <button type="button" id="goDashboard" class="btn btn-outline">Dashboard</button>
+      </div>
+      <div id="profileMsg" class="msg-text"></div>
+    </form>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="custom-footer">
+  <div class="footer-content">
+    © 2025 HASA UiTM — SISTEM KIRAAN GAJI
+  </div>
+</footer>
+
+<script>
+// Elements
+const logoutBtn = document.getElementById('logoutBtn');
+const goDashboard = document.getElementById('goDashboard');
+const profileForm = document.getElementById('profileForm');
+const msgBox = document.getElementById('profileMsg');
+
+// Papar data semasa login
+let currentUserUid = null;
+
+onAuthChange(async user => {
+  if(!user){ location.href='login.html'; return; }
+  currentUserUid = user.uid;
+  const { data } = await getCurrentUserDoc();
+  document.getElementById('fullname').value = data?.fullname || '';
+  document.getElementById('phone').value = data?.phone || '';
+  document.getElementById('email').value = user.email;
+  document.getElementById('role').value = data?.role || 'pengguna';
+});
+
+// Logout
+logoutBtn.addEventListener('click', async () => {
+  await signOutUser();
+  location.href='login.html';
+});
+
+// Dashboard button
+goDashboard.addEventListener('click', () => location.href='dashboard.html');
+
+// Update profile dan sync terus ke dashboard
+profileForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const fullname = document.getElementById('fullname').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+
+  if(!fullname || !phone){
+    msgBox.style.color = 'red';
+    msgBox.textContent = 'Sila lengkapkan semua ruangan.';
+    return;
+  }
+
+  try {
+    await firebase.firestore().collection('users').doc(currentUserUid).update({
+      fullname,
+      phone
+    });
+
+    msgBox.style.color = 'green';
+    msgBox.textContent = 'Profil berjaya dikemaskini.';
+
+    // Update dashboard data secara live
+    if (window.opener && !window.opener.closed) {
+      window.opener.document.getElementById('userName').textContent = fullname;
+      window.opener.document.getElementById('accountData').innerHTML = `
+        <div>Nama: ${fullname}</div>
+        <div>Telefon: ${phone}</div>
+        <div>Email: ${document.getElementById('email').value}</div>
+      `;
+    }
+
+  } catch(err){
+    msgBox.style.color = 'red';
+    msgBox.textContent = 'Gagal kemaskini. Sila cuba lagi.';
+    console.error(err);
+  }
+});
+
+
+ document.addEventListener('DOMContentLoaded', function() {
+      // Fade in page
+      document.body.classList.add('fade-in');
+
+      // Semua link dashboard-nav (if present)
+      const links = document.querySelectorAll('.dashboard-nav .nav-link');
+
+      links.forEach(link => {
+          link.addEventListener('click', function(e) {
+              e.preventDefault(); // prevent immediate redirect
+
+              const href = this.getAttribute('href');
+
+              // Fade out
+              document.body.style.opacity = 0;
+
+              setTimeout(() => {
+                  window.location.href = href; // redirect selepas fade out
+              }, 400); // 400ms sama dengan transition
+          });
+      });
+  });
+</script>
+
+</body>
+</html>
