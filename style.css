@@ -1955,3 +1955,63 @@ body.light-mode .btn {
     font-size:14px;
   }
 }
+
+/* ===== MOBILE SPECIFIC ===== */
+@media (max-width: 768px) {
+  /* Sembunyikan button kembali */
+  .back-btn {
+    display: none;
+  }
+
+}
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 768px) {
+  /* Hide "Kembali ke Laman Utama" button */
+  .back-btn {
+    display: none;
+  }
+
+  /* Login title wrap ke 2 baris */
+  .login-title {
+    font-size: 1.6rem; /* adjust saiz font */
+    line-height: 1.3;
+    white-space: normal; /* allow wrapping */
+    text-align: center;
+  }
+
+  .login-subtitle {
+    font-size: 0.95rem;
+    text-align: center;
+  }
+
+  /* Adjust card width & padding */
+  .card {
+    max-width: 90%;
+    padding: 30px 20px;
+  }
+
+  /* Input fields */
+  .input {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 10px 0;
+    font-size: 0.95rem;
+  }
+
+  .show-pass-btn {
+    top: 32%;
+    font-size: 14px;
+  }
+
+  /* Blobs scaling smaller */
+  .blob1, .blob2, .blob3 {
+    transform: scale(0.7);
+  }
+
+  /* Optional: reduce spacing */
+  .container {padding: 0 10px;}
+}
