@@ -10,7 +10,6 @@ async function signupUser(fullname, email, phone, password, role = 'pengguna', g
         fullname,
         email,
         phone,
-        password, // simpan password dalam Firestore (not recommended for production)
         role,      // role ikut email
         gender,    // gender ikut input
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -71,5 +70,6 @@ async function getCurrentUserDoc() {
 async function updateProfileDoc(uid, updates) {
   return db.collection('users').doc(uid).update(updates);
 }
+
 
 
