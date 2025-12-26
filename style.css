@@ -1796,3 +1796,162 @@ body.light-mode .btn {
     background-color: #FF6B6B;
     color: #fff;
 }
+
+/* ===== FULL CAPS NAME INPUT ===== */
+#fullname {
+  text-transform: uppercase;   /* PAPAR SEMUA HURUF BESAR */
+  font-size: 1.05rem;           /* Font lebih besar sikit */
+  letter-spacing: 0.05em;       /* Nampak kemas & jelas */
+}
+
+/* ===== BURGER LEFT ===== */
+.burger-btn{
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  margin-right:12px;
+}
+
+.burger-btn span{
+  width:22px;
+  height:2px;
+  background:#fff;
+  transition:.3s;
+}
+
+/* ===== MOBILE MODE ===== */
+@media (max-width:768px){
+
+  /* Sembunyi menu desktop */
+  .dashboard-nav .nav-right{
+    display:none;
+  }
+
+  .burger-btn{
+    display:flex;
+  }
+
+  /* DROPDOWN MENU */
+  .mobile-menu{
+    display:none;
+    position:absolute;
+    top:70px;
+    left:16px;
+    background:rgba(15,23,42,.95);
+    backdrop-filter:blur(12px);
+    border-radius:14px;
+    padding:14px;
+    width:220px;
+    box-shadow:0 20px 40px rgba(0,0,0,.35);
+    z-index:999;
+    animation: slideDown .25s ease;
+  }
+
+  .mobile-menu a,
+  .mobile-menu button{
+    display:block;
+    width:100%;
+    padding:10px 12px;
+    border-radius:10px;
+    text-align:left;
+    margin-bottom:6px;
+    background:transparent;
+    color:#fff;
+    border:none;
+  }
+
+  .mobile-menu a:hover,
+  .mobile-menu button:hover{
+    background:rgba(255,255,255,.08);
+  }
+}
+
+@keyframes slideDown{
+  from{opacity:0; transform:translateY(-10px)}
+  to{opacity:1; transform:translateY(0)}
+}
+/* =========================
+   NAV MOBILE CLEAN LAYOUT
+========================= */
+.dashboard-nav{
+  position:relative;
+}
+
+/* NAV LEFT layout */
+.nav-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* Logo size konsisten */
+.nav-logo{
+  height:36px;
+  width:auto;
+}
+
+/* Title default */
+.nav-title{
+  font-weight:700;
+  white-space:nowrap;
+}
+
+
+/* =========================
+   HOME BUTTON (NAV)
+========================= */
+.nav-home{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:38px;
+  height:38px;
+  margin-right:8px;
+  border-radius:10px;
+  text-decoration:none;
+  font-size:18px;
+  color:#fff;
+  background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(8px);
+  transition:all .25s ease;
+}
+
+.nav-home:hover{
+  background:rgba(255,255,255,0.25);
+  transform:scale(1.05);
+}
+@media (max-width:768px){
+  .nav-home{
+    width:34px;
+    height:34px;
+    font-size:17px;
+    margin-right:6px;
+  }
+}
+/* =========================
+   NAV ALIGNMENT FIX (MOBILE)
+========================= */
+@media (max-width:768px){
+
+  .nav-left{
+    display:flex;
+    align-items:center;
+  }
+    .nav-home{
+    height:32px;     /* pastikan saiz konsisten */
+    margin-top:-26px;
+  }
+  .nav-logo{
+    height:32px;     /* pastikan saiz konsisten */
+    margin-top:-26px;
+  }
+
+  .nav-title{
+    margin-top:-26px;
+    line-height:1.2;
+    font-size:14px;
+  }
+}
