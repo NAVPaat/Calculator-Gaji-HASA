@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greeting — Calculator Gaji HASA UiTM</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="firebase-config.js"></script>
+<script src="auth.js"></script>
+
+<style>
+html, body {
+  margin:0; padding:0;
+  width:100%; height:100%;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow:hidden;
+  display:flex; justify-content:center; align-items:center;
+  background:#000;
+}
+
+#particleCanvas{
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  z-index:0;
+  pointer-events:none;
+}
+
+#greetingContainer{
+  position:relative; z-index:1;
+  text-align:center;
+  padding:16px 14px;
+  border-radius:12px;
+  backdrop-filter: blur(15px);
+  background: rgba(0,0,0,0.4);
+  box-shadow:0 8px 28px rgba(0,0,0,0.35);
+  max-width:360px;
+  width:auto;
+  opacity:0;
+  transform: scale(0.85);
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+#greetingContainer.show{
+  opacity:1;
+  transform: scale(1);
+}
+
+#greetingText{
+  font-size:1.9rem;
+  font-weight:700;
+  color: white;
+  text-transform: uppercase;
+  line-height:1.4;
+  word-break: break-word;
+  min-height:70px;
+}
+
+.cursor {
+  display:inline-block;
+  width:2px;
+  background:#fff;
+  margin-left:2px;
+  animation: blink 0.7s infinite;
+}
+@keyframes blink {
+  0%,50%,100%{opacity:1;}
+  25%,75%{opacity:0;}
+}
+
+.fade-out{
+  animation: fadeOutZoom 2s forwards;
+}
+@keyframes fadeOutZoom{
+  0%{opacity:1; transform:scale(1);}
+  100%{opacity:0; transform:scale(1.15);}
+}
+</style>
+</head>
+<body>
+
+<canvas id="particleCanvas"></canvas>
+
+<div id="greetingContainer">
+  <div id="greetingText"></div>
+  <div class="cursor"></div>
+</div>
+
+<script>
+// ===== CINEMATIC PARALLAX STARFIELD + DYNAMIC NEBULA =====
+const canvas = document.getElementById('particleCanvas');
+const ctx = canvas.getContext('2d');
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+
+window.addEventListener('resize', ()=>{
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+});
+
+// Colorful parallax stars
+const colors = ['#8e2de2','#4a00e0','#00c6ff','#7de2d1','#f7971e','#ff3cac','#ffffff','#bbbbbb'];
+const starLayers = [
+  {count:120, speed:0.2, size:1.2},
+  {count:100, speed:0.5, size:1.8},
+  {count:80, speed:0.9, size:2.4},
+];
+const stars = [];
+for(let l of starLayers){
+  for(let i=0;i<l.count;i++){
+    stars.push({
+      x:Math.random()*W,
+      y:Math.random()*H,
+      z:Math.random()*W,
+      size:l.size,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      speed:l.speed,
+      alpha: Math.random()*0.7+0.3,
+      blink: Math.random()*0.05+0.02
+    });
+  }
+}
+
+// Dynamic nebula layers
+const nebulaLayers = [
+  {x:W*0.25, y:H*0.3, r:W*0.5, color:'rgba(255,255,255,0.02)', dx:0.02, dy:0.01},
+  {x:W*0.7, y:H*0.5, r:W*0.4, color:'rgba(255,255,255,0.015)', dx:-0.01, dy:0.015},
+  {x:W*0.5, y:H*0.7, r:W*0.3, color:'rgba(255,255,255,0.01)', dx:0.015, dy:-0.01},
+];
+
+function drawBackground(){
+  ctx.fillStyle='black';
+  ctx.fillRect(0,0,W,H);
+
+  // Nebula layers
+  for(let n of nebulaLayers){
+    n.x += n.dx; n.y += n.dy;
+    if(n.x-n.r>W) n.x=-n.r;
+    if(n.x+n.r<0) n.x=W+n.r;
+    if(n.y-n.r>H) n.y=-n.r;
+    if(n.y+n.r<0) n.y=H+n.r;
+
+    const gradient = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);
+    gradient.addColorStop(0,n.color);
+    gradient.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  // Stars
+  for(let s of stars){
+    s.alpha += (Math.random()-0.5)*s.blink;
+    s.alpha = Math.min(Math.max(s.alpha,0.3),1);
+    const k = 128/s.z;
+    const x = (s.x - W/2) * k + W/2;
+    const y = (s.y - H/2) * k + H/2;
+    const size = s.size * (1 - s.z/W) * 2;
+    ctx.fillStyle = `rgba(${hexToRgb(s.color)},${s.alpha})`;
+    ctx.fillRect(x,y,size,size);
+
+    s.z -= s.speed;
+    if(s.z<=0){
+      s.z=W;
+      s.x=Math.random()*W;
+      s.y=Math.random()*H;
+      s.color = colors[Math.floor(Math.random()*colors.length)];
+    }
+  }
+
+  requestAnimationFrame(drawBackground);
+}
+drawBackground();
+
+function hexToRgb(hex){
+  hex=hex.replace('#','');
+  let bigint = parseInt(hex,16);
+  let r=(bigint >>16)&255;
+  let g=(bigint >>8)&255;
+  let b=bigint&255;
+  return `${r},${g},${b}`;
+}
+
+// ===== TYPING EFFECT =====
+function typeText(el, text, speed=60, callback){ 
+  let i=0;
+  const cursor = document.querySelector('.cursor');
+  const interval = setInterval(()=>{
+    if(i<text.length){
+      el.textContent += text[i];
+      i++;
+    }else{
+      clearInterval(interval);
+      cursor.style.display='none';
+      if(callback) callback();
+    }
+  }, speed);
+}
+
+// ===== GREETING =====
+onAuthChange(async user => {
+    if(!user){ location.href='login.html'; return; }
+
+    let fullname = user.email.split('@')[0];
+    try{
+        const doc = await firebase.firestore().collection('users').doc(user.uid).get();
+        if(doc.exists && doc.data().fullname){
+            fullname = doc.data().fullname;
+        }
+    }catch(e){ console.warn('Cannot fetch fullname:', e); }
+
+    const hour = new Date().getHours();
+    let greetingTime = 'SELAMAT DATANG';
+    let emoji = '👋';
+    if(hour>=5 && hour<12){ greetingTime='SELAMAT PAGI'; emoji='🌞'; }
+    else if(hour>=12 && hour<18){ greetingTime='SELAMAT PETANG'; emoji='🌇'; }
+    else{ greetingTime='SELAMAT MALAM'; emoji='🌙'; }
+
+    const message = `${emoji} ${greetingTime}, ${fullname}!`;
+
+    const el = document.getElementById('greetingText');
+    const container = document.getElementById('greetingContainer');
+
+    setTimeout(()=>{
+        container.classList.add('show');
+        typeText(el, message, 60, ()=>{
+            container.classList.add('fade-out');
+            setTimeout(()=>window.location.href='dashboard.html', 2000);
+        });
+    }, 300);
+});
+</script>
+</body>
+</html>
