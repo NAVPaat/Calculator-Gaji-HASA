@@ -62,17 +62,17 @@ body{
 
 <!-- NAVBAR -->
 <nav class="dashboard-nav">
-    <div class="nav-left">
-        <img src="image/HASA.png" class="nav-logo">
-        <span class="nav-title">DASHBOARD CALCULATOR GAJI</span>
-    </div>
+<div class="nav-left">
+    <img src="image/HASA.png" class="nav-logo">
+    <span class="nav-title">DASHBOARD CALCULATOR GAJI</span>
+</div>
+
 
     <div class="nav-right">
         <a href="dashboard.html" class="nav-link active">Dashboard</a>
         <a href="contohawam.html" class="nav-link">Kiraan Awam</a>        
         <a href="swasta.html" class="nav-link">Kiraan Swasta</a>
         <button id="logoutBtn" class="logout-btn">Logout</button>
-        <button id="themeToggle" class="theme-btn">🌙</button>
     </div>
 </nav>
 
@@ -103,7 +103,6 @@ body{
 
 </div>
 
-
 <!-- USER PANEL & MAIN -->
 <div class="container grid-2" style="margin-top:20px;">
     <div class="side">
@@ -115,6 +114,10 @@ body{
 
         <div style="height:16px"></div>
                 <a class="btn btn-outline" href="profile.html">EDIT PROFILE</a>
+                    <!-- LOGOUT BUTTON BARU -->
+    <button id="sideLogoutBtn" class="btn btn-outline" style="margin-top:8px; background-color:#e11d48; color:white; border:none;">
+        LOGOUT
+    </button>
     </div>
 
     <div class="main-panel">
@@ -160,26 +163,53 @@ body{
 </footer>
 
 <script>
-// Pastikan button logout wujud
-const logoutBtn = document.getElementById('logoutBtn');
+function setupLogout(buttonId){
+  const btn = document.getElementById(buttonId);
+  if(!btn) return;
 
-if(logoutBtn){
-  logoutBtn.addEventListener('click', async () => {
+  btn.addEventListener('click', async () => {
     try {
-      // Log keluar user dari Firebase
-      await firebase.auth().signOut();
+      // Papar notification di top center
+      const notif = document.createElement('div');
+      notif.textContent = 'Logout berjaya…';
+      notif.style.position = 'fixed';
+      notif.style.top = '20px';
+      notif.style.left = '50%';
+      notif.style.transform = 'translateX(-50%)';
+      notif.style.backgroundColor = '#059669';
+      notif.style.color = 'white';
+      notif.style.padding = '12px 20px';
+      notif.style.borderRadius = '8px';
+      notif.style.fontSize = '16px';
+      notif.style.fontWeight = '600';
+      notif.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
+      notif.style.zIndex = 9999;
+      notif.style.opacity = 0;
+      notif.style.transition = 'opacity 0.3s ease';
+      document.body.appendChild(notif);
 
-      // Optional: alert user
-      alert('Anda telah logout.');
+      // Fade in
+      setTimeout(() => notif.style.opacity = 1, 10);
 
-      // Redirect ke login page
-      location.href = 'login.html';
+      // Tunggu 1.2 saat sebelum logout
+      setTimeout(async () => {
+        notif.remove();
+        await firebase.auth().signOut();
+        location.href = 'login.html';
+      }, 1200);
+
     } catch (error) {
       console.error('Logout gagal:', error);
       alert('Logout gagal. Sila cuba lagi.');
     }
   });
 }
+
+// Setup logout untuk semua button
+setupLogout('logoutBtn');
+setupLogout('sideLogoutBtn');
+setupLogout('mobileLogoutBtn');
+
 
 // Navbar hide/show on scroll
 const nav = document.querySelector('.dashboard-nav');
@@ -208,7 +238,6 @@ window.currentUser = {
     email: user.email,
     createdAt: data?.createdAt
 };
-
 
     // Tetapkan role ikut email
     let role = 'Pengguna';
@@ -475,7 +504,6 @@ function animateCount(el, target){
   requestAnimationFrame(tick);
 }
 
-
 /* ===== Go Top Button ===== */
 document.addEventListener("DOMContentLoaded", function() {
   const goTopBtn = document.getElementById("goTopBtn");
@@ -520,8 +548,37 @@ document.getElementById('themeToggle').onclick = () => {
   // jika nak toggle tapi tak save untuk next load, jangan set localStorage
   // localStorage.setItem('theme', t); <-- buang/comment baris ni
 };
+const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+
+if(mobileLogoutBtn){
+  mobileLogoutBtn.addEventListener('click', async () => {
+    try {
+      await firebase.auth().signOut();
+      alert('Anda telah logout.');
+      location.href = 'login.html';
+    } catch (error) {
+      console.error('Logout gagal:', error);
+      alert('Logout gagal. Sila cuba lagi.');
+    }
+  });
+}
 
 
+// LOGOUT DARI SIDE PANEL
+const sideLogoutBtn = document.getElementById('sideLogoutBtn');
+
+if(sideLogoutBtn){
+  sideLogoutBtn.addEventListener('click', async () => {
+    try {
+      await firebase.auth().signOut();
+      alert('Anda telah logout.');
+      location.href = 'login.html';
+    } catch (error) {
+      console.error('Logout gagal:', error);
+      alert('Logout gagal. Sila cuba lagi.');
+    }
+  });
+}
 </script>
 <button id="goTopBtn" title="Go to Top">↑</button>
 </body>
