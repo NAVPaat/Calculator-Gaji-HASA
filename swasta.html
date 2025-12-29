@@ -39,16 +39,6 @@
         <img src="image/HASA.png" class="nav-logo">
         <span class="nav-title">DASHBOARD CALCULATOR GAJI</span>
     </div>
-<!-- Tambah button burger untuk mobile -->
-<div class="nav-right">
-  <button class="burger-btn" onclick="toggleMenu()">☰</button>
-  <div class="nav-links">
-    <a href="dashboard.html" class="nav-link">Dashboard</a>
-    <a href="contohawam.html" class="nav-link active">Kiraan Awam</a>        
-    <a href="swasta.html" class="nav-link">Kiraan Swasta</a>
-    <button id="logoutBtn" class="logout-btn">Logout</button>
-  </div>
-</div>
 
     <div class="nav-right">
         <a href="dashboard.html" class="nav-link">Dashboard</a>
@@ -1061,9 +1051,6 @@ async function printSwastaResult() {
     `);
     win.document.close();
     win.print();
-}
-function toggleMenu() {
-  document.querySelector('.nav-right').classList.toggle('active');
 }
 </script>
 <button id="goTopBtn" title="Go to Top">↑</button>
