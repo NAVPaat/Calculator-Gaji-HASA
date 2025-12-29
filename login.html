@@ -57,7 +57,7 @@ body.login-page {
 .small {font-size:0.85rem; display:block; margin-top:10px; color:#3C2A50; text-decoration:none;}
 
 /* ===== LOGIN TITLE ===== */
-.login-title {font-size:1.8rem; color:#2C1E3A; margin-bottom:10px;}
+.login-title {font-size:2rem; color:#2C1E3A; margin-bottom:10px; font-weight: 900;}
 .login-subtitle {color:#3C2A50; margin-bottom:25px;}
 
 /* Accessibility & small UI helpers */
@@ -81,6 +81,25 @@ body.login-page {
 @media (prefers-reduced-motion: reduce) {
   .spinner, .blob {animation: none !important; transition: none !important}
 }
+/* =========================
+   MOBILE – BACK ARROW ONLY
+========================= */
+@media (max-width:768px){
+
+  /* Back button jadi arrow kecil sahaja */
+  .back-btn{
+    font-size: 0;          /* buang teks */
+    padding: 4px 6px;
+    line-height: 1;
+  }
+
+  .back-btn::before{
+    content: "←";          /* arrow */
+    font-size: 18px;       /* saiz arrow (kecil & kemas) */
+    font-weight: 600;
+  }
+}
+
 </style>
 </head>
 
@@ -92,9 +111,9 @@ body.login-page {
 <div class="blob blob3"></div>
 
 <!-- ===== LOGIN TITLE ===== -->
-<h1 class="login-title v2">Selamat Datang <br> ke Calculator Gaji HASA</h1>
+<center><h1 class="login-title v2">SELAMAT DATANG <br> KE CALCULATOR GAJI HASA</h1>
 <p class="login-subtitle v2">Selamat datang ke sistem Calculator Gaji — mudah, pantas & mesra pengguna!</p>
-<a href="index.html" class="back-btn">← Kembali ke Laman Utama</a>
+<a href="index.html" class="back-btn">← Kembali ke Laman Utama</a></center>
 
 <div class="container">
   <div class="card">
@@ -167,7 +186,7 @@ body.login-page {
     try {
       await loginUser(email, password);
       setMessage('Login berjaya. Sila tunggu...', 'green');
-      setTimeout(() => window.location.href = 'dashboard.html', 500);
+      setTimeout(() => window.location.href = 'greeting.html', 500);
     } catch (err) {
       setMessage(err && err.message ? err.message : 'Ralat log masuk.', 'red');
     } finally {
