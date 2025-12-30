@@ -1943,3 +1943,15 @@ body.light-mode .btn {
     margin-top: 0px;           /* ubah jika perlu */
   }
 }
+
+/* Default: sembunyikan Home button (Desktop & Tablet) */
+.nav-home {
+  display: none;
+}
+
+/* Mobile sahaja (≤ 768px) */
+@media (max-width: 768px) {
+  .nav-home {
+    display: flex;
+  }
+}
