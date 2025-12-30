@@ -262,6 +262,8 @@ window.currentUser = {
 
 /* ===== Payslip stats helper ===== */
 let _payslipUnsub = null;
+let payslipChart = null; // Global chart variable
+let currentFilter = 'all'; // Track current filter state
 
 async function updatePayslipStats(){
     const el = document.getElementById('payslipCount');
@@ -322,8 +324,7 @@ const updateCountsDisplay = (awam, swasta) => {
 };
 
 
-    // Chart instance (prefer top canvas if present)
-    let payslipChart = null;
+// ===== ENHANCED CHART RENDER FUNCTION WITH INTERACTIVE FEATURES =====
 function renderPayslipChart(a, b){
   const canvas = document.getElementById('payslipChartTop');
   if(!canvas) return;
@@ -344,20 +345,32 @@ function renderPayslipChart(a, b){
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
+      // Use custom values if set, otherwise use total
+      const displayValue = chart.centerValue !== undefined ? chart.centerValue : total;
+      const displayLabel = chart.centerLabel || 'Jumlah Cetakan';
+
       ctx.font = '700 24px sans-serif';
       ctx.fillStyle = '#0f172a';
-      ctx.fillText(total, x, y - 6);
+      ctx.fillText(displayValue, x, y - 6);
 
       ctx.font = '600 12px sans-serif';
       ctx.fillStyle = '#6b7280';
-      ctx.fillText('Jumlah Cetakan', x, y + 14);
+      ctx.fillText(displayLabel, x, y + 14);
       ctx.restore();
     }
   };
 
   if(payslipChart){
     payslipChart.data.datasets[0].data = [a, b];
-    payslipChart.update();
+    
+    // Maintain current filter state
+    if (currentFilter === 'awam') {
+      highlightChartSegment('awam');
+    } else if (currentFilter === 'swasta') {
+      highlightChartSegment('swasta');
+    } else {
+      payslipChart.update();
+    }
     return;
   }
 
@@ -375,14 +388,237 @@ function renderPayslipChart(a, b){
     options: {
       cutout: '68%',
       responsive: true,
+      maintainAspectRatio: true,
+      animation: {
+        animateRotate: true,
+        animateScale: true,
+        duration: 800,
+        easing: 'easeInOutQuart'
+      },
       plugins: {
         legend: {
-          position: 'bottom'
+          position: 'bottom',
+          labels: {
+            padding: 15,
+            font: {
+              size: 12,
+              weight: '600'
+            },
+            usePointStyle: true,
+            pointStyle: 'circle'
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          padding: 12,
+          titleFont: {
+            size: 14,
+            weight: '700'
+          },
+          bodyFont: {
+            size: 13
+          },
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = context.parsed;
+              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+              return `${label}: ${value} (${percentage}%)`;
+            }
+          }
         }
       }
     },
     plugins: [centerTextPlugin]
   });
+  
+  // Setup interactive stats after chart is created
+  setTimeout(() => setupInteractiveStats(), 100);
+}
+
+// ===== INTERACTIVE STATISTICS FUNCTIONS =====
+function setupInteractiveStats() {
+  const awamCard = document.querySelector('.fx-card.awam');
+  const swastaCard = document.querySelector('.fx-card.swasta');
+  const chartContainer = document.querySelector('.fx-chart');
+  
+  if (!awamCard || !swastaCard) return;
+
+  // Click handler untuk Awam card
+  awamCard.addEventListener('click', () => {
+    if (currentFilter === 'awam') {
+      resetFilter();
+    } else {
+      setFilter('awam');
+    }
+  });
+
+  // Click handler untuk Swasta card
+  swastaCard.addEventListener('click', () => {
+    if (currentFilter === 'swasta') {
+      resetFilter();
+    } else {
+      setFilter('swasta');
+    }
+  });
+
+  // Tambah cursor pointer
+  awamCard.style.cursor = 'pointer';
+  swastaCard.style.cursor = 'pointer';
+  awamCard.style.transition = 'all 0.3s ease';
+  swastaCard.style.transition = 'all 0.3s ease';
+
+  // Add reset button to chart container (only once)
+  if (!document.getElementById('resetFilterBtn')) {
+    const resetBtn = document.createElement('button');
+    resetBtn.id = 'resetFilterBtn';
+    resetBtn.textContent = '↻ Tunjuk Semua';
+    resetBtn.style.cssText = `
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+      display: none;
+      z-index: 10;
+      transition: all 0.2s ease;
+    `;
+    resetBtn.onmouseover = () => {
+      resetBtn.style.background = '#f3f4f6';
+      resetBtn.style.transform = 'scale(1.05)';
+    };
+    resetBtn.onmouseout = () => {
+      resetBtn.style.background = 'rgba(255,255,255,0.9)';
+      resetBtn.style.transform = 'scale(1)';
+    };
+    resetBtn.onclick = resetFilter;
+    
+    // Make chart container relative for absolute positioning
+    chartContainer.style.position = 'relative';
+    chartContainer.appendChild(resetBtn);
+  }
+}
+
+function setFilter(type) {
+  currentFilter = type;
+  
+  const awamCard = document.querySelector('.fx-card.awam');
+  const swastaCard = document.querySelector('.fx-card.swasta');
+  const resetBtn = document.getElementById('resetFilterBtn');
+  
+  // Remove active class from all
+  awamCard?.classList.remove('active-filter');
+  swastaCard?.classList.remove('active-filter');
+  
+  // Add active class to selected
+  if (type === 'awam') {
+    awamCard?.classList.add('active-filter');
+    highlightChartSegment('awam');
+  } else if (type === 'swasta') {
+    swastaCard?.classList.add('active-filter');
+    highlightChartSegment('swasta');
+  }
+  
+  // Show reset button
+  if (resetBtn) resetBtn.style.display = 'block';
+  
+  // Add visual feedback
+  updateCardStyles();
+}
+
+function resetFilter() {
+  currentFilter = 'all';
+  
+  const awamCard = document.querySelector('.fx-card.awam');
+  const swastaCard = document.querySelector('.fx-card.swasta');
+  const resetBtn = document.getElementById('resetFilterBtn');
+  
+  // Remove active class
+  awamCard?.classList.remove('active-filter');
+  swastaCard?.classList.remove('active-filter');
+  
+  // Hide reset button
+  if (resetBtn) resetBtn.style.display = 'none';
+  
+  // Reset chart
+  resetChartHighlight();
+  
+  // Reset card styles
+  updateCardStyles();
+}
+
+function updateCardStyles() {
+  const awamCard = document.querySelector('.fx-card.awam');
+  const swastaCard = document.querySelector('.fx-card.swasta');
+  
+  if (!awamCard || !swastaCard) return;
+  
+  if (currentFilter === 'awam') {
+    awamCard.style.transform = 'scale(1.05)';
+    awamCard.style.boxShadow = '0 0 30px rgba(79, 70, 229, 0.5)';
+    swastaCard.style.opacity = '0.5';
+    swastaCard.style.transform = 'scale(0.95)';
+  } else if (currentFilter === 'swasta') {
+    swastaCard.style.transform = 'scale(1.05)';
+    swastaCard.style.boxShadow = '0 0 30px rgba(5, 150, 105, 0.5)';
+    awamCard.style.opacity = '0.5';
+    awamCard.style.transform = 'scale(0.95)';
+  } else {
+    // Reset all
+    awamCard.style.transform = 'scale(1)';
+    awamCard.style.opacity = '1';
+    awamCard.style.boxShadow = '';
+    swastaCard.style.transform = 'scale(1)';
+    swastaCard.style.opacity = '1';
+    swastaCard.style.boxShadow = '';
+  }
+}
+
+function highlightChartSegment(type) {
+  if (!payslipChart) return;
+  
+  const dataset = payslipChart.data.datasets[0];
+  const awamValue = dataset.data[0];
+  const swastaValue = dataset.data[1];
+  
+  if (type === 'awam') {
+    dataset.backgroundColor = ['#4f46e5', 'rgba(5, 150, 105, 0.2)'];
+    dataset.hoverOffset = [15, 0];
+    updateCenterText(awamValue, 'Cetakan Awam');
+  } else if (type === 'swasta') {
+    dataset.backgroundColor = ['rgba(79, 70, 229, 0.2)', '#059669'];
+    dataset.hoverOffset = [0, 15];
+    updateCenterText(swastaValue, 'Cetakan Swasta');
+  }
+  
+  payslipChart.update('active');
+}
+
+function resetChartHighlight() {
+  if (!payslipChart) return;
+  
+  const dataset = payslipChart.data.datasets[0];
+  dataset.backgroundColor = ['#4f46e5', '#059669'];
+  dataset.hoverOffset = 10;
+  
+  const total = dataset.data[0] + dataset.data[1];
+  updateCenterText(total, 'Jumlah Cetakan');
+  
+  payslipChart.update('active');
+}
+
+function updateCenterText(value, label) {
+  if (payslipChart) {
+    payslipChart.centerValue = value;
+    payslipChart.centerLabel = label;
+  }
 }
 
     try{
@@ -507,10 +743,12 @@ function animateCount(el, target){
 /* ===== Go Top Button ===== */
 document.addEventListener("DOMContentLoaded", function() {
   const goTopBtn = document.getElementById("goTopBtn");
-  window.addEventListener("scroll", function() {
-    goTopBtn.style.display = window.scrollY > 200 ? "block" : "none";
-  });
-  goTopBtn.addEventListener("click", ()=>window.scrollTo({ top: 0, behavior: 'smooth' }));
+  if(goTopBtn){
+    window.addEventListener("scroll", function() {
+      goTopBtn.style.display = window.scrollY > 200 ? "block" : "none";
+    });
+    goTopBtn.addEventListener("click", ()=>window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
 });
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -542,14 +780,15 @@ root.dataset.theme = 'light';  // paksa light mode setiap kali buka
 localStorage.setItem('theme', 'light'); // optional: reset saved theme
 
 // Toggle button still boleh tukar semasa session
-document.getElementById('themeToggle').onclick = () => {
-  const t = root.dataset.theme === 'light' ? 'dark' : 'light';
-  root.dataset.theme = t;
-  // jika nak toggle tapi tak save untuk next load, jangan set localStorage
-  // localStorage.setItem('theme', t); <-- buang/comment baris ni
-};
-const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+const themeToggle = document.getElementById('themeToggle');
+if(themeToggle){
+  themeToggle.onclick = () => {
+    const t = root.dataset.theme === 'light' ? 'dark' : 'light';
+    root.dataset.theme = t;
+  };
+}
 
+const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
 if(mobileLogoutBtn){
   mobileLogoutBtn.addEventListener('click', async () => {
     try {
@@ -563,10 +802,8 @@ if(mobileLogoutBtn){
   });
 }
 
-
 // LOGOUT DARI SIDE PANEL
 const sideLogoutBtn = document.getElementById('sideLogoutBtn');
-
 if(sideLogoutBtn){
   sideLogoutBtn.addEventListener('click', async () => {
     try {
