@@ -2,10 +2,12 @@
 <html lang="ms">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <title>Login — Calculator Gaji HASA UiTM</title>
 
-<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -15,257 +17,424 @@
 <script src="auth.js"></script>
 
 <style>
-/* ===== LOGIN PAGE SPECIFIC ===== */
-html, body {overflow-x:hidden;}
-body.login-page {
-  background:#f0e6ff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  position:relative;
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+    /* ===== VARIABLES & RESET ===== */
+    :root {
+        --primary-grad: linear-gradient(135deg, #FF6B6B 0%, #5E2A84 100%);
+        --text-dark: #1f2937;
+        --text-muted: #6b7280;
+        --glass-bg: rgba(255, 255, 255, 0.75);
+        --glass-border: rgba(255, 255, 255, 0.6);
+        --radius: 16px;
+    }
 
-/* ===== FLOATING BLOBS ===== */
-.blob {position:absolute; border-radius:50%; filter:blur(120px); opacity:0.9; z-index:0; pointer-events:none; max-width:100vw; max-height:100vh; transition: transform 0.1s;}
-.blob1 {width:350px; height:350px; background:linear-gradient(135deg,#FF6B6B,#5E2A84); top:-100px; left:-80px;}
-.blob2 {width:400px; height:400px; background:linear-gradient(135deg,#A445B2,#FFB2E6); bottom:-120px; right:-100px;}
-.blob3 {width:300px; height:300px; background:linear-gradient(135deg,#FF9F1C,#FF6B6B); top:30%; right:20%;}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ===== CARD ===== */
-.container {position:relative; z-index:2; text-align:center;}
-.card {
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(18px);
-  border-radius:25px;
-  padding:40px 30px;
-  box-shadow:0 12px 30px rgba(0,0,0,0.2);
-  max-width:400px;
-  margin:auto;
-  position:relative;
-  text-align:center;
-}
-.input {width:100%; padding:12px 16px; margin-bottom:15px; border-radius:10px; border:1px solid #ccc;}
-.password-wrap {position:relative;}
-.show-pass-btn {position:absolute; top:35%; right:10px; transform:translateY(-50%); border:none; background:none; cursor:pointer; font-size:16px; color:#5E2A84;}
-.btn {width:100%; padding:12px 0; margin-bottom:12px; border:none; border-radius:50px; font-weight:700; cursor:pointer; font-size:1rem; box-shadow:0 6px 20px rgba(0,0,0,0.2);}
-.btn-primary {background:linear-gradient(45deg,#FF6B6B,#5E2A84); color:white; transition:0.3s;}
-.btn-primary:hover {transform:scale(1.05);}
-.btn-outline {background:rgba(255,255,255,0.2); color:#2C1E3A; border:2px solid #5E2A84;}
-.btn-outline:hover {background:#5E2A84; color:white; transform:scale(1.05);}
-.small {font-size:0.85rem; display:block; margin-top:10px; color:#3C2A50; text-decoration:none;}
+    body {
+        font-family: 'Inter', sans-serif;
+        background: #f3f0ff;
+        color: var(--text-dark);
+        
+        /* --- PEMBETULAN UTAMA DISINI --- */
+        height: 100vh;       /* Paksa tinggi ikut skrin peranti */
+        width: 100vw;        /* Paksa lebar ikut skrin peranti */
+        overflow: hidden;    /* POTONG/HIDE apa sahaja yang terkeluar (Blobs) */
+        /* ------------------------------- */
 
-/* ===== LOGIN TITLE ===== */
-.login-title {font-size:2rem; color:#2C1E3A; margin-bottom:10px; font-weight: 900;}
-.login-subtitle {color:#3C2A50; margin-bottom:25px;}
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
 
-/* Accessibility & small UI helpers */
-.visually-hidden {position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap;}
+    /* ===== FLOATING BLOBS ===== */
+    .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.6;
+        z-index: -1;
+        animation: float 10s ease-in-out infinite;
+        pointer-events: none; /* Supaya tak ganggu klik */
+    }
+    .blob1 { width: 400px; height: 400px; background: #FF6B6B; top: -100px; left: -100px; animation-delay: 0s; }
+    .blob2 { width: 350px; height: 350px; background: #5E2A84; bottom: -50px; right: -10px; animation-delay: 2s; }
+    .blob3 { width: 350px; height: 350px; background: #A445B2; top: 20%; left: -50%; transform: translate(-50%, -50%); opacity: 0.4; animation-delay: 4s; }
 
-.input:focus {outline: 3px solid rgba(90,40,120,0.18); box-shadow: 0 4px 20px rgba(94,42,132,0.12);}
-.btn:disabled {opacity:0.6; cursor:not-allowed; transform:none}
-.show-pass-btn {background:none; border:0; padding:6px; border-radius:8px}
-.show-pass-btn:focus {outline:2px solid rgba(94,42,132,0.25)}
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0); }
+        50% { transform: translate(20px, -20px); }
+    }
 
-/* spinner inside buttons */
-.spinner {display:inline-block; width:14px; height:14px; margin-left:8px; border-radius:50%; border:2px solid rgba(255,255,255,0.6); border-right-color:transparent; vertical-align:middle; animation:spin 0.8s linear infinite; opacity:0}
-.btn.loading .spinner {opacity:1}
-@keyframes spin {to {transform:rotate(360deg)}}
+    /* ===== BUTTON KEMBALI (Top Left & Responsive) ===== */
+    .back-nav-float {
+        position: absolute;
+        top: 25px;
+        left: 25px;
+        z-index: 100;
+        
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        
+        padding: 10px 20px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        
+        text-decoration: none;
+        color: #5E2A84;
+        font-weight: 600;
+        font-size: 0.9rem;
+        
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-/* Fade-in class used by script */
-.fade-in {animation:fadeIn 360ms ease both}
-@keyframes fadeIn {from {opacity:0; transform:translateY(6px)} to {opacity:1; transform:none}}
+    .back-nav-float:hover {
+        background: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(94, 42, 132, 0.15);
+        color: #4c1d6e;
+    }
 
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .spinner, .blob {animation: none !important; transition: none !important}
-}
-/* =========================
-   MOBILE – BACK ARROW ONLY
-========================= */
-@media (max-width:768px){
+    .back-nav-float svg {
+        width: 20px; height: 20px;
+        transition: transform 0.3s ease;
+    }
 
-  /* Back button jadi arrow kecil sahaja */
-  .back-btn{
-    font-size: 0;          /* buang teks */
-    padding: 4px 6px;
-    line-height: 1;
-  }
+    .back-nav-float:hover svg { transform: translateX(-3px); }
 
-  .back-btn::before{
-    content: "←";          /* arrow */
-    font-size: 18px;       /* saiz arrow (kecil & kemas) */
-    font-weight: 600;
-  }
-}
+    @media (max-width: 768px) {
+        .back-nav-float {
+            top: 20px; left: 20px;
+            padding: 0;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            justify-content: center;
+            gap: 0;
+        }
+        .back-nav-float span { display: none; }
+    }
+
+    /* ===== MAIN WRAPPER ===== */
+    .main-wrapper {
+        width: 100%;
+        max-width: 440px;
+        padding: 20px;
+        z-index: 10;
+        text-align: center;
+        
+        /* Scroll dalaman jika screen terlampau pendek (cth: Landscape phone) */
+        max-height: 100vh;
+        overflow-y: auto;
+        scrollbar-width: none; /* Firefox */
+    }
+    .main-wrapper::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
+
+    /* ===== HEADER SECTION ===== */
+    .header-section { margin-bottom: 25px; }
+    
+    .app-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        font-size: 2rem;
+        line-height: 1.2;
+        margin-bottom: 10px;
+        background: var(--primary-grad);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-transform: uppercase;
+        letter-spacing: -0.5px;
+    }
+
+    .app-subtitle {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    /* ===== GLASS CARD ===== */
+    .card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius);
+        padding: 35px 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0,0,0,0.1);
+        text-align: left;
+    }
+
+    .card h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 25px;
+        color: var(--text-dark);
+        text-align: center;
+    }
+
+    /* ===== FORM ELEMENTS ===== */
+    .input-group { margin-bottom: 15px; position: relative; }
+
+    .input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: rgba(255,255,255,0.9);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .input:focus {
+        outline: none;
+        border-color: #5E2A84;
+        box-shadow: 0 0 0 4px rgba(94, 42, 132, 0.1);
+    }
+
+    .password-wrap { position: relative; }
+    .show-pass-btn {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #9ca3af;
+        font-size: 1.1rem;
+        transition: color 0.2s;
+    }
+    .show-pass-btn:hover { color: #5E2A84; }
+
+    .btn {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.1s, box-shadow 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+        background: var(--primary-grad);
+        color: white;
+        box-shadow: 0 10px 20px -5px rgba(94, 42, 132, 0.3);
+        margin-bottom: 15px;
+    }
+    
+    .btn-primary:hover { box-shadow: 0 15px 25px -5px rgba(94, 42, 132, 0.4); }
+
+    .btn-outline {
+        background: white;
+        border: 1px solid #e5e7eb;
+        color: var(--text-dark);
+        margin-bottom: 15px;
+    }
+    
+    .btn-outline:hover { background: #f9fafb; border-color: #d1d5db; }
+
+    .google-icon { width: 20px; height: 20px; }
+
+    .links-wrapper {
+        text-align: center;
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .link {
+        color: #5E2A84;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    .link:hover { text-decoration: underline; }
+
+    #loginMsg {
+        margin-top: 15px;
+        font-size: 0.9rem;
+        text-align: center;
+        min-height: 20px;
+    }
+
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .spinner {
+        width: 18px; height: 18px;
+        border: 2px solid #fff; border-bottom-color: transparent;
+        border-radius: 50%; display: none;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
 </style>
 </head>
 
-<body class="login-page">
+<body>
 
-<!-- FLOATING BLOBS -->
-<div class="blob blob1"></div>
-<div class="blob blob2"></div>
-<div class="blob blob3"></div>
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
 
-<!-- ===== LOGIN TITLE ===== -->
-<center><h1 class="login-title v2">SELAMAT DATANG <br> KE CALCULATOR GAJI HASA</h1>
-<p class="login-subtitle v2">Selamat datang ke sistem Calculator Gaji — mudah, pantas & mesra pengguna!</p>
-<a href="index.html" class="back-btn">← Kembali ke Laman Utama</a></center>
+    <a href="index.html" class="back-nav-float" aria-label="Kembali ke Laman Utama">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Kembali ke Laman Utama</span>
+    </a>
 
-<div class="container">
-  <div class="card">
+    <div class="main-wrapper fade-in">
+        
+        <div class="header-section">
+            <h1 class="app-title">Calculator Gaji <br> HASA UiTM</h1>
+            <p class="app-subtitle">Log masuk untuk akses sistem pengiraan gaji yang pantas & mudah.</p>
+        </div>
 
-    <h2>Log Masuk</h2>
+        <div class="card">
+            <h2>Log Masuk</h2>
 
-    <form id="loginForm" novalidate>
-      <label for="email" class="visually-hidden">Email</label>
-      <input id="email" class="input" type="email" placeholder="Email" required autocomplete="email" autofocus>
+            <form id="loginForm" novalidate>
+                <div class="input-group">
+                    <input id="email" class="input" type="email" placeholder="Alamat Email" required autocomplete="email">
+                </div>
 
-      <div class="password-wrap">
-        <label for="password" class="visually-hidden">Kata Laluan</label>
-        <input id="password" class="input" type="password" placeholder="Kata Laluan" required autocomplete="current-password">
-        <button type="button" class="show-pass-btn" id="showPassBtn" aria-pressed="false" aria-label="Tunjukkan kata laluan">👁</button>
-      </div>
+                <div class="input-group password-wrap">
+                    <input id="password" class="input" type="password" placeholder="Kata Laluan" required autocomplete="current-password">
+                    <button type="button" class="show-pass-btn" id="showPassBtn" aria-label="Tunjukkan kata laluan">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                </div>
 
-      <button id="loginBtn" type="submit" class="btn btn-primary">Login <span id="loginSpinner" class="spinner" aria-hidden="true"></span></button>
-      <a href="signup.html" class="btn btn-outline" role="button">Sign Up</a>
-      <button id="googleBtn" type="button" class="btn btn-outline google-btn" aria-label="Log masuk dengan Google">Login with Google</button>
-      <a href="reset.html" class="small">Lupa kata laluan?</a>
+                <button id="loginBtn" type="submit" class="btn btn-primary">
+                    <span>Login</span>
+                    <span id="loginSpinner" class="spinner"></span>
+                </button>
 
-      <div id="loginMsg" role="status" aria-live="polite"></div>
-    </form>
-  </div>
-</div>
+                <button id="googleBtn" type="button" class="btn btn-outline">
+                    <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)"><path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/><path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/><path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.734 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"/><path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/></g></svg>
+                    Log Masuk dengan Google
+                </button>
+
+                <div class="links-wrapper">
+                    <a href="reset.html" class="link" style="color:#6b7280; font-size:0.85rem">Lupa kata laluan?</a>
+                    <div style="height:1px; background:#eee; margin:5px 0;"></div>
+                    <p style="font-size:0.9rem; color:#6b7280">Belum ada akaun?</p>
+                    <a href="signup.html" class="link">Daftar Akaun Baru</a>
+                </div>
+
+                <div id="loginMsg"></div>
+            </form>
+        </div>
+    </div>
 
 <script>
 // ===== LOGIN FUNCTIONALITY =====
 (() => {
-  const form = document.getElementById('loginForm');
-  const emailEl = document.getElementById('email');
-  const passInput = document.getElementById('password');
-  const loginBtn = document.getElementById('loginBtn');
-  const googleBtn = document.getElementById('googleBtn');
-  const loginMsg = document.getElementById('loginMsg');
-  const showBtn = document.getElementById('showPassBtn');
-  const spinner = document.getElementById('loginSpinner');
+    const form = document.getElementById('loginForm');
+    const emailEl = document.getElementById('email');
+    const passInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const googleBtn = document.getElementById('googleBtn');
+    const loginMsg = document.getElementById('loginMsg');
+    const showBtn = document.getElementById('showPassBtn');
+    const spinner = document.getElementById('loginSpinner');
 
-  function setMessage(text, color) {
-    loginMsg.textContent = text || '';
-    loginMsg.style.color = color || '';
-  }
-
-  function setLoading(isLoading) {
-    if (isLoading) {
-      loginBtn.setAttribute('disabled', '');
-      loginBtn.classList.add('loading');
-      spinner.style.opacity = '1';
-    } else {
-      loginBtn.removeAttribute('disabled');
-      loginBtn.classList.remove('loading');
-      spinner.style.opacity = '0';
-    }
-  }
-
-  // Form submit (supports Enter key)
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    setMessage('', '');
-
-    const email = emailEl.value.trim();
-    const password = passInput.value;
-
-    if (!email || !password) {
-      setMessage('Sila isi email dan kata laluan.', 'red');
-      return;
+    function setMessage(text, type) {
+        loginMsg.textContent = text || '';
+        if (type === 'error') {
+            loginMsg.style.color = '#ef4444';
+        } else if (type === 'success') {
+            loginMsg.style.color = '#10b981';
+        } else {
+            loginMsg.style.color = '#6b7280';
+        }
     }
 
-    setLoading(true);
-    try {
-      await loginUser(email, password);
-      setMessage('Login berjaya. Sila tunggu...', 'green');
-      setTimeout(() => window.location.href = 'greeting.html', 500);
-    } catch (err) {
-      setMessage(err && err.message ? err.message : 'Ralat log masuk.', 'red');
-    } finally {
-      setLoading(false);
+    function setLoading(isLoading) {
+        loginBtn.disabled = isLoading;
+        if (isLoading) {
+            spinner.style.display = 'inline-block';
+        } else {
+            spinner.style.display = 'none';
+        }
     }
-  });
 
-  // Google login
-  googleBtn.addEventListener('click', async () => {
-    setMessage('', '');
-    googleBtn.setAttribute('disabled', '');
-    try {
-      await loginWithGoogle();
-      window.location.href = 'dashboard.html';
-    } catch (err) {
-      setMessage(err && err.message ? err.message : 'Gagal login Google.', 'red');
-    } finally {
-      googleBtn.removeAttribute('disabled');
-    }
-  });
+    // Form submit
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        setMessage('');
 
-  // Show/hide password: support toggle on click, hold on press, and keyboard
-  let holdTimeout = null;
-  function showPassword() { passInput.type = 'text'; showBtn.setAttribute('aria-pressed', 'true'); }
-  function hidePassword() { passInput.type = 'password'; showBtn.setAttribute('aria-pressed', 'false'); }
+        const email = emailEl.value.trim();
+        const password = passInput.value;
 
-  // mouse / touch hold
-  showBtn.addEventListener('mousedown', ()=>{ showPassword(); });
-  showBtn.addEventListener('mouseup', ()=>{ hidePassword(); });
-  showBtn.addEventListener('mouseleave', ()=>{ hidePassword(); });
-  showBtn.addEventListener('touchstart', ()=>{ showPassword(); });
-  showBtn.addEventListener('touchend', ()=>{ hidePassword(); });
+        if (!email || !password) {
+            setMessage('Sila isi email dan kata laluan.', 'error');
+            return;
+        }
 
-  // click toggles (useful for keyboard and screen readers)
-  showBtn.addEventListener('click', (e) => {
-    // if it's a quick click, toggle state
-    if (passInput.type === 'password') showPassword(); else hidePassword();
-  });
-
-  showBtn.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showBtn.click(); }
-  });
-
-  // ===== SCROLL TO TOP ON LOAD =====
-  window.addEventListener('load', () => { window.scrollTo({ top: 0, behavior: 'auto' }); });
-
-  // ===== INTERACTIVE BLOB MOUSE FOLLOW =====
-  const blobs = document.querySelectorAll('.blob');
-  document.addEventListener('mousemove', e=>{
-    blobs.forEach((b,i)=>{
-      const speed = (i+1)*0.02;
-      const x = (e.clientX - window.innerWidth/2)*speed;
-      const y = (e.clientY - window.innerHeight/2)*speed;
-      b.style.transform = `translate(${x}px, ${y}px)`;
+        setLoading(true);
+        try {
+            await loginUser(email, password);
+            setMessage('Login berjaya!', 'success');
+            setTimeout(() => window.location.href = 'greeting.html', 800);
+        } catch (err) {
+            let msg = err.message;
+            if(err.code === 'auth/wrong-password') msg = 'Kata laluan salah.';
+            if(err.code === 'auth/user-not-found') msg = 'Email tidak dijumpai.';
+            setMessage(msg, 'error');
+        } finally {
+            setLoading(false);
+        }
     });
-  });
 
-  document.addEventListener('DOMContentLoaded', function() {
-      // Fade in page
-      document.body.classList.add('fade-in');
+    // Google login
+    googleBtn.addEventListener('click', async () => {
+        setMessage('');
+        try {
+            await loginWithGoogle();
+            window.location.href = 'dashboard.html';
+        } catch (err) {
+            setMessage('Gagal login Google: ' + err.message, 'error');
+        }
+    });
 
-      // Semua link dashboard-nav (if present)
-      const links = document.querySelectorAll('.dashboard-nav .nav-link');
+    // Toggle Password
+    showBtn.addEventListener('click', () => {
+        const type = passInput.type === 'password' ? 'text' : 'password';
+        passInput.type = type;
+        showBtn.style.color = type === 'text' ? '#5E2A84' : '#9ca3af';
+    });
 
-      links.forEach(link => {
-          link.addEventListener('click', function(e) {
-              e.preventDefault(); // prevent immediate redirect
-
-              const href = this.getAttribute('href');
-
-              // Fade out
-              document.body.style.opacity = 0;
-
-              setTimeout(() => {
-                  window.location.href = href; // redirect selepas fade out
-              }, 400); // 400ms sama dengan transition
-          });
-      });
-  });
+    // Mouse move effect for Blobs (Dikekalkan)
+    const blobs = document.querySelectorAll('.blob');
+    document.addEventListener('mousemove', (e) => {
+        // Kurangkan sikit multiplier supaya tak terlalu liar
+        const x = (e.clientX / window.innerWidth) * 15;
+        const y = (e.clientY / window.innerHeight) * 15;
+        
+        blobs.forEach((blob, index) => {
+            const speed = (index + 1) * 2;
+            blob.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+        });
+    });
 
 })();
 </script>
