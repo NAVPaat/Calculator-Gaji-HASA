@@ -134,7 +134,16 @@ p, .small { color: var(--text-secondary); line-height: 1.6; }
     backdrop-filter: blur(12px); 
     border-bottom: 1px solid rgba(255,255,255,0.5);
     position: sticky; top: 0; z-index: 100;
+    /* TAMBAH 2 BARIS INI UNTUK SMOOTH */
+    transition: transform 0.3s ease-in-out;
+    will-change: transform;
 }
+
+/* TAMBAH CLASS BARU INI (Untuk sorok navbar) */
+.dashboard-nav.nav-hidden {
+    transform: translateY(-100%); /* Tarik navbar ke atas sampai hilang */
+}
+
 .nav-left { display: flex; align-items: center; gap: 12px; }
 .nav-logo { height: 38px; }
 .nav-title { font-weight: 800; font-size: 1.1rem; color: #1e293b; }
@@ -652,7 +661,27 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+// Variable untuk simpan kedudukan scroll terakhir
+let lastScrollTop = 0;
+const navbar = document.querySelector('.dashboard-nav');
 
+window.addEventListener('scroll', function() {
+    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Jangan buat apa-apa kalau scroll "bounce" kat atas sekali (Safari/Mobile)
+    if(scrollTop < 0) return;
+
+    // Logic: Kalau scroll ke bawah DAN dah lepas 50px dari atas
+    if (scrollTop > lastScrollTop && scrollTop > 50) {
+        // Tambah class untuk sorok
+        navbar.classList.add('nav-hidden');
+    } else {
+        // Buang class untuk tunjuk balik (bila scroll ke atas)
+        navbar.classList.remove('nav-hidden');
+    }
+    
+    lastScrollTop = scrollTop;
+});
 </script>
 </body>
 </html>
