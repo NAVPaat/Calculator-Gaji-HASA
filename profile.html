@@ -133,10 +133,50 @@
     .msg-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; display: block; }
 
     .custom-footer { text-align:center; color: var(--text-secondary); padding: 30px; font-size: 0.85rem; margin-top: auto; }
+    /* =========================================
+   FULL PAGE MODERN BACKGROUND
+   ========================================= */
+.animated-bg {
+    position: fixed; /* Guna fixed supaya ia kekal penuh walaupun scroll */
+    top: 0; 
+    left: 0; 
+    width: 100%;
+    height: 100%; /* Penuh satu skrin */
+    
+    /* Warna Moden Mesh Gradient */
+    background-color: #f3f4f6;
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,0) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,0) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%);
+        
+    background-image: 
+        radial-gradient(at 40% 20%, hsla(28,100%,74%,1) 0px, transparent 50%),
+        radial-gradient(at 80% 0%, hsla(189,100%,56%,1) 0px, transparent 50%),
+        radial-gradient(at 0% 50%, hsla(355,100%,93%,1) 0px, transparent 50%),
+        radial-gradient(at 80% 50%, hsla(340,100%,76%,1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(22,100%,77%,1) 0px, transparent 50%),
+        radial-gradient(at 80% 100%, hsla(242,100%,70%,1) 0px, transparent 50%),
+        radial-gradient(at 0% 0%, hsla(343,100%,76%,1) 0px, transparent 50%);
+
+    /* Blur & Filter untuk efek lembut */
+    filter: blur(60px); 
+    opacity: 0.6; /* Transparansi supaya tak ganggu teks */
+    z-index: -1;
+    
+    /* Animasi Pergerakan */
+    background-size: 150% 150%;
+    animation: gradientFull 15s ease infinite alternate;
+}
+
+@keyframes gradientFull {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 </style>
 </head>
 <body class="fade-in">
-
 <div class="animated-bg"></div>
 
 <nav class="dashboard-nav">
