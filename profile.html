@@ -2,156 +2,324 @@
 <html lang="ms">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Profile</title>
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Profil Pengguna — HASA UiTM</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="firebase-config.js"></script>
 <script src="auth.js"></script>
-</head>
-<body>
 
-<!-- NAVBAR -->
+<style>
+    /* ===== THEME VARIABLES ===== */
+    :root {
+        --bg-main: #f8fafc;
+        --bg-card: #ffffff;
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
+        --brand-blue: #4f46e5;
+        --brand-red: #ef4444;
+        --border-light: #e2e8f0;
+        --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0; padding: 0;
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+        display: flex; flex-direction: column;
+        opacity: 0; transition: opacity 0.4s ease-in-out;
+    }
+    body.loaded { opacity: 1; }
+
+  .hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
+.hamburger span { width: 25px; height: 3px; background-color: #0f172a; border-radius: 2px; transition: 0.3s; }
+
+    /* NAVBAR (BURGER READY) */
+    .dashboard-nav {
+        display: flex; justify-content: space-between; align-items: center; padding: 15px 30px;
+        background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255,255,255,0.6); position: sticky; top: 0; z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 12px; }
+    .nav-logo { height: 38px; }
+    .nav-title { font-weight: 800; font-size: 1.1rem; color: #1e293b; }
+    
+    .nav-right { display: flex; gap: 20px; align-items: center; }
+    .nav-link { text-decoration: none; color: #475569; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
+    .nav-link:hover { color: var(--brand-blue); }
+    
+    .hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
+    .hamburger span { width: 25px; height: 3px; background-color: #0f172a; border-radius: 2px; transition: 0.3s; }
+
+    @media (max-width: 768px) {
+        .dashboard-nav { padding: 15px 20px; }
+        .hamburger { display: flex; }
+        .nav-right {
+            display: none; flex-direction: column;
+            position: absolute; top: 100%; left: 0; width: 100%;
+            background: white; padding: 20px;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            gap: 15px; text-align: center; border-bottom: 1px solid var(--border-light);
+        }
+        .nav-right.active { display: flex; }
+        .nav-link { padding: 10px; width: 100%; display: block; }
+    }
+    
+    .logout-btn { background: #fee2e2; color: #ef4444; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    .logout-btn:hover { background: #fecaca; }
+
+    /* PROFILE CONTAINER */
+    .container {
+        flex: 1; display: flex; justify-content: center; align-items: center;
+        padding: 40px 20px; position: relative; z-index: 1;
+    }
+
+    .profile-card {
+        background: var(--bg-card);
+        width: 100%; max-width: 500px;
+        padding: 40px; border-radius: 20px;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-light);
+    }
+
+    .profile-card h2 { margin-top: 0; font-size: 1.8rem; text-align: center; color: var(--text-primary); margin-bottom: 25px; }
+
+    /* FORM STYLES */
+    .profile-form label {
+        display: block; font-size: 0.85rem; font-weight: 600;
+        color: var(--text-secondary); margin-bottom: 8px; margin-top: 15px;
+    }
+
+    .input {
+        width: 100%; padding: 12px 15px;
+        border: 1px solid var(--border-light); border-radius: 10px;
+        font-size: 1rem; font-family: inherit; outline: none; transition: 0.2s;
+        background: #fff;
+    }
+    .input:focus { border-color: var(--brand-blue); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+    
+    .input[readonly] {
+        background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: transparent;
+    }
+
+    .form-actions { display: flex; gap: 15px; margin-top: 30px; }
+    
+    .btn {
+        flex: 1; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer;
+        font-size: 0.95rem; border: none; transition: 0.2s; text-align: center; text-decoration: none;
+    }
+    .btn-primary { background: var(--brand-blue); color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(79, 70, 229, 0.3); }
+    
+    .btn-outline { background: white; border: 2px solid var(--border-light); color: var(--text-secondary); }
+    .btn-outline:hover { border-color: var(--brand-blue); color: var(--brand-blue); background: #f8fafc; }
+
+    .msg-text {
+        margin-top: 20px; padding: 15px; border-radius: 8px; font-size: 0.9rem; text-align: center; display: none;
+    }
+    .msg-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; display: block; }
+    .msg-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; display: block; }
+
+    .custom-footer { text-align:center; color: var(--text-secondary); padding: 30px; font-size: 0.85rem; margin-top: auto; }
+</style>
+</head>
+<body class="fade-in">
+
+<div class="animated-bg"></div>
+
 <nav class="dashboard-nav">
-  <div class="nav-left">
-      <img src="image/HASA.png" class="nav-logo">
-      <span class="nav-title">PROFILE PENGGUNA</span>
-  </div>
-  <div class="nav-right">
-      <a href="dashboard.html" class="nav-link">Dashboard</a>
-      <a href="contohawam.html" class="nav-link">Kiraan Awam</a>
-      <a href="swasta.html" class="nav-link">Kiraan Swasta</a>
-      <button id="logoutBtn" class="logout-btn">Logout</button>
-  </div>
+    <div class="nav-left">
+        <img src="image/HASA.png" class="nav-logo" alt="HASA Logo">
+        <span class="nav-title">PROFIL SAYA</span>
+    </div>
+    
+    <div class="hamburger" id="hamburgerBtn">
+        <span></span><span></span><span></span>
+    </div>
+
+    <div class="nav-right" id="navMenu">
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="contohawam.html" class="nav-link">Kiraan Awam</a>
+        <a href="swasta.html" class="nav-link">Kiraan Swasta</a>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
 </nav>
 
+<div class="container">
+    <div class="profile-card">
+        <h2>Kemaskini Maklumat</h2>
+        
+        <form id="profileForm" class="profile-form">
+            <label>Nama Penuh</label>
+            <input type="text" id="fullname" class="input" placeholder="Masukkan nama penuh" required>
 
-<!-- PROFILE CARD -->
-<div class="container profile-container">
-  <div class="profile-card">
-    <h2>Profil Saya</h2>
-    <form id="profileForm" class="profile-form">
-      <label>Nama Penuh</label>
-      <input type="text" id="fullname" class="input" required>
+            <label>No. Telefon</label>
+            <input type="text" id="phone" class="input" placeholder="Contoh: 012-3456789" required>
 
-      <label>No Telefon</label>
-      <input type="text" id="phone" class="input" required>
+            <label>Alamat Email (Tidak boleh diubah)</label>
+            <input type="email" id="email" class="input" readonly>
 
-      <label>Email</label>
-      <input type="email" id="email" class="input" readonly>
+            <div style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label>Peranan</label>
+                    <input type="text" id="role" class="input" readonly>
+                </div>
+                <div style="flex: 1;">
+                    <label>Tarikh Daftar</label>
+                    <input type="text" id="joinedDate" class="input" readonly>
+                </div>
+            </div>
 
-      <label>Role</label>
-      <input type="text" id="role" class="input" readonly>
+            <div id="profileMsg" class="msg-text"></div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Simpan</button>
-        <button type="button" id="goDashboard" class="btn btn-outline">Dashboard</button>
-      </div>
-      <div id="profileMsg" class="msg-text"></div>
-    </form>
-  </div>
+            <div class="form-actions">
+                <a href="dashboard.html" class="btn btn-outline">Kembali</a>
+                <button type="submit" id="saveBtn" class="btn btn-primary">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- FOOTER -->
 <footer class="custom-footer">
-  <div class="footer-content">
-    © 2025 HASA UiTM — SISTEM KIRAAN GAJI
-  </div>
+    © 2025 HASA UiTM — Sistem Kiraan Gaji
 </footer>
 
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.body.classList.add("loaded");
+    
+    // Burger Menu Logic (Mobile)
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const navMenu = document.getElementById('navMenu');
+    
+    if(hamburgerBtn && navMenu) {
+        hamburgerBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            
+            // Toggle burger animation shape
+            const spans = hamburgerBtn.querySelectorAll('span');
+            if(navMenu.classList.contains('active')){
+                spans[0].style.transform = "rotate(45deg) translate(5px, 5px)";
+                spans[1].style.opacity = "0";
+                spans[2].style.transform = "rotate(-45deg) translate(5px, -5px)";
+            } else {
+                spans[0].style.transform = "none";
+                spans[1].style.opacity = "1";
+                spans[2].style.transform = "none";
+            }
+        });
+    }
+});
+
 // Elements
 const logoutBtn = document.getElementById('logoutBtn');
-const goDashboard = document.getElementById('goDashboard');
 const profileForm = document.getElementById('profileForm');
 const msgBox = document.getElementById('profileMsg');
+const saveBtn = document.getElementById('saveBtn');
 
-// Papar data semasa login
 let currentUserUid = null;
 
+// Auth Listener
 onAuthChange(async user => {
-  if(!user){ location.href='login.html'; return; }
-  currentUserUid = user.uid;
-  const { data } = await getCurrentUserDoc();
-  document.getElementById('fullname').value = data?.fullname || '';
-  document.getElementById('phone').value = data?.phone || '';
-  document.getElementById('email').value = user.email;
-  document.getElementById('role').value = data?.role || 'pengguna';
+    if(!user){ location.href='login.html'; return; }
+    currentUserUid = user.uid;
+    
+    // Load Data
+    saveBtn.textContent = "Memuatkan...";
+    saveBtn.disabled = true;
+
+    try {
+        const { data } = await getCurrentUserDoc();
+        document.getElementById('fullname').value = data?.fullname || '';
+        document.getElementById('phone').value = data?.phone || '';
+        document.getElementById('email').value = user.email;
+        
+        // Determine Role
+        const role = user.email.endsWith('@uitm.edu.my') ? 'Pentadbir' : 'Pengguna Biasa';
+        document.getElementById('role').value = role;
+
+        // Format Date
+        let joined = '-';
+        if(data?.createdAt && data.createdAt.seconds) {
+            joined = new Date(data.createdAt.seconds * 1000).toLocaleDateString('en-GB');
+        }
+        document.getElementById('joinedDate').value = joined;
+
+    } catch (e) {
+        console.error("Error loading profile", e);
+    } finally {
+        saveBtn.textContent = "Simpan Perubahan";
+        saveBtn.disabled = false;
+    }
 });
 
-// Logout
+// Logout Logic
 logoutBtn.addEventListener('click', async () => {
-  await signOutUser();
-  location.href='login.html';
+    const confirmLogout = confirm("Adakah anda pasti untuk log keluar?");
+    if(confirmLogout){
+        await firebase.auth().signOut();
+        location.href='login.html';
+    }
 });
 
-// Dashboard button
-goDashboard.addEventListener('click', () => location.href='dashboard.html');
-
-// Update profile dan sync terus ke dashboard
+// Update Profile
 profileForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    e.preventDefault();
+    msgBox.style.display = 'none';
+    msgBox.className = 'msg-text';
+    saveBtn.textContent = "Menyimpan...";
+    saveBtn.disabled = true;
 
-  const fullname = document.getElementById('fullname').value.trim();
-  const phone = document.getElementById('phone').value.trim();
+    const fullname = document.getElementById('fullname').value.trim();
+    const phone = document.getElementById('phone').value.trim();
 
-  if(!fullname || !phone){
-    msgBox.style.color = 'red';
-    msgBox.textContent = 'Sila lengkapkan semua ruangan.';
-    return;
-  }
-
-  try {
-    await firebase.firestore().collection('users').doc(currentUserUid).update({
-      fullname,
-      phone
-    });
-
-    msgBox.style.color = 'green';
-    msgBox.textContent = 'Profil berjaya dikemaskini.';
-
-    // Update dashboard data secara live
-    if (window.opener && !window.opener.closed) {
-      window.opener.document.getElementById('userName').textContent = fullname;
-      window.opener.document.getElementById('accountData').innerHTML = `
-        <div>Nama: ${fullname}</div>
-        <div>Telefon: ${phone}</div>
-        <div>Email: ${document.getElementById('email').value}</div>
-      `;
+    if(!fullname || !phone){
+        showMsg('Sila lengkapkan nama dan nombor telefon.', 'error');
+        saveBtn.textContent = "Simpan Perubahan";
+        saveBtn.disabled = false;
+        return;
     }
 
-  } catch(err){
-    msgBox.style.color = 'red';
-    msgBox.textContent = 'Gagal kemaskini. Sila cuba lagi.';
-    console.error(err);
-  }
+    try {
+        await firebase.firestore().collection('users').doc(currentUserUid).update({
+            fullname,
+            phone,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showMsg('Profil berjaya dikemaskini!', 'success');
+        
+        // Optional: Auto redirect after success
+        setTimeout(() => {
+            // location.href = 'dashboard.html'; 
+        }, 1500);
+
+    } catch(err){
+        showMsg('Gagal mengemaskini profil. Sila cuba lagi.', 'error');
+        console.error(err);
+    } finally {
+        saveBtn.textContent = "Simpan Perubahan";
+        saveBtn.disabled = false;
+    }
 });
 
-
- document.addEventListener('DOMContentLoaded', function() {
-      // Fade in page
-      document.body.classList.add('fade-in');
-
-      // Semua link dashboard-nav (if present)
-      const links = document.querySelectorAll('.dashboard-nav .nav-link');
-
-      links.forEach(link => {
-          link.addEventListener('click', function(e) {
-              e.preventDefault(); // prevent immediate redirect
-
-              const href = this.getAttribute('href');
-
-              // Fade out
-              document.body.style.opacity = 0;
-
-              setTimeout(() => {
-                  window.location.href = href; // redirect selepas fade out
-              }, 400); // 400ms sama dengan transition
-          });
-      });
-  });
+function showMsg(text, type) {
+    msgBox.textContent = text;
+    msgBox.className = `msg-text msg-${type}`;
+    msgBox.style.display = 'block';
+}
 </script>
 
 </body>
