@@ -123,8 +123,38 @@
     }
     .input:focus { outline: none; border-color: #5E2A84; box-shadow: 0 0 0 4px rgba(94, 42, 132, 0.1); }
     
-    select.input { appearance: none; -webkit-appearance: none; cursor: pointer; }
+    /* CUSTOM SELECT & ARROW STYLING */
+    .select-wrapper {
+        position: relative;
+        width: 100%;
+    }
 
+    select.input { 
+        appearance: none; -webkit-appearance: none; -moz-appearance: none; 
+        cursor: pointer; 
+        padding-right: 40px; /* Space for arrow */
+    }
+
+    /* The Animated Arrow */
+    .custom-arrow {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%); /* Centered vertically, Default Left (As drawn) */
+        pointer-events: none; /* Let click pass through */
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth animation */
+        width: 20px;
+        height: 20px;
+        color: #6b7280;
+    }
+
+    /* When active (Class added via JS) */
+    .select-wrapper.active .custom-arrow {
+        transform: translateY(-50%) rotate(-90deg); /* Rotate Left to Down */
+        color: #5E2A84; /* Change color when active */
+    }
+
+    /* Button */
     .btn {
         width: 100%; padding: 12px; border: none; border-radius: 10px;
         font-weight: 600; font-size: 1rem; cursor: pointer;
@@ -182,12 +212,15 @@
                     <input id="phone" class="input" type="tel" placeholder="No Telefon" required>
                 </div>
 
-                <div class="input-group">
+                <div class="input-group select-wrapper" id="genderWrapper">
                     <select id="gender" class="input" required>
                         <option value="" disabled selected>Pilih Jantina</option>
                         <option value="lelaki">Lelaki</option>
                         <option value="perempuan">Perempuan</option>
                     </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="custom-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
                 </div>
 
                 <div class="input-group">
@@ -215,6 +248,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const passInput = document.getElementById('password');
     const nameInput = document.getElementById('fullname');
     const btnSpinner = document.getElementById('btnSpinner');
+
+    // ===== GENDER ARROW ANIMATION LOGIC =====
+    const genderSelect = document.getElementById('gender');
+    const genderWrapper = document.getElementById('genderWrapper');
+
+    // Bila user tekan/focus -> Rotate arrow ke Bawah
+    genderSelect.addEventListener('focus', () => {
+        genderWrapper.classList.add('active');
+    });
+
+    // Bila user click (untuk support mouse click)
+    genderSelect.addEventListener('click', () => {
+        // Toggle untuk UX mouse yang lebih baik
+        // (kadang-kadang focus event dah trigger, tapi safety check)
+        genderWrapper.classList.add('active'); 
+    });
+
+    // Bila user pilih item atau click luar (blur) -> Reset arrow ke Kiri
+    genderSelect.addEventListener('change', () => {
+        genderWrapper.classList.remove('active');
+        genderSelect.blur(); // Remove focus lepas pilih supaya arrow reset
+    });
+
+    genderSelect.addEventListener('blur', () => {
+        genderWrapper.classList.remove('active');
+    });
 
     // ===== AUTO UPPERCASE NAME =====
     nameInput.addEventListener('input', function() {
@@ -259,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setLoading(true);
 
         try {
-            // MENGGUNAKAN FUNGSI DARI AUTH.JS ANDA (SUPAYA DATA DISIMPAN)
+            // MENGGUNAKAN FUNGSI DARI AUTH.JS ANDA
             await signupUser(name, email, phone, pwd, role, gender);
 
             // LOG OUT DAN SURUH LOGIN SEMULA
