@@ -889,6 +889,14 @@ window.addEventListener('scroll', function() {
     
     lastScrollTop = scrollTop;
 });
+/* =========================================
+   FORCE SCROLL TO TOP ON REFRESH
+   ========================================= */
+if (history.scrollRestoration) {
+    history.scrollRestoration = 'manual'; // Halang browser ingat position lama
+}
+window.scrollTo(0, 0); // Paksa naik atas serta-merta
     </script>
 </body>
 </html>
+
