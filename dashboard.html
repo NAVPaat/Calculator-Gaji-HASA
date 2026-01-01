@@ -4,11 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Dashboard — HASA UiTM</title>
-<link rel="stylesheet" href="style.css">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -18,12 +16,18 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* ===== MODERN BACKGROUND & RESET ===== */
+/* ===== MODERN LIGHT THEME VARIABLES ===== */
 :root {
-    --bg-dark: #0f172a;
-    --accent-1: #4f46e5; /* Indigo */
-    --accent-2: #ec4899; /* Pink */
-    --accent-3: #06b6d4; /* Cyan */
+    --bg-main: #f8fafc;      /* Sangat cerah kelabu */
+    --bg-card: #ffffff;      /* Putih bersih */
+    --text-primary: #0f172a; /* Biru gelap hampir hitam */
+    --text-secondary: #64748b; /* Kelabu sederhana */
+    --brand-blue: #4f46e5;   /* Indigo terang */
+    --brand-green: #10b981;  /* Emerald terang */
+    --border-light: #e2e8f0;
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 * { box-sizing: border-box; }
@@ -32,147 +36,179 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Inter', sans-serif;
-    background-color: var(--bg-dark);
-    color: #f8fafc;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
 }
 
-/* --- ANIMATED BACKGROUND --- */
-.background-container {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: -2;
-    overflow: hidden;
-    background: var(--bg-dark);
-}
-
-/* Gradient Orbs */
-.orb {
+/* --- NEW ATTRACTIVE BACKGROUND (No Blobs) --- */
+/* Subtle top gradient header banner */
+body::before {
+    content: '';
     position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.5;
-    animation: floatOrb 20s infinite ease-in-out alternate;
-}
-
-.orb-1 {
-    width: 60vw; height: 60vw;
-    background: radial-gradient(circle, var(--accent-1), transparent 70%);
-    top: -10%; left: -10%;
-    animation-delay: 0s;
-}
-
-.orb-2 {
-    width: 50vw; height: 50vw;
-    background: radial-gradient(circle, var(--accent-2), transparent 70%);
-    bottom: -10%; right: -10%;
-    animation-delay: -5s;
-}
-
-.orb-3 {
-    width: 40vw; height: 40vw;
-    background: radial-gradient(circle, var(--accent-3), transparent 70%);
-    top: 40%; left: 40%;
-    opacity: 0.3;
-    animation-delay: -10s;
-}
-
-@keyframes floatOrb {
-    0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(30px, 40px) scale(1.1); }
-    100% { transform: translate(-20px, -30px) scale(0.95); }
-}
-
-/* Subtle Grid Overlay */
-.grid-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0; left: 0; right: 0;
+    height: 300px;
+    background: linear-gradient(135deg, #ede9fe 0%, #e0f2fe 100%); /* Light purple to light blue */
     z-index: -1;
-    background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
+    clip-path: ellipse(150% 100% at 50% 0%); /* Curved bottom */
 }
 
-/* Glassmorphism Card Override */
-.card, .stat-card {
-    background: rgba(30, 41, 59, 0.6) !important; /* Semi-transparent Slate */
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    color: white;
+/* ===== LAYOUT & CONTAINER ===== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
-.stat-number { color: #f8fafc !important; }
-.stat-label, .stat-sub { color: #94a3b8 !important; }
 
-/* ===== TOP PAYS LIP SUMMARY ===== */
-#topPayslipSummary{ margin:12px auto; max-width:980px; }
-#topPayslipSummary .stat-card{ padding:10px; min-width:110px; text-align:center; }
-#payslipChartTop{ width:260px; height:160px; }
-@media (max-width:720px){ #topPayslipSummary{ flex-direction:column; gap:10px; } #payslipChartTop{ width:100%; height:180px; } }
+.grid-2 {
+    display: grid;
+    grid-template-columns: 280px 1fr; /* Fixed sidebar, flexible main */
+    gap: 24px;
+}
+@media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
 
-/* ===== STAT CARD LAYOUT ===== */
-.stat-card-wrap {position:relative; overflow:hidden}
-.stat-card {display:flex; flex-direction:column; gap:6px; padding:18px; border-radius:12px;}
-.stat-label {font-size:13px; font-weight:600}
-.stat-number {font-size:36px; font-weight:700;}
-.stat-sub {font-size:12px;}
+/* ===== MODERN CARDS (Theme Terang) ===== */
+.card, .stat-card, .fx-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
 
-@media (max-width:720px){ .stat-number {font-size:28px} }
+.card:hover, .stat-card:hover {
+    box-shadow: var(--shadow-md);
+}
 
-/* ===== BUTTONS & TEXT ===== */
-h2, h3, h4 { color: white; margin-bottom: 8px; }
-p, .small { color: #cbd5e1; }
+/* ===== TYPOGRAPHY ===== */
+h2, h3, h4 { color: var(--text-primary); margin-top:0; margin-bottom: 12px; font-weight: 700; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.2rem; }
+h4 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); }
+p, .small, .stat-sub { color: var(--text-secondary); line-height: 1.5; }
+.small { font-size: 0.9rem; }
 
+/* ===== NAVBAR (Theme Terang) ===== */
+.dashboard-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 30px;
+    background: rgba(255, 255, 255, 0.8); /* Putih transparent */
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-light);
+    position: sticky; top: 0; z-index: 100;
+}
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-logo { height: 40px; }
+.nav-title { font-weight: 800; font-size: 1.1rem; color: var(--brand-blue); }
+.nav-right { display: flex; gap: 20px; align-items: center; }
+.nav-link {
+    text-decoration: none; color: var(--text-secondary); font-weight: 600; font-size: 0.95rem; transition: color 0.2s;
+}
+.nav-link:hover, .nav-link.active { color: var(--brand-blue); }
+@media (max-width: 768px) { .dashboard-nav { padding: 15px; } .nav-title { display: none; } .nav-right { gap: 10px; } .nav-link { font-size: 0.85rem; } }
+
+/* ===== BUTTONS (Light Theme) ===== */
 .btn-outline {
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 8px;
+    display: inline-block;
+    border: 2px solid var(--border-light);
+    color: var(--text-primary);
+    padding: 10px 20px;
+    border-radius: 10px;
     text-decoration: none;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 700;
     transition: all 0.2s;
-    background: rgba(255,255,255,0.05);
+    background: white;
+    text-align: center;
 }
 .btn-outline:hover {
-    background: rgba(255,255,255,0.15);
-    border-color: white;
+    border-color: var(--brand-blue);
+    color: var(--brand-blue);
+    background: #eff6ff;
     transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
+.logout-btn {
+    background: #fee2e2; color: #ef4444; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s;
+}
+.logout-btn:hover { background: #fecaca; }
+
+/* ===== TOP STATS & INTERACTION (PENTING) ===== */
+.fx-summary {
+    display: flex; gap: 24px; margin-bottom: 30px; align-items: stretch;
+}
+.fx-stats { display: flex; flex-direction: column; gap: 24px; flex: 1; }
+.fx-chart { flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 250px; }
+
+.fx-card {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    cursor: pointer; /* Menunjukkan boleh klik */
+    position: relative; overflow: hidden;
+}
+/* Warna border accent untuk kad */
+.fx-card.awam { border-left: 4px solid var(--brand-blue); }
+.fx-card.swasta { border-left: 4px solid var(--brand-green); }
+
+/* Efek Hover & Aktif */
+.fx-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.fx-card.active-filter { 
+    background: #f1f5f9 !important; /* Sedikit kelabu bila aktif */
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+/* Bila satu aktif, yang lain pudar sikit */
+.fx-summary.has-filter .fx-card:not(.active-filter) { opacity: 0.6; }
+
+.fx-label { font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px; margin-bottom: 5px;}
+.fx-value { font-size: 2.5rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+.fx-sub { font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px; }
+
+#payslipChartTop { max-height: 220px; width: 100%; }
+.fx-chart-title { position: absolute; top: 20px; left: 24px; font-weight: 700; color: var(--text-secondary); }
+
+#resetFilterBtn {
+    position: absolute; top: 20px; right: 24px;
+    padding: 6px 12px; background: var(--brand-blue); color: white;
+    border: none; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+    cursor: pointer; display: none; /* Hidden by default */
+    box-shadow: var(--shadow-sm); transition: 0.2s;
+}
+#resetFilterBtn:hover { background: #4338ca; }
+
+@media (max-width: 800px) { .fx-summary { flex-direction: column; } .fx-stats { flex-direction: row; } }
+@media (max-width: 600px) { .fx-stats { flex-direction: column; } }
+
+
+/* ===== OTHER STATS ===== */
+.stat-number { font-size: 3rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; }
+.kv { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-light); font-size: 0.9rem; }
+.kv div:first-child { font-weight: 600; color: var(--text-secondary); }
 
 /* ===== GO TOP BUTTON ===== */
 #goTopBtn {
     display: none; position: fixed; bottom: 30px; right: 30px; z-index: 99;
-    border: none; outline: none; background-color: var(--accent-1); color: white;
-    cursor: pointer; padding: 12px 16px; border-radius: 50%; font-size: 18px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: 0.3s;
+    border: none; outline: none; background-color: var(--brand-blue); color: white;
+    cursor: pointer; width: 50px; height: 50px; border-radius: 50%; font-size: 24px;
+    box-shadow: var(--shadow-md); transition: 0.3s; display: flex; align-items: center; justify-content: center;
 }
-#goTopBtn:hover { background-color: #4338ca; transform: translateY(-3px); }
+#goTopBtn:hover { background-color: #4338ca; transform: translateY(-5px); box-shadow: var(--shadow-lg); }
 
 /* FADE IN */
 .fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+/* Footer */
+.custom-footer { text-align:center; color: var(--text-secondary); padding:30px 20px; font-size:0.9rem; margin-top: 40px; border-top: 1px solid var(--border-light); }
 </style>
 </head>
 <body class="fade-in">
 
-<div class="background-container">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-</div>
-<div class="grid-overlay"></div>
-
 <nav class="dashboard-nav">
     <div class="nav-left">
-        <img src="image/HASA.png" class="nav-logo">
-        <span class="nav-title">DASHBOARD CALCULATOR GAJI</span>
+        <img src="image/HASA.png" class="nav-logo" alt="Logo">
+        <span class="nav-title">DASHBOARD KIRAAN GAJI</span>
     </div>
     <div class="nav-right">
         <a href="dashboard.html" class="nav-link active">Dashboard</a>
@@ -182,109 +218,114 @@ p, .small { color: #cbd5e1; }
     </div>
 </nav>
 
-<div id="topPayslipSummary" class="fx-summary">
-  <div class="fx-stats">
-    <div class="fx-card awam">
-      <div class="fx-glow"></div>
-      <div class="fx-label">CETAKAN AWAM</div>
-      <div class="fx-value" id="awamCountTop">0</div>
-      <div class="fx-sub">Sektor Kerajaan</div>
+<div class="container">
+    <div id="topPayslipSummary" class="fx-summary card">
+      <div class="fx-stats">
+        <div class="fx-card awam" id="cardAwam">
+          <div class="fx-label">CETAKAN AWAM</div>
+          <div class="fx-value" id="awamCountTop">0</div>
+          <div class="fx-sub">Sektor Kerajaan</div>
+        </div>
+
+        <div class="fx-card swasta" id="cardSwasta">
+          <div class="fx-label">CETAKAN SWASTA</div>
+          <div class="fx-value" id="swastaCountTop">0</div>
+          <div class="fx-sub">Sektor Korporat</div>
+        </div>
+      </div>
+
+      <div class="fx-chart">
+        <div class="fx-chart-title">AGIHAN CETAKAN</div>
+        <button id="resetFilterBtn">↻ Reset Filter</button>
+        <canvas id="payslipChartTop"></canvas>
+      </div>
     </div>
 
-    <div class="fx-card swasta">
-      <div class="fx-glow"></div>
-      <div class="fx-label">CETAKAN SWASTA</div>
-      <div class="fx-value" id="swastaCountTop">0</div>
-      <div class="fx-sub">Sektor Korporat</div>
-    </div>
-  </div>
+    <div class="grid-2">
+        <div class="side">
+            <div class="card">
+                <h3 id="userName">Memuatkan...</h3>
+                <div class="small" id="userEmail">...</div>
+                <div style="height:16px"></div>
+                <div class="kv"><div>Peranan</div><div id="userRole">-</div></div>
+                <div class="kv"><div>Daftar Pada</div><div id="userCreated">-</div></div>
 
-  <div class="fx-chart">
-    <div class="fx-chart-title">AGIHAN CETAKAN</div>
-    <canvas id="payslipChartTop"></canvas>
-  </div>
-</div>
-
-<div class="container grid-2" style="margin-top:20px;">
-    <div class="side card">
-        <h3 id="userName">Nama Pengguna</h3>
-        <div class="small" id="userEmail">email@domain.com</div>
-        <div style="height:12px"></div>
-        <div class="kv"><div>Role</div><div id="userRole">-</div></div>
-        <div class="kv"><div>Daftar</div><div id="userCreated">-</div></div>
-
-        <div style="height:16px"></div>
-        <a class="btn btn-outline" href="profile.html" style="width:100%; display:block; text-align:center; margin-bottom:8px;">EDIT PROFILE</a>
-        
-        <button id="sideLogoutBtn" class="btn btn-outline" style="width:100%; background-color: rgba(225, 29, 72, 0.2); border-color: #e11d48; color: #fda4af;">
-            LOGOUT
-        </button>
-    </div>
-
-    <div class="main-panel">
-        <h2>Dashboard</h2>
-        <p class="small">Selamat datang — Ini adalah ringkasan ringkas. Anda boleh akses profile, sistem kiraan gaji, atau mobile app via FlutterFlow.</p>
-
-        <div style="height:12px"></div>
-        <div class="card">
-            <h4>Quick Actions</h4>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px">
-                <a class="btn btn-outline" href="contohawam.html">KIRA GAJI — AWAM</a>
-                <a class="btn btn-outline" href="swasta.html">KIRA GAJI — SWASTA</a>
-                <a class="btn btn-outline" href="profile.html">EDIT PROFILE</a>
+                <div style="height:24px"></div>
+                <a class="btn-outline" href="profile.html" style="width:100%; margin-bottom:12px;">EDIT PROFILE</a>
+                
+                <button id="sideLogoutBtn" class="btn-outline" style="width:100%; border-color: #fee2e2; color: #ef4444; background: #fff0f0;">
+                    LOGOUT SEKARANG
+                </button>
             </div>
         </div>
 
-        <div style="height:12px"></div>
-        <div id="payslipStats" class="card stat-card-wrap">
-            <h4>Statistik Cetakan</h4>
-            <div class="stat-card" style="background: rgba(255,255,255,0.03); margin-top:10px;">
-                <div class="stat-label">Jumlah Cetakan Slip Gaji</div>
-                <div class="stat-number" id="payslipCount">—</div>
-                <div class="stat-sub">Sehingga kini</div>
-            </div>
-            <div class="small" style="margin-top:12px; opacity:0.7">Ringkasan Awam/Swasta dipaparkan di atas</div>
-            <div id="payslipDebug" class="small" style="margin-top:8px; opacity:0.5; font-size:0.8rem">Status: Menunggu...</div>
-        </div>
+        <div class="main-panel">
+            <h2>Selamat Datang ke Dashboard</h2>
+            <p class="small" style="font-size: 1rem;">Ini adalah pusat kawalan anda. Akses sistem kiraan gaji, lihat statistik terkini, atau kemaskini profil anda dari sini.</p>
 
-        <div style="height:12px"></div>
-        <div id="moreArea" class="card">
-            <h4>Data Akaun</h4>
-            <div id="accountData" class="small" style="line-height:1.6"></div>
-        </div> 
+            <div style="height:24px"></div>
+            
+            <div class="card">
+                <h4>Pautan Pantas</h4>
+                <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:16px">
+                    <a class="btn-outline" href="contohawam.html" style="border-color: var(--brand-blue); color: var(--brand-blue);">🖩 KIRA GAJI AWAM</a>
+                    <a class="btn-outline" href="swasta.html" style="border-color: var(--brand-green); color: var(--brand-green);">🖩 KIRA GAJI SWASTA</a>
+                </div>
+            </div>
+
+            <div style="height:24px"></div>
+
+            <div id="payslipStats" class="card">
+                <h4>Statistik Keseluruhan</h4>
+                <div style="margin-top:16px; text-align: center;">
+                    <div class="stat-number" id="payslipCount">—</div>
+                    <div class="stat-sub" style="font-size: 1.1rem; font-weight: 500; margin-top: 8px;">Jumlah Cetakan Slip Gaji Direkodkan</div>
+                </div>
+                <div style="margin-top:20px; padding-top: 15px; border-top: 1px solid var(--border-light); text-align: center;">
+                    <span class="small" style="opacity:0.8">Klik pada kad Awam/Swasta di atas untuk menapis data.</span>
+                    <div id="payslipDebug" class="small" style="margin-top:5px; opacity:0.6; font-size:0.75rem">Status: Menunggu sambungan...</div>
+                </div>
+            </div>
+
+            <div style="height:24px"></div>
+
+            <div id="moreArea" class="card">
+                <h4>Maklumat Akaun Terperinci</h4>
+                <div id="accountData" class="small" style="line-height:1.8; font-size: 0.95rem;"></div>
+            </div> 
+        </div>
     </div>
 </div>
 
-<br>
-<footer class="custom-footer" style="text-align:center; color:#94a3b8; padding:20px; font-size:0.9rem;">
+<footer class="custom-footer">
     <div class="footer-content">
-        © 2025 HASA UiTM — SISTEM KIRAAN GAJI
+        © 2025 HASA UiTM — Sistem Kiraan Gaji Kakitangan
     </div>
 </footer>
 
 <button id="goTopBtn" title="Go to Top">↑</button>
 
 <script>
-// ===== LOGOUT LOGIC =====
+// ===== 1. SETUP LOGOUT =====
 function setupLogout(buttonId){
   const btn = document.getElementById(buttonId);
   if(!btn) return;
 
   btn.addEventListener('click', async () => {
     try {
-      // Notification
+      // Modern Notification
       const notif = document.createElement('div');
-      notif.textContent = 'Logout berjaya…';
-      notif.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background-color:#10b981; color:white; padding:12px 24px; border-radius:30px; font-weight:600; box-shadow:0 10px 25px rgba(0,0,0,0.3); z-index:9999; opacity:0; transition:opacity 0.3s ease;";
+      notif.textContent = 'Sedang Log Keluar...';
+      notif.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background-color: var(--brand-blue); color:white; padding:12px 24px; border-radius:30px; font-weight:600; box-shadow: var(--shadow-lg); z-index:9999; opacity:0; transition:all 0.3s ease;";
       document.body.appendChild(notif);
 
-      setTimeout(() => notif.style.opacity = 1, 10);
+      setTimeout(() => { notif.style.opacity = 1; notif.style.top = '30px'; }, 10);
 
       setTimeout(async () => {
-        notif.remove();
+        notif.style.opacity = 0;
         await firebase.auth().signOut();
         location.href = 'login.html';
-      }, 1200);
+      }, 1500);
 
     } catch (error) {
       console.error('Logout gagal:', error);
@@ -295,53 +336,44 @@ function setupLogout(buttonId){
 
 setupLogout('logoutBtn');
 setupLogout('sideLogoutBtn');
-setupLogout('mobileLogoutBtn');
 
 
-// ===== NAVBAR SCROLL EFFECT =====
-const nav = document.querySelector('.dashboard-nav');
-window.addEventListener('scroll', () => {
-    if(nav) {
-        const scrollTop = window.pageYOffset;
-        nav.style.background = scrollTop > 50 ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.1)';
-        nav.style.backdropFilter = scrollTop > 50 ? 'blur(10px)' : 'blur(5px)';
-    }
-});
-
-// ===== AUTH CHANGE =====
+// ===== 2. AUTH STATE CHANGE =====
 onAuthChange(async user => {
     if(!user){ location.href='login.html'; return; }
 
     const { uid, data } = await getCurrentUserDoc();
 
     // Fill Info
-    document.getElementById('userName').textContent = data?.fullname || user.email;
+    document.getElementById('userName').textContent = data?.fullname || user.email.split('@')[0];
     document.getElementById('userEmail').textContent = user.email;
-    document.getElementById('userCreated').textContent = data?.createdAt ? new Date(data.createdAt.seconds*1000).toLocaleDateString() : '-';
+    // Format tarikh cantik sikit
+    const dateOpts = { year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('userCreated').textContent = data?.createdAt ? new Date(data.createdAt.seconds*1000).toLocaleDateString('ms-MY', dateOpts) : '-';
 
     window.currentUser = { fullname: data?.fullname || user.email, email: user.email, createdAt: data?.createdAt };
 
-    // Role
-    let role = 'Pengguna';
-    if(user.email.endsWith('@uitm.edu.my')){ role = 'Pentadbir'; }
+    // Role Logic
+    let role = 'Pengguna Biasa';
+    if(user.email.endsWith('@uitm.edu.my')){ role = 'Pentadbir Sistem'; }
     document.getElementById('userRole').textContent = role;
     window.currentUser.role = role;
 
-    // Account Data HTML
+    // Detailed Account Data HTML
     document.getElementById('accountData').innerHTML = `
-        <div style="margin-bottom:4px"><strong>Nama:</strong> ${data?.fullname || '-'}</div>
-        <div style="margin-bottom:4px"><strong>Telefon:</strong> ${data?.phone || '-'}</div>
-        <div style="margin-bottom:4px"><strong>Email:</strong> ${data?.email || '-'}</div>
-        <div style="margin-bottom:4px"><strong>Role:</strong> ${role}</div>
+        <div style="display: flex; border-bottom: 1px solid var(--border-light); padding: 8px 0;"><strong style="width: 100px;">Nama:</strong> <span>${data?.fullname || '-'}</span></div>
+        <div style="display: flex; border-bottom: 1px solid var(--border-light); padding: 8px 0;"><strong style="width: 100px;">Telefon:</strong> <span>${data?.phone || '-'}</span></div>
+        <div style="display: flex; border-bottom: 1px solid var(--border-light); padding: 8px 0;"><strong style="width: 100px;">Email:</strong> <span>${data?.email || '-'}</span></div>
+        <div style="display: flex; padding: 8px 0;"><strong style="width: 100px;">Jantina:</strong> <span style="text-transform: capitalize;">${data?.gender || '-'}</span></div>
     `;
 
+    // Mula tarik data statistik
     if(typeof updatePayslipStats === 'function') updatePayslipStats();
 });
 
-/* ===== PAYSLIP STATS LOGIC ===== */
+/* ===== 3. PAYSLIP STATS LOGIC (REALTIME) ===== */
 let _payslipUnsub = null;
 let payslipChart = null; 
-let currentFilter = 'all'; 
 
 async function updatePayslipStats(){
     const el = document.getElementById('payslipCount');
@@ -352,64 +384,56 @@ async function updatePayslipStats(){
     el.textContent = '...';
 
     if(_payslipUnsub){ try{ _payslipUnsub(); }catch(e){} _payslipUnsub = null; }
-    if(typeof firebase === 'undefined' || !firebase.firestore){ setDebug('Firebase Error'); return; }
+    if(typeof firebase === 'undefined' || !firebase.firestore){ setDebug('Ralat Firebase SDK'); return; }
     
     const db = firebase.firestore();
-    setDebug('Menyambung ke database...');
+    setDebug('Menyambung ke pangkalan data...');
 
-    const renderCount = (n) => { el.textContent = n; setDebug(`Dikemaskini: ${new Date().toLocaleTimeString()}`); };
-
-    const updateCountsDisplay = (awam, swasta) => {
-        const aTop = document.getElementById('awamCountTop');
-        const sTop = document.getElementById('swastaCountTop');
-        if(aTop) animateCount(aTop, awam || 0);
-        if(sTop) animateCount(sTop, swasta || 0);
+    // Function to update UI elements
+    const updateUI = (total, awam, swasta) => {
+        el.textContent = total;
+        animateCount(document.getElementById('awamCountTop'), awam || 0);
+        animateCount(document.getElementById('swastaCountTop'), swasta || 0);
         renderPayslipChart(Number(awam) || 0, Number(swasta) || 0);
+        setDebug(`Data dikemaskini: ${new Date().toLocaleTimeString('ms-MY')}`);
     };
 
-    // Try finding collection
+    // Cari koleksi yang betul
     const candidateColls = ['printedSlips','prints','print_logs'];
     let found = false;
 
     for(const coll of candidateColls){
         try {
-            const snap = await db.collection(coll).limit(500).get();
+            // Check if collection exists and has data
+            const snap = await db.collection(coll).limit(1).get();
             if(!snap.empty){
                 found = true;
-                // Initial Count
-                let c = {awam:0, swasta:0, total:0};
-                snap.forEach(d => {
-                     c.total++;
-                     const t = (d.data().jenis_kiraan || '').toLowerCase();
-                     if(t.includes('awam')) c.awam++;
-                     else if(t.includes('swasta')) c.swasta++;
-                });
-                renderCount(snap.size); // Just showing logic for sample, ideally use size
-                updateCountsDisplay(c.awam, c.swasta);
-
-                // Realtime
+                setDebug(`Menggunakan koleksi: ${coll}`);
+                
+                // SETUP REALTIME LISTENER
                 _payslipUnsub = db.collection(coll).onSnapshot(s => {
-                    let rc = {awam:0, swasta:0};
+                    let c = {awam:0, swasta:0};
                     s.forEach(d => {
-                        const t = (d.data().jenis_kiraan || '').toLowerCase();
-                        if(t.includes('awam')) rc.awam++;
-                        else if(t.includes('swasta')) rc.swasta++;
+                        // Check pelbagai field untuk jenis kiraan
+                        const dt = d.data();
+                        const t = (dt.jenis_kiraan || dt.jenis || dt.type || '').toLowerCase();
+                        if(t.includes('awam')) c.awam++;
+                        else if(t.includes('swasta')) c.swasta++;
                     });
-                    renderCount(s.size);
-                    updateCountsDisplay(rc.awam, rc.swasta);
+                    updateUI(s.size, c.awam, c.swasta);
                 });
-                break;
+                break; // Jumpa satu, stop mencari
             }
-        } catch(e) { console.log(e); }
+        } catch(e) { console.log(`Error checking ${coll}:`, e); }
     }
     
     if(!found) {
-        renderCount(0);
-        setDebug('Tiada rekod cetakan dijumpai.');
+        updateUI(0, 0, 0);
+        setDebug('Tiada rekod cetakan dijumpai dalam sistem.');
     }
 }
 
-// ===== CHART JS =====
+// ===== 4. INTERACTIVE CHART JS (Theme Terang) =====
 function renderPayslipChart(a, b){
     const canvas = document.getElementById('payslipChartTop');
     if(!canvas) return;
@@ -417,7 +441,7 @@ function renderPayslipChart(a, b){
     const ctx = canvas.getContext('2d');
     const total = a + b;
 
-    // Center Text Plugin
+    // Plugin untuk teks tengah (Center Text) - Warna Gelap
     const centerTextPlugin = {
         id: 'centerText',
         afterDraw(chart) {
@@ -429,72 +453,155 @@ function renderPayslipChart(a, b){
             ctx.save();
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.font = '700 24px Inter';
-            ctx.fillStyle = '#ffffff'; // White text for dark bg
+            
+            // Nilai Utama (Besar & Gelap)
+            ctx.font = '800 28px Inter, sans-serif';
+            ctx.fillStyle = '#0f172a'; // Warna gelap
             ctx.fillText(chart.centerValue !== undefined ? chart.centerValue : total, x, y - 5);
-            ctx.font = '500 12px Inter';
-            ctx.fillStyle = '#94a3b8';
-            ctx.fillText(chart.centerLabel || 'Jumlah', x, y + 15);
+            
+            // Label (Kecil & Kelabu)
+            ctx.font = '600 13px Inter, sans-serif';
+            ctx.fillStyle = '#64748b'; // Warna kelabu
+            ctx.fillText(chart.centerLabel || 'Jumlah', x, y + 18);
             ctx.restore();
         }
     };
 
     if(payslipChart){
+        // Update data sedia ada
         payslipChart.data.datasets[0].data = [a, b];
         payslipChart.update();
+        
+        // Setup interaksi jika belum
+        if (!canvas.dataset.interactiveSetup) {
+            setupChartInteraction(payslipChart, a, b);
+            canvas.dataset.interactiveSetup = 'true';
+        }
         return;
     }
 
+    // Buat chart baru
     payslipChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: ['Awam', 'Swasta'],
             datasets: [{
                 data: [a, b],
-                backgroundColor: ['#6366f1', '#ec4899'], // Indigo & Pink
-                borderWidth: 0,
-                hoverOffset: 10
+                backgroundColor: ['#4f46e5', '#10b981'], // Brand Blue & Green
+                borderWidth: 2,
+                borderColor: '#ffffff', // Putih border untuk bersih
+                hoverOffset: 15,
+                borderRadius: 8 // Rounded corners pada donut segment
             }]
         },
         options: {
-            cutout: '75%',
+            cutout: '70%', // Lubang tengah besar sikit
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: 20 },
             plugins: {
-                legend: { display: false },
+                legend: { display: false }, // Sembunyi legend default
                 tooltip: { 
-                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)', // Tooltip gelap
                     titleColor: '#fff',
-                    bodyColor: '#cbd5e1',
-                    padding: 10,
-                    cornerRadius: 8,
-                    displayColors: true 
+                    bodyColor: '#e2e8f0',
+                    padding: 12,
+                    cornerRadius: 10,
+                    displayColors: true,
+                    boxPadding: 6,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 }
                 }
             }
         },
         plugins: [centerTextPlugin]
     });
+
+    // Setup interaksi pertama kali
+    setupChartInteraction(payslipChart, a, b);
+    canvas.dataset.interactiveSetup = 'true';
 }
 
+// ===== 5. INTERACTION LOGIC (Klik Kad untuk Filter) =====
+let currentFilter = 'all';
+
+function setupChartInteraction(chart, awamTotal, swastaTotal) {
+    const cardAwam = document.getElementById('cardAwam');
+    const cardSwasta = document.getElementById('cardSwasta');
+    const resetBtn = document.getElementById('resetFilterBtn');
+    const summaryContainer = document.getElementById('topPayslipSummary');
+    const dataset = chart.data.datasets[0];
+    const originalColors = ['#4f46e5', '#10b981']; // Blue, Green
+
+    // Fungsi Filter
+    const applyFilter = (type) => {
+        currentFilter = type;
+        summaryContainer.classList.add('has-filter');
+        resetBtn.style.display = 'block';
+
+        // Reset active states
+        cardAwam.classList.remove('active-filter');
+        cardSwasta.classList.remove('active-filter');
+
+        if (type === 'awam') {
+            cardAwam.classList.add('active-filter');
+            // Highlight Awam (Biru), Gelapkan Swasta (Kelabu pudar)
+            dataset.backgroundColor = ['#4f46e5', '#e2e8f0']; 
+            chart.centerValue = awamTotal;
+            chart.centerLabel = 'Awam Sahaja';
+        } else if (type === 'swasta') {
+            cardSwasta.classList.add('active-filter');
+            // Gelapkan Awam, Highlight Swasta (Hijau)
+            dataset.backgroundColor = ['#e2e8f0', '#10b981'];
+            chart.centerValue = swastaTotal;
+            chart.centerLabel = 'Swasta Sahaja';
+        }
+        chart.update();
+    };
+
+    // Fungsi Reset
+    const resetFilter = () => {
+        currentFilter = 'all';
+        summaryContainer.classList.remove('has-filter');
+        resetBtn.style.display = 'none';
+        cardAwam.classList.remove('active-filter');
+        cardSwasta.classList.remove('active-filter');
+        
+        // Reset colors & text
+        dataset.backgroundColor = originalColors;
+        delete chart.centerValue;
+        chart.centerLabel = 'Jumlah';
+        chart.update();
+    };
+
+    // Attach Event Listeners
+    cardAwam.onclick = () => applyFilter('awam');
+    cardSwasta.onclick = () => applyFilter('swasta');
+    resetBtn.onclick = resetFilter;
+}
+
+// ===== 6. UTILS (Animation & Scroll) =====
 function animateCount(el, target){
     if(!el) return;
-    let start = 0; const duration = 1000;
+    let start = 0; const duration = 1200;
     const startTime = performance.now();
     function tick(now){
         const p = Math.min((now - startTime)/duration, 1);
-        const ease = 1 - Math.pow(1 - p, 3);
+        // Easing function yang lebih smooth (easeOutExpo)
+        const ease = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
         el.textContent = Math.floor(ease * target);
         if(p < 1) requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
 }
 
-// ===== UI UTILS =====
 document.addEventListener("DOMContentLoaded", function() {
     const goTopBtn = document.getElementById("goTopBtn");
     if(goTopBtn){
         window.addEventListener("scroll", () => {
-            goTopBtn.style.display = window.scrollY > 200 ? "block" : "none";
+            // Tunjuk button bila scroll lebih 300px
+            goTopBtn.style.opacity = window.scrollY > 300 ? "1" : "0";
+            goTopBtn.style.pointerEvents = window.scrollY > 300 ? "auto" : "none";
         });
         goTopBtn.addEventListener("click", ()=>window.scrollTo({ top: 0, behavior: 'smooth' }));
     }
