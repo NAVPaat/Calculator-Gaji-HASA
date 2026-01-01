@@ -17,6 +17,19 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+/* =========================================
+   PAGE TRANSITION STYLES
+   ========================================= */
+body {
+    opacity: 0; /* Mula-mula page halimunan */
+    transition: opacity 0.5s ease-in-out; /* Tempoh peralihan 0.5 saat */
+    pointer-events: none; /* Halang klik masa tengah loading */
+}
+
+body.loaded {
+    opacity: 1; /* Muncul sepenuhnya */
+    pointer-events: auto; /* Boleh klik semula */
+}
 /* ===== THEME VARIABLES ===== */
 :root {
     --bg-main: #f8fafc;
@@ -41,35 +54,51 @@ body {
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
+    /* Added for smooth transition logic */
+    opacity: 0; 
+    transition: opacity 0.5s ease-in-out;
 }
+
+/* Class to trigger fade in when loaded */
+body.loaded { opacity: 1; }
 
 /* =========================================
-   ANIMATED BACKGROUND (AURORA EFFECT)
+   FULL PAGE MODERN BACKGROUND
    ========================================= */
 .animated-bg {
-    position: absolute;
-    top: 0; left: 0; width: 100%;
-    height: 380px; /* Tinggi header */
-    background: linear-gradient(-45deg, #c4b5fd, #67e8f9, #93c5fd, #f0abfc);
-    background-size: 400% 400%;
-    animation: gradientMove 12s ease infinite; /* Kelajuan pergerakan */
+    position: fixed; /* Guna fixed supaya ia kekal penuh walaupun scroll */
+    top: 0; 
+    left: 0; 
+    width: 100%;
+    height: 100%; /* Penuh satu skrin */
+    
+    /* Warna Moden Mesh Gradient */
+    background-color: #f3f4f6;
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,0) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,0) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%);
+        
+    background-image: 
+        radial-gradient(at 40% 20%, hsla(28,100%,74%,1) 0px, transparent 50%),
+        radial-gradient(at 80% 0%, hsla(189,100%,56%,1) 0px, transparent 50%),
+        radial-gradient(at 0% 50%, hsla(355,100%,93%,1) 0px, transparent 50%),
+        radial-gradient(at 80% 50%, hsla(340,100%,76%,1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, hsla(22,100%,77%,1) 0px, transparent 50%),
+        radial-gradient(at 80% 100%, hsla(242,100%,70%,1) 0px, transparent 50%),
+        radial-gradient(at 0% 0%, hsla(343,100%,76%,1) 0px, transparent 50%);
+
+    /* Blur & Filter untuk efek lembut */
+    filter: blur(60px); 
+    opacity: 0.6; /* Transparansi supaya tak ganggu teks */
     z-index: -1;
-    /* Lengkung moden di bawah */
-    border-bottom-left-radius: 40px;
-    border-bottom-right-radius: 40px;
-    box-shadow: 0 10px 40px rgba(79, 70, 229, 0.15);
+    
+    /* Animasi Pergerakan */
+    background-size: 150% 150%;
+    animation: gradientFull 15s ease infinite alternate;
 }
 
-/* Overlay putih nipis supaya teks mudah dibaca */
-.animated-bg::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(5px);
-}
-
-@keyframes gradientMove {
+@keyframes gradientFull {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
@@ -97,21 +126,104 @@ h3 { font-size: 1.2rem; margin: 0 0 10px 0; }
 h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin: 0 0 15px 0; font-weight: 700; }
 p, .small { color: var(--text-secondary); line-height: 1.6; }
 
-/* ===== NAVBAR ===== */
+/* ===== NAVBAR (UPDATED FOR BURGER & TOOLTIP) ===== */
 .dashboard-nav {
     display: flex; justify-content: space-between; align-items: center;
     padding: 15px 30px;
     background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px); /* Glass effect */
+    backdrop-filter: blur(12px); 
     border-bottom: 1px solid rgba(255,255,255,0.5);
     position: sticky; top: 0; z-index: 100;
 }
 .nav-left { display: flex; align-items: center; gap: 12px; }
 .nav-logo { height: 38px; }
 .nav-title { font-weight: 800; font-size: 1.1rem; color: #1e293b; }
+
 .nav-right { display: flex; gap: 20px; align-items: center; }
-.nav-link { text-decoration: none; color: #475569; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
+.nav-link { text-decoration: none; color: #475569; font-weight: 600; font-size: 0.9rem; transition: 0.2s; position: relative; }
 .nav-link:hover, .nav-link.active { color: var(--brand-blue); }
+
+.hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
+.hamburger span { width: 25px; height: 3px; background-color: #0f172a; border-radius: 2px; transition: 0.3s; }
+
+/* === TOOLTIP STYLES (NEW) === */
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 10px;
+    padding: 6px 10px;
+    background-color: #1e293b;
+    color: #fff;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    animation: tooltipFade 0.3s forwards;
+    pointer-events: none;
+    z-index: 200;
+}
+[data-tooltip]:hover::before { /* Arrow for tooltip */
+    content: '';
+    position: absolute;
+    top: 100%; left: 50%;
+    transform: translateX(-50%);
+    margin-top: 5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #1e293b transparent;
+    opacity: 0;
+    animation: tooltipFade 0.3s forwards;
+}
+@keyframes tooltipFade { to { opacity: 1; } }
+
+/* GANTI BAHAGIAN INI SAHAJA DALAM <style> */
+@media (max-width: 768px) {
+    .dashboard-nav { padding: 15px 20px; }
+    .nav-title { font-size: 0.95rem; }
+    .hamburger { display: flex; }
+    
+    .nav-right {
+        /* Tukar display:none kepada display:flex supaya boleh animate */
+        display: flex; 
+        flex-direction: column;
+        position: absolute; 
+        top: 100%; 
+        left: 0; 
+        width: 100%;
+        background: white; 
+        box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        align-items: stretch; 
+        text-align: center;
+        
+        /* === SETUP ANIMASI === */
+        max-height: 0;       /* Mula-mula tinggi 0 (tutup) */
+        opacity: 0;          /* Halimunan */
+        overflow: hidden;    /* Sorok isi dalam */
+        padding: 0;          /* Padam padding supaya takde gap */
+        border-bottom: none; /* Sorok border */
+        
+        /* Kelajuan Animasi */
+        transition: all 0.4s ease-in-out;
+    }
+
+    .nav-right.active {
+        /* === BILA MENU BUKA === */
+        max-height: 500px;   /* Bagi ruang cukup besar */
+        opacity: 1;          /* Muncul */
+        padding: 20px;       /* Masukkan balik padding asal */
+        border-bottom: 1px solid var(--border-light);
+        gap: 15px;           /* Jarak antara item */
+    }
+
+    .nav-link { padding: 10px; border-radius: 8px; }
+    .nav-link:hover { background: #f1f5f9; }
+    
+    /* Sembunyikan tooltip di mobile */
+    [data-tooltip]:hover::after, [data-tooltip]:hover::before { display: none; }
+}
 
 /* ===== BUTTONS ===== */
 .btn-outline {
@@ -129,7 +241,7 @@ p, .small { color: var(--text-secondary); line-height: 1.6; }
     background: #f8fafc; transform: translateY(-2px);
 }
 .logout-btn {
-    background: #fee2e2; color: #ef4444; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s;
+    background: #fee2e2; color: #ef4444; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; position: relative;
 }
 .logout-btn:hover { background: #fecaca; }
 
@@ -140,7 +252,7 @@ p, .small { color: var(--text-secondary); line-height: 1.6; }
 
 .fx-card {
     flex: 1; display: flex; flex-direction: column; justify-content: center; cursor: pointer;
-    background: rgba(255,255,255,0.9); /* Sedikit transparent supaya nampak bg bergerak */
+    background: rgba(255,255,255,0.9);
 }
 .fx-card.awam { border-left: 5px solid var(--brand-blue); }
 .fx-card.swasta { border-left: 5px solid var(--brand-green); }
@@ -166,27 +278,27 @@ p, .small { color: var(--text-secondary); line-height: 1.6; }
 .kv { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 0.9rem; }
 #goTopBtn { display: none; position: fixed; bottom: 30px; right: 30px; width: 45px; height: 45px; background: var(--brand-blue); color: white; border: none; border-radius: 50%; font-size: 20px; cursor: pointer; box-shadow: var(--shadow-md); z-index: 99; }
 
-/* Animation fade in page */
-.fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+/* Custom Footer */
 .custom-footer { text-align:center; color: var(--text-secondary); padding:40px 20px; font-size:0.9rem; margin-top: 40px; }
 </style>
 </head>
-<body class="fade-in">
-
-<div class="animated-bg"></div>
+<body> <div class="animated-bg"></div>
 
 <nav class="dashboard-nav">
     <div class="nav-left">
         <img src="image/HASA.png" class="nav-logo" alt="Logo">
-        <span class="nav-title">SISTEM KIRAAN GAJI</span>
+        <span class="nav-title">DASHBOARD KIRAAN GAJI</span>
     </div>
-    <div class="nav-right">
-        <a href="dashboard.html" class="nav-link active">Dashboard</a>
-        <a href="contohawam.html" class="nav-link">Kiraan Awam</a>        
-        <a href="swasta.html" class="nav-link">Kiraan Swasta</a>
-        <button id="logoutBtn" class="logout-btn">Logout</button>
+    
+    <div class="hamburger" id="hamburgerBtn">
+        <span></span><span></span><span></span>
+    </div>
+
+    <div class="nav-right" id="navMenu">
+        <a href="dashboard.html" class="nav-link active" data-tooltip="Paparan Utama">Dashboard</a>
+        <a href="contohawam.html" class="nav-link" data-tooltip="Kiraan Sektor Kerajaan">Kiraan Awam</a>        
+        <a href="swasta.html" class="nav-link" data-tooltip="Kiraan Sektor Korporat">Kiraan Swasta</a>
+        <button id="logoutBtn" class="logout-btn" data-tooltip="Keluar Sistem">Logout</button>
     </div>
 </nav>
 
@@ -237,8 +349,8 @@ p, .small { color: var(--text-secondary); line-height: 1.6; }
             <div class="card">
                 <h4>Pautan Pantas</h4>
                 <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                    <a class="btn-outline" href="contohawam.html" style="border-color: var(--brand-blue); color: var(--brand-blue);">🖩 Kiraan Awam</a>
-                    <a class="btn-outline" href="swasta.html" style="border-color: var(--brand-green); color: var(--brand-green);">🖩 Kiraan Swasta</a>
+                    <a class="btn-outline nav-link" href="contohawam.html" style="border-color: var(--brand-blue); color: var(--brand-blue);" data-tooltip="Ke Kiraan Awam">🖩 Kiraan Awam</a>
+                    <a class="btn-outline nav-link" href="swasta.html" style="border-color: var(--brand-green); color: var(--brand-green);" data-tooltip="Ke Kiraan Swasta">🖩 Kiraan Swasta</a>
                 </div>
             </div>
 
@@ -273,6 +385,49 @@ p, .small { color: var(--text-secondary); line-height: 1.6; }
 
 <script>
 /* ========================
+   PAGE TRANSITION & BURGER LOGIC
+   ======================== */
+document.addEventListener("DOMContentLoaded", () => {
+    // Trigger smooth fade in on load
+    document.body.classList.add('loaded');
+
+    // Burger Menu
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const navMenu = document.getElementById('navMenu');
+    
+    if(hamburgerBtn && navMenu) {
+        hamburgerBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+    }
+
+    // Go Top Button
+    const btn = document.getElementById("goTopBtn");
+    window.onscroll = () => { btn.style.display = window.scrollY > 300 ? "block" : "none"; };
+    btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Smooth Transition Logic for Navigation Links
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const targetUrl = link.getAttribute('href');
+            // Check if it's a valid internal link and not just '#'
+            if(targetUrl && targetUrl !== '#' && !targetUrl.startsWith('javascript')) {
+                e.preventDefault(); // Stop immediate jump
+                
+                // Fade out effect
+                document.body.style.opacity = 0;
+                
+                // Wait for transition (500ms matching CSS) then go
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 500);
+            }
+        });
+    });
+});
+
+/* ========================
    LOGOUT LOGIC
    ======================== */
 function setupLogout(buttonId){
@@ -285,6 +440,9 @@ function setupLogout(buttonId){
       notif.style.cssText = "position:fixed; top:30px; left:50%; transform:translateX(-50%); background: #0f172a; color:white; padding:12px 25px; border-radius:50px; font-weight:600; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index:9999;";
       document.body.appendChild(notif);
       
+      // Visual fade out for logout too
+      document.body.style.opacity = 0;
+
       setTimeout(async () => {
         await firebase.auth().signOut();
         location.href = 'login.html';
@@ -338,7 +496,6 @@ async function updatePayslipStats(){
         if(debugEl) debugEl.textContent = `Kemaskini terakhir: ${new Date().toLocaleTimeString()}`;
     };
 
-    // Cari koleksi
     const candidateColls = ['printedSlips','prints','print_logs'];
     let found = false;
 
@@ -419,7 +576,6 @@ function setupChartInteraction(chart, awamTotal, swastaTotal) {
     const cardAwam = document.getElementById('cardAwam');
     const cardSwasta = document.getElementById('cardSwasta');
     const resetBtn = document.getElementById('resetFilterBtn');
-    const summaryContainer = document.getElementById('topPayslipSummary');
     const dataset = chart.data.datasets[0];
 
     const applyFilter = (type) => {
@@ -453,7 +609,7 @@ function setupChartInteraction(chart, awamTotal, swastaTotal) {
 
 function animateCount(el, target){
     if(!el) return;
-    let start = 0; const duration = 1000; const startTime = performance.now();
+    const duration = 1000; const startTime = performance.now();
     function tick(now){
         const p = Math.min((now - startTime)/duration, 1);
         const ease = 1 - Math.pow(1 - p, 3);
@@ -462,12 +618,41 @@ function animateCount(el, target){
     }
     requestAnimationFrame(tick);
 }
-
+/* =========================================
+   PAGE TRANSITION LOGIC
+   ========================================= */
 document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.getElementById("goTopBtn");
-    window.onscroll = () => { btn.style.display = window.scrollY > 300 ? "block" : "none"; };
-    btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // 1. FADE IN (Bila page baru buka)
+    // Kita bagi sedikit masa (10ms) supaya browser sempat render
+    setTimeout(() => {
+        document.body.classList.add("loaded");
+    }, 10);
+
+    // 2. FADE OUT (Bila klik link navigasi)
+    // Cari semua link (<a>) dalam page
+    const links = document.querySelectorAll('a');
+
+    links.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const targetUrl = link.getAttribute('href');
+
+            // Pastikan link tu bukan link kosong (#) atau javascript
+            if (targetUrl && targetUrl !== '#' && !targetUrl.startsWith('javascript')) {
+                e.preventDefault(); // Halang browser buka terus
+                
+                // Buat animasi hilang dulu (Fade Out)
+                document.body.classList.remove("loaded");
+
+                // Tunggu 0.5 saat (sama dengan masa transition CSS), baru pergi ke page lain
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 500); 
+            }
+        });
+    });
 });
+
 </script>
 </body>
 </html>
