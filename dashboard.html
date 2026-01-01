@@ -3,21 +3,111 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Dashboard</title>
+<title>Dashboard — HASA UiTM</title>
 <link rel="stylesheet" href="style.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="firebase-config.js"></script>
 <script src="auth.js"></script>
-<!-- Chart.js for visualization -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-/* ===== FLOATING BLOBS ===== */
-.blob {position:absolute; border-radius:50%; filter:blur(120px); opacity:0.9; z-index:0; pointer-events:none; max-width:100vw; max-height:100vh; transition: transform 0.1s;}
-.blob1 {width:350px; height:350px; background:linear-gradient(135deg,#FF6B6B,#5E2A84); top:-100px; left:-90px;}
-.blob2 {width:400px; height:400px; background:linear-gradient(135deg,#A445B2,#FFB2E6); bottom:-10px; right:20px;}
-.blob3 {width:300px; height:300px; background:linear-gradient(135deg,#FF9F1C,#FF6B6B); top:30%; right:20%;}
+/* ===== MODERN BACKGROUND & RESET ===== */
+:root {
+    --bg-dark: #0f172a;
+    --accent-1: #4f46e5; /* Indigo */
+    --accent-2: #ec4899; /* Pink */
+    --accent-3: #06b6d4; /* Cyan */
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: #f8fafc;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* --- ANIMATED BACKGROUND --- */
+.background-container {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -2;
+    overflow: hidden;
+    background: var(--bg-dark);
+}
+
+/* Gradient Orbs */
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    animation: floatOrb 20s infinite ease-in-out alternate;
+}
+
+.orb-1 {
+    width: 60vw; height: 60vw;
+    background: radial-gradient(circle, var(--accent-1), transparent 70%);
+    top: -10%; left: -10%;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 50vw; height: 50vw;
+    background: radial-gradient(circle, var(--accent-2), transparent 70%);
+    bottom: -10%; right: -10%;
+    animation-delay: -5s;
+}
+
+.orb-3 {
+    width: 40vw; height: 40vw;
+    background: radial-gradient(circle, var(--accent-3), transparent 70%);
+    top: 40%; left: 40%;
+    opacity: 0.3;
+    animation-delay: -10s;
+}
+
+@keyframes floatOrb {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(30px, 40px) scale(1.1); }
+    100% { transform: translate(-20px, -30px) scale(0.95); }
+}
+
+/* Subtle Grid Overlay */
+.grid-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+}
+
+/* Glassmorphism Card Override */
+.card, .stat-card {
+    background: rgba(30, 41, 59, 0.6) !important; /* Semi-transparent Slate */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    color: white;
+}
+.stat-number { color: #f8fafc !important; }
+.stat-label, .stat-sub { color: #94a3b8 !important; }
 
 /* ===== TOP PAYS LIP SUMMARY ===== */
 #topPayslipSummary{ margin:12px auto; max-width:980px; }
@@ -25,49 +115,65 @@
 #payslipChartTop{ width:260px; height:160px; }
 @media (max-width:720px){ #topPayslipSummary{ flex-direction:column; gap:10px; } #payslipChartTop{ width:100%; height:180px; } }
 
-/* ===== STAT CARD ===== */
+/* ===== STAT CARD LAYOUT ===== */
 .stat-card-wrap {position:relative; overflow:hidden}
-.stat-card {display:flex; flex-direction:column; gap:6px; padding:18px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); box-shadow: 0 6px 18px rgba(16,24,40,0.06);}
-.stat-label {font-size:13px; color:#9aa3b2; font-weight:600}
-.stat-number {font-size:36px; font-weight:700; color:#1f2937}
-.stat-sub {font-size:12px; color:#6b7280}
-.stat-loading {font-size:14px; color:#6b7280}
+.stat-card {display:flex; flex-direction:column; gap:6px; padding:18px; border-radius:12px;}
+.stat-label {font-size:13px; font-weight:600}
+.stat-number {font-size:36px; font-weight:700;}
+.stat-sub {font-size:12px;}
 
-/* small responsive tweak */
 @media (max-width:720px){ .stat-number {font-size:28px} }
 
-body{
-  background:
-    radial-gradient(circle at 20% 20%, #1e1b4b, transparent 40%),
-    radial-gradient(circle at 80% 80%, #064e3b, transparent 40%),
-    linear-gradient(120deg, #020617, #020617);
-  background-size: 200% 200%;
-  animation: bgMove 20s ease infinite;
+/* ===== BUTTONS & TEXT ===== */
+h2, h3, h4 { color: white; margin-bottom: 8px; }
+p, .small { color: #cbd5e1; }
+
+.btn-outline {
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.05);
+}
+.btn-outline:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: white;
+    transform: translateY(-2px);
 }
 
-@keyframes bgMove{
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
+/* ===== GO TOP BUTTON ===== */
+#goTopBtn {
+    display: none; position: fixed; bottom: 30px; right: 30px; z-index: 99;
+    border: none; outline: none; background-color: var(--accent-1); color: white;
+    cursor: pointer; padding: 12px 16px; border-radius: 50%; font-size: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: 0.3s;
 }
+#goTopBtn:hover { background-color: #4338ca; transform: translateY(-3px); }
+
+/* FADE IN */
+.fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 </style>
 </head>
-<body>
+<body class="fade-in">
 
-<!-- FLOATING BLOBS -->
-<div class="blob blob1"></div>
-<div class="blob blob2"></div>
-<div class="blob blob3"></div>
-
-<!-- NAVBAR -->
-<nav class="dashboard-nav">
-<div class="nav-left">
-    <img src="image/HASA.png" class="nav-logo">
-    <span class="nav-title">DASHBOARD CALCULATOR GAJI</span>
+<div class="background-container">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
 </div>
+<div class="grid-overlay"></div>
 
-
+<nav class="dashboard-nav">
+    <div class="nav-left">
+        <img src="image/HASA.png" class="nav-logo">
+        <span class="nav-title">DASHBOARD CALCULATOR GAJI</span>
+    </div>
     <div class="nav-right">
         <a href="dashboard.html" class="nav-link active">Dashboard</a>
         <a href="contohawam.html" class="nav-link">Kiraan Awam</a>        
@@ -77,8 +183,6 @@ body{
 </nav>
 
 <div id="topPayslipSummary" class="fx-summary">
-
-  <!-- LEFT: Stats -->
   <div class="fx-stats">
     <div class="fx-card awam">
       <div class="fx-glow"></div>
@@ -95,17 +199,14 @@ body{
     </div>
   </div>
 
-  <!-- RIGHT: Chart -->
   <div class="fx-chart">
     <div class="fx-chart-title">AGIHAN CETAKAN</div>
     <canvas id="payslipChartTop"></canvas>
   </div>
-
 </div>
 
-<!-- USER PANEL & MAIN -->
 <div class="container grid-2" style="margin-top:20px;">
-    <div class="side">
+    <div class="side card">
         <h3 id="userName">Nama Pengguna</h3>
         <div class="small" id="userEmail">email@domain.com</div>
         <div style="height:12px"></div>
@@ -113,11 +214,11 @@ body{
         <div class="kv"><div>Daftar</div><div id="userCreated">-</div></div>
 
         <div style="height:16px"></div>
-                <a class="btn btn-outline" href="profile.html">EDIT PROFILE</a>
-                    <!-- LOGOUT BUTTON BARU -->
-    <button id="sideLogoutBtn" class="btn btn-outline" style="margin-top:8px; background-color:#e11d48; color:white; border:none;">
-        LOGOUT
-    </button>
+        <a class="btn btn-outline" href="profile.html" style="width:100%; display:block; text-align:center; margin-bottom:8px;">EDIT PROFILE</a>
+        
+        <button id="sideLogoutBtn" class="btn btn-outline" style="width:100%; background-color: rgba(225, 29, 72, 0.2); border-color: #e11d48; color: #fda4af;">
+            LOGOUT
+        </button>
     </div>
 
     <div class="main-panel">
@@ -127,9 +228,9 @@ body{
         <div style="height:12px"></div>
         <div class="card">
             <h4>Quick Actions</h4>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px">
                 <a class="btn btn-outline" href="contohawam.html">KIRA GAJI — AWAM</a>
-                <a class="btn btn-outline" href="swasta.html">KIRA KAJI — SWASTA</a>
+                <a class="btn btn-outline" href="swasta.html">KIRA GAJI — SWASTA</a>
                 <a class="btn btn-outline" href="profile.html">EDIT PROFILE</a>
             </div>
         </div>
@@ -137,61 +238,48 @@ body{
         <div style="height:12px"></div>
         <div id="payslipStats" class="card stat-card-wrap">
             <h4>Statistik Cetakan</h4>
-                <div class="stat-card">
+            <div class="stat-card" style="background: rgba(255,255,255,0.03); margin-top:10px;">
                 <div class="stat-label">Jumlah Cetakan Slip Gaji</div>
                 <div class="stat-number" id="payslipCount">—</div>
                 <div class="stat-sub">Sehingga kini</div>
             </div>
-            <div class="small" style="margin-top:12px;color:#6b7280">Ringkasan Awam/Swasta dipaparkan di atas</div>
-            <div id="payslipDebug" class="small" style="margin-top:8px;color:#6b7280">Status: Menunggu...</div>
+            <div class="small" style="margin-top:12px; opacity:0.7">Ringkasan Awam/Swasta dipaparkan di atas</div>
+            <div id="payslipDebug" class="small" style="margin-top:8px; opacity:0.5; font-size:0.8rem">Status: Menunggu...</div>
         </div>
 
         <div style="height:12px"></div>
         <div id="moreArea" class="card">
             <h4>Data Akaun</h4>
-            <div id="accountData" class="small"></div>
+            <div id="accountData" class="small" style="line-height:1.6"></div>
         </div> 
     </div>
 </div>
 
 <br>
-<!-- FOOTER -->
-<footer class="custom-footer">
+<footer class="custom-footer" style="text-align:center; color:#94a3b8; padding:20px; font-size:0.9rem;">
     <div class="footer-content">
         © 2025 HASA UiTM — SISTEM KIRAAN GAJI
     </div>
 </footer>
 
+<button id="goTopBtn" title="Go to Top">↑</button>
+
 <script>
+// ===== LOGOUT LOGIC =====
 function setupLogout(buttonId){
   const btn = document.getElementById(buttonId);
   if(!btn) return;
 
   btn.addEventListener('click', async () => {
     try {
-      // Papar notification di top center
+      // Notification
       const notif = document.createElement('div');
       notif.textContent = 'Logout berjaya…';
-      notif.style.position = 'fixed';
-      notif.style.top = '20px';
-      notif.style.left = '50%';
-      notif.style.transform = 'translateX(-50%)';
-      notif.style.backgroundColor = '#059669';
-      notif.style.color = 'white';
-      notif.style.padding = '12px 20px';
-      notif.style.borderRadius = '8px';
-      notif.style.fontSize = '16px';
-      notif.style.fontWeight = '600';
-      notif.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
-      notif.style.zIndex = 9999;
-      notif.style.opacity = 0;
-      notif.style.transition = 'opacity 0.3s ease';
+      notif.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background-color:#10b981; color:white; padding:12px 24px; border-radius:30px; font-weight:600; box-shadow:0 10px 25px rgba(0,0,0,0.3); z-index:9999; opacity:0; transition:opacity 0.3s ease;";
       document.body.appendChild(notif);
 
-      // Fade in
       setTimeout(() => notif.style.opacity = 1, 10);
 
-      // Tunggu 1.2 saat sebelum logout
       setTimeout(async () => {
         notif.remove();
         await firebase.auth().signOut();
@@ -205,618 +293,213 @@ function setupLogout(buttonId){
   });
 }
 
-// Setup logout untuk semua button
 setupLogout('logoutBtn');
 setupLogout('sideLogoutBtn');
 setupLogout('mobileLogoutBtn');
 
 
-// Navbar hide/show on scroll
+// ===== NAVBAR SCROLL EFFECT =====
 const nav = document.querySelector('.dashboard-nav');
 window.addEventListener('scroll', () => {
-    const scrollTop = window.pageYOffset;
-    nav.style.top = scrollTop < 150 ? '0' : '-80px';
+    if(nav) {
+        const scrollTop = window.pageYOffset;
+        nav.style.background = scrollTop > 50 ? 'rgba(15, 23, 42, 0.9)' : 'rgba(255, 255, 255, 0.1)';
+        nav.style.backdropFilter = scrollTop > 50 ? 'blur(10px)' : 'blur(5px)';
+    }
 });
 
-// Semak auth change dan update role ikut email
+// ===== AUTH CHANGE =====
 onAuthChange(async user => {
-    if(!user){ 
-        location.href='login.html'; 
-        return; 
-    }
+    if(!user){ location.href='login.html'; return; }
 
     const { uid, data } = await getCurrentUserDoc();
 
-    // Nama & email
+    // Fill Info
     document.getElementById('userName').textContent = data?.fullname || user.email;
     document.getElementById('userEmail').textContent = user.email;
-    document.getElementById('userCreated').textContent = data?.createdAt ? new Date(data.createdAt.seconds*1000).toLocaleString() : '-';
+    document.getElementById('userCreated').textContent = data?.createdAt ? new Date(data.createdAt.seconds*1000).toLocaleDateString() : '-';
 
-// ===== Simpan data user untuk PRINT & page lain =====
-window.currentUser = {
-    fullname: data?.fullname || user.email,
-    email: user.email,
-    createdAt: data?.createdAt
-};
+    window.currentUser = { fullname: data?.fullname || user.email, email: user.email, createdAt: data?.createdAt };
 
-    // Tetapkan role ikut email
+    // Role
     let role = 'Pengguna';
-    if(user.email.endsWith('@uitm.edu.my')){
-        role = 'Pentadbir';
-    }
+    if(user.email.endsWith('@uitm.edu.my')){ role = 'Pentadbir'; }
     document.getElementById('userRole').textContent = role;
     window.currentUser.role = role;
 
-
-    // Data akaun
+    // Account Data HTML
     document.getElementById('accountData').innerHTML = `
-        <div>Nama: ${data?.fullname || '-'}</div>
-        <div>Telefon: ${data?.phone || '-'}</div>
-        <div>Email: ${data?.email || '-'}</div>
-        <div>Role: ${role}</div>
+        <div style="margin-bottom:4px"><strong>Nama:</strong> ${data?.fullname || '-'}</div>
+        <div style="margin-bottom:4px"><strong>Telefon:</strong> ${data?.phone || '-'}</div>
+        <div style="margin-bottom:4px"><strong>Email:</strong> ${data?.email || '-'}</div>
+        <div style="margin-bottom:4px"><strong>Role:</strong> ${role}</div>
     `;
 
-    // Refresh payslip stats (runs if the function is available)
     if(typeof updatePayslipStats === 'function') updatePayslipStats();
 });
 
-/* ===== Payslip stats helper ===== */
+/* ===== PAYSLIP STATS LOGIC ===== */
 let _payslipUnsub = null;
-let payslipChart = null; // Global chart variable
-let currentFilter = 'all'; // Track current filter state
+let payslipChart = null; 
+let currentFilter = 'all'; 
 
 async function updatePayslipStats(){
     const el = document.getElementById('payslipCount');
     const debugEl = document.getElementById('payslipDebug');
-    const setDebug = (m) => { console.log('PayslipDebug:', m); if(debugEl) debugEl.textContent = m; };
+    const setDebug = (m) => { if(debugEl) debugEl.textContent = m; };
 
     if(!el) return;
-    el.textContent = 'Memuatkan...';
-    setDebug('Mencari data cetakan di Firestore...');
+    el.textContent = '...';
 
-    // Unsubscribe previous realtime listener if any
     if(_payslipUnsub){ try{ _payslipUnsub(); }catch(e){} _payslipUnsub = null; }
-
-    if(typeof firebase === 'undefined' || !firebase.firestore){ setDebug('Firebase: Tidak ditemui — semak firebase-config.js'); el.textContent='—'; return; }
+    if(typeof firebase === 'undefined' || !firebase.firestore){ setDebug('Firebase Error'); return; }
+    
     const db = firebase.firestore();
-    setDebug('Firebase: Bersambung — memuatkan cetakan...');
+    setDebug('Menyambung ke database...');
 
-    const renderCount = (n) => { el.textContent = n; setDebug(`Jumlah cetakan: ${n}`); };
-    // helper: determine if a document looks like a payslip print
-    const looksLikePayslip = (dt) => {
-        if(!dt) return false;
-        // boolean flags
-        const boolFields = ['hasPrintedSlip','printedPayslip','printed_slip','printed','isPayslip','is_printed'];
-        for(const f of boolFields){ if(dt[f] === true) return true; }
+    const renderCount = (n) => { el.textContent = n; setDebug(`Dikemaskini: ${new Date().toLocaleTimeString()}`); };
 
-        // numeric counters
-        const numFields = ['printedCount','prints','printCount','print_count'];
-        for(const f of numFields){ if(typeof dt[f] === 'number' && dt[f] > 0) return true; }
-
-        // string fields containing keywords
-        const keywords = ['slip','payslip','gaji','print','cetak'];
-        for(const k in dt){ const v = dt[k]; if(typeof v === 'string'){ const lv = v.toLowerCase(); if(keywords.some(w=>lv.includes(w))) return true; } }
-
-        // type-like fields
-        if(dt.type && typeof dt.type === 'string' && ['slip_gaji','payslip','slip','print'].some(s=>dt.type.toLowerCase().includes(s))) return true;
-        if(dt.action && typeof dt.action === 'string' && dt.action.toLowerCase().includes('print')) return true;
-        return false;
+    const updateCountsDisplay = (awam, swasta) => {
+        const aTop = document.getElementById('awamCountTop');
+        const sTop = document.getElementById('swastaCountTop');
+        if(aTop) animateCount(aTop, awam || 0);
+        if(sTop) animateCount(sTop, swasta || 0);
+        renderPayslipChart(Number(awam) || 0, Number(swasta) || 0);
     };
 
-    // Helper to update awam/swasta DOM and chart
-const updateCountsDisplay = (awam, swasta) => {
-  const aTop = document.getElementById('awamCountTop');
-  const sTop = document.getElementById('swastaCountTop');
+    // Try finding collection
+    const candidateColls = ['printedSlips','prints','print_logs'];
+    let found = false;
 
-  if(typeof awam === 'number'){
-    animateCount(aTop, awam);
-  }else{
-    aTop.textContent = awam;
-  }
-
-  if(typeof swasta === 'number'){
-    animateCount(sTop, swasta);
-  }else{
-    sTop.textContent = swasta;
-  }
-
-  renderPayslipChart(Number(awam) || 0, Number(swasta) || 0);
-};
-
-
-// ===== ENHANCED CHART RENDER FUNCTION WITH INTERACTIVE FEATURES =====
-function renderPayslipChart(a, b){
-  const canvas = document.getElementById('payslipChartTop');
-  if(!canvas) return;
-
-  const ctx = canvas.getContext('2d');
-  const total = a + b;
-
-  const centerTextPlugin = {
-    id: 'centerText',
-    afterDraw(chart) {
-      const { ctx, chartArea } = chart;
-      if (!chartArea) return;
-
-      const x = (chartArea.left + chartArea.right) / 2;
-      const y = (chartArea.top + chartArea.bottom) / 2;
-
-      ctx.save();
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      // Use custom values if set, otherwise use total
-      const displayValue = chart.centerValue !== undefined ? chart.centerValue : total;
-      const displayLabel = chart.centerLabel || 'Jumlah Cetakan';
-
-      ctx.font = '700 24px sans-serif';
-      ctx.fillStyle = '#0f172a';
-      ctx.fillText(displayValue, x, y - 6);
-
-      ctx.font = '600 12px sans-serif';
-      ctx.fillStyle = '#6b7280';
-      ctx.fillText(displayLabel, x, y + 14);
-      ctx.restore();
-    }
-  };
-
-  if(payslipChart){
-    payslipChart.data.datasets[0].data = [a, b];
-    
-    // Maintain current filter state
-    if (currentFilter === 'awam') {
-      highlightChartSegment('awam');
-    } else if (currentFilter === 'swasta') {
-      highlightChartSegment('swasta');
-    } else {
-      payslipChart.update();
-    }
-    return;
-  }
-
-  payslipChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Awam', 'Swasta'],
-      datasets: [{
-        data: [a, b],
-        backgroundColor: ['#4f46e5', '#059669'],
-        borderWidth: 0,
-        hoverOffset: 10
-      }]
-    },
-    options: {
-      cutout: '68%',
-      responsive: true,
-      maintainAspectRatio: true,
-      animation: {
-        animateRotate: true,
-        animateScale: true,
-        duration: 800,
-        easing: 'easeInOutQuart'
-      },
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            padding: 15,
-            font: {
-              size: 12,
-              weight: '600'
-            },
-            usePointStyle: true,
-            pointStyle: 'circle'
-          }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          padding: 12,
-          titleFont: {
-            size: 14,
-            weight: '700'
-          },
-          bodyFont: {
-            size: 13
-          },
-          callbacks: {
-            label: function(context) {
-              const label = context.label || '';
-              const value = context.parsed;
-              const total = context.dataset.data.reduce((a, b) => a + b, 0);
-              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-              return `${label}: ${value} (${percentage}%)`;
-            }
-          }
-        }
-      }
-    },
-    plugins: [centerTextPlugin]
-  });
-  
-  // Setup interactive stats after chart is created
-  setTimeout(() => setupInteractiveStats(), 100);
-}
-
-// ===== INTERACTIVE STATISTICS FUNCTIONS =====
-function setupInteractiveStats() {
-  const awamCard = document.querySelector('.fx-card.awam');
-  const swastaCard = document.querySelector('.fx-card.swasta');
-  const chartContainer = document.querySelector('.fx-chart');
-  
-  if (!awamCard || !swastaCard) return;
-
-  // Click handler untuk Awam card
-  awamCard.addEventListener('click', () => {
-    if (currentFilter === 'awam') {
-      resetFilter();
-    } else {
-      setFilter('awam');
-    }
-  });
-
-  // Click handler untuk Swasta card
-  swastaCard.addEventListener('click', () => {
-    if (currentFilter === 'swasta') {
-      resetFilter();
-    } else {
-      setFilter('swasta');
-    }
-  });
-
-  // Tambah cursor pointer
-  awamCard.style.cursor = 'pointer';
-  swastaCard.style.cursor = 'pointer';
-  awamCard.style.transition = 'all 0.3s ease';
-  swastaCard.style.transition = 'all 0.3s ease';
-
-  // Add reset button to chart container (only once)
-  if (!document.getElementById('resetFilterBtn')) {
-    const resetBtn = document.createElement('button');
-    resetBtn.id = 'resetFilterBtn';
-    resetBtn.textContent = '↻ Tunjuk Semua';
-    resetBtn.style.cssText = `
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 6px 12px;
-      background: rgba(255,255,255,0.9);
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #374151;
-      cursor: pointer;
-      display: none;
-      z-index: 10;
-      transition: all 0.2s ease;
-    `;
-    resetBtn.onmouseover = () => {
-      resetBtn.style.background = '#f3f4f6';
-      resetBtn.style.transform = 'scale(1.05)';
-    };
-    resetBtn.onmouseout = () => {
-      resetBtn.style.background = 'rgba(255,255,255,0.9)';
-      resetBtn.style.transform = 'scale(1)';
-    };
-    resetBtn.onclick = resetFilter;
-    
-    // Make chart container relative for absolute positioning
-    chartContainer.style.position = 'relative';
-    chartContainer.appendChild(resetBtn);
-  }
-}
-
-function setFilter(type) {
-  currentFilter = type;
-  
-  const awamCard = document.querySelector('.fx-card.awam');
-  const swastaCard = document.querySelector('.fx-card.swasta');
-  const resetBtn = document.getElementById('resetFilterBtn');
-  
-  // Remove active class from all
-  awamCard?.classList.remove('active-filter');
-  swastaCard?.classList.remove('active-filter');
-  
-  // Add active class to selected
-  if (type === 'awam') {
-    awamCard?.classList.add('active-filter');
-    highlightChartSegment('awam');
-  } else if (type === 'swasta') {
-    swastaCard?.classList.add('active-filter');
-    highlightChartSegment('swasta');
-  }
-  
-  // Show reset button
-  if (resetBtn) resetBtn.style.display = 'block';
-  
-  // Add visual feedback
-  updateCardStyles();
-}
-
-function resetFilter() {
-  currentFilter = 'all';
-  
-  const awamCard = document.querySelector('.fx-card.awam');
-  const swastaCard = document.querySelector('.fx-card.swasta');
-  const resetBtn = document.getElementById('resetFilterBtn');
-  
-  // Remove active class
-  awamCard?.classList.remove('active-filter');
-  swastaCard?.classList.remove('active-filter');
-  
-  // Hide reset button
-  if (resetBtn) resetBtn.style.display = 'none';
-  
-  // Reset chart
-  resetChartHighlight();
-  
-  // Reset card styles
-  updateCardStyles();
-}
-
-function updateCardStyles() {
-  const awamCard = document.querySelector('.fx-card.awam');
-  const swastaCard = document.querySelector('.fx-card.swasta');
-  
-  if (!awamCard || !swastaCard) return;
-  
-  if (currentFilter === 'awam') {
-    awamCard.style.transform = 'scale(1.05)';
-    awamCard.style.boxShadow = '0 0 30px rgba(79, 70, 229, 0.5)';
-    swastaCard.style.opacity = '0.5';
-    swastaCard.style.transform = 'scale(0.95)';
-  } else if (currentFilter === 'swasta') {
-    swastaCard.style.transform = 'scale(1.05)';
-    swastaCard.style.boxShadow = '0 0 30px rgba(5, 150, 105, 0.5)';
-    awamCard.style.opacity = '0.5';
-    awamCard.style.transform = 'scale(0.95)';
-  } else {
-    // Reset all
-    awamCard.style.transform = 'scale(1)';
-    awamCard.style.opacity = '1';
-    awamCard.style.boxShadow = '';
-    swastaCard.style.transform = 'scale(1)';
-    swastaCard.style.opacity = '1';
-    swastaCard.style.boxShadow = '';
-  }
-}
-
-function highlightChartSegment(type) {
-  if (!payslipChart) return;
-  
-  const dataset = payslipChart.data.datasets[0];
-  const awamValue = dataset.data[0];
-  const swastaValue = dataset.data[1];
-  
-  if (type === 'awam') {
-    dataset.backgroundColor = ['#4f46e5', 'rgba(5, 150, 105, 0.2)'];
-    dataset.hoverOffset = [15, 0];
-    updateCenterText(awamValue, 'Cetakan Awam');
-  } else if (type === 'swasta') {
-    dataset.backgroundColor = ['rgba(79, 70, 229, 0.2)', '#059669'];
-    dataset.hoverOffset = [0, 15];
-    updateCenterText(swastaValue, 'Cetakan Swasta');
-  }
-  
-  payslipChart.update('active');
-}
-
-function resetChartHighlight() {
-  if (!payslipChart) return;
-  
-  const dataset = payslipChart.data.datasets[0];
-  dataset.backgroundColor = ['#4f46e5', '#059669'];
-  dataset.hoverOffset = 10;
-  
-  const total = dataset.data[0] + dataset.data[1];
-  updateCenterText(total, 'Jumlah Cetakan');
-  
-  payslipChart.update('active');
-}
-
-function updateCenterText(value, label) {
-  if (payslipChart) {
-    payslipChart.centerValue = value;
-    payslipChart.centerLabel = label;
-  }
-}
-
-    try{
-        // Direct check for the 'printedSlips' collection (user gave this name)
-        try{
-            setDebug("Memeriksa koleksi 'printedSlips'...");
-            const pSnap = await db.collection('printedSlips').limit(1000).get();
-            if(!pSnap.empty){
-                const ids = new Set();
-                let sample = null; let matchCount = 0;
-                // counts by jenis
-                let counts = { awam:0, swasta:0, other:0 };
-                pSnap.forEach(d=>{ const dt = d.data(); if(!sample) sample = dt; matchCount++; if(dt.userId) ids.add(dt.userId); else if(dt.email) ids.add(dt.email); else if(dt.uid) ids.add(dt.uid); const jk = (dt.jenis_kiraan || dt.jenis || dt.type || '').toString().toLowerCase(); if(jk.includes('awam')) counts.awam++; else if(jk.includes('swasta')) counts.swasta++; else counts.other++; });
-                console.log(`printedSlips: docs=${pSnap.size} matches=${matchCount} uniqueUsers=${ids.size}`, sample, counts);
-                // Use total documents as total prints
-                renderCount(pSnap.size);
-                updateCountsDisplay(counts.awam, counts.swasta);
-
-                // realtime listener for printedSlips (show total docs)
-                _payslipUnsub = db.collection('printedSlips').onSnapshot(snap2 => {
-                    let counts2 = {awam:0, swasta:0, other:0};
-                    snap2.forEach(d => { const dt = d.data(); const jk = (dt.jenis_kiraan || dt.jenis || dt.type || '').toString().toLowerCase(); if(jk.includes('awam')) counts2.awam++; else if(jk.includes('swasta')) counts2.swasta++; else counts2.other++; });
-                    renderCount(snap2.size);
-                    updateCountsDisplay(counts2.awam, counts2.swasta);
+    for(const coll of candidateColls){
+        try {
+            const snap = await db.collection(coll).limit(500).get();
+            if(!snap.empty){
+                found = true;
+                // Initial Count
+                let c = {awam:0, swasta:0, total:0};
+                snap.forEach(d => {
+                     c.total++;
+                     const t = (d.data().jenis_kiraan || '').toLowerCase();
+                     if(t.includes('awam')) c.awam++;
+                     else if(t.includes('swasta')) c.swasta++;
                 });
-                return;
-            }
-        }catch(e){ console.warn("Cannot read printedSlips:", e.message || e); }
+                renderCount(snap.size); // Just showing logic for sample, ideally use size
+                updateCountsDisplay(c.awam, c.swasta);
 
-        // Try several other likely collection names (will fetch up to 1000 docs each to filter client-side)
-        const candidateColls = ['printedSlips','prints','print_logs','printLogs','print_history','prints_history','payslip_prints','payslip_logs','slip_prints','print-logs'];
-        for(const coll of candidateColls){
-            try{
-                setDebug(`Memeriksa koleksi '${coll}'...`);
-                const snap = await db.collection(coll).limit(1000).get();
-                if(!snap.empty){
-                    // filter docs that look like payslip prints
-                            const ids = new Set();
-                    let matchCount = 0;
-                    let counts = { awam:0, swasta:0, other:0 };
-                    snap.forEach(d => {
-                        const dt = d.data();
-                        if(looksLikePayslip(dt)){
-                            matchCount++;
-                            if(dt.userId) ids.add(dt.userId);
-                            else if(dt.email) ids.add(dt.email);
-                            else if(dt.uid) ids.add(dt.uid);
-                            else if(dt.user) ids.add(dt.user);
-
-                            const jk = (dt.jenis_kiraan || dt.jenis || dt.type || '').toString().toLowerCase();
-                            if(jk.includes('awam')) counts.awam++; else if(jk.includes('swasta')) counts.swasta++; else counts.other++;
-                        }
+                // Realtime
+                _payslipUnsub = db.collection(coll).onSnapshot(s => {
+                    let rc = {awam:0, swasta:0};
+                    s.forEach(d => {
+                        const t = (d.data().jenis_kiraan || '').toLowerCase();
+                        if(t.includes('awam')) rc.awam++;
+                        else if(t.includes('swasta')) rc.swasta++;
                     });
-                    console.log(`Checked ${coll}: docs=${snap.size} matches=${matchCount} uniqueUsers=${ids.size}`, counts);
-                    if(matchCount > 0){
-                        // show total matching documents (matchCount) as jumlah cetakan
-                        renderCount(matchCount);
-                        if(counts.awam>0 || counts.swasta>0){
-                            updateCountsDisplay(counts.awam, counts.swasta);
-                        } else if(counts.other>0){
-                            setDebug("Dokumen cetakan ditemui tetapi tiada medan 'jenis_kiraan' — chart tidak dipaparkan.");
-                            updateCountsDisplay('—','—');
-                        }
-
-                        // subscribe realtime to this collection (show total matching docs)
-                        _payslipUnsub = db.collection(coll).onSnapshot(snap2 => {
-                            let counts2 = {awam:0, swasta:0, other:0};
-                            let match2 = 0;
-                            snap2.forEach(d => { const dt = d.data(); if(looksLikePayslip(dt)){ match2++; const jk = (dt.jenis_kiraan || dt.jenis || dt.type || '').toString().toLowerCase(); if(jk.includes('awam')) counts2.awam++; else if(jk.includes('swasta')) counts2.swasta++; else counts2.other++; } });
-                            renderCount(match2);
-                            if(counts2.awam>0 || counts2.swasta>0){ updateCountsDisplay(counts2.awam, counts2.swasta); } else { setDebug("Dokumen cetakan ditemui tetapi tiada medan 'jenis_kiraan' — chart tidak dipaparkan."); updateCountsDisplay('—','—'); }
-                        });
-                        return;
-                    }
-                }
-            }catch(e){
-                console.warn(`Cannot read collection ${coll}:`, e.message || e);
-            }
-        }
-
-        // If not found in print-type collections, check 'users' for flags
-        setDebug("Memeriksa koleksi 'users' untuk medan flag cetak...");
-        try{
-            const snapUsers = await db.collection('users').limit(1000).get();
-            if(!snapUsers.empty){
-                let n=0;
-                snapUsers.forEach(d=>{
-                    const dt = d.data();
-                    // consider truthy flags or counters
-                    if(dt && (dt.hasPrintedSlip === true || dt.printed === true || dt.printedPayslip === true || (typeof dt.printedCount === 'number' && dt.printedCount>0) || (typeof dt.printed_count === 'number' && dt.printed_count>0))){ n++; }
+                    renderCount(s.size);
+                    updateCountsDisplay(rc.awam, rc.swasta);
                 });
-                if(n>0){ renderCount(n); try{ _payslipUnsub = db.collection('users').where('hasPrintedSlip','==',true).onSnapshot(snap=> renderCount(snap.size)); }catch(e){} return; }
+                break;
             }
-        }catch(e){ console.warn('users check failed', e.message || e); }
-
-        // nothing found
-        setDebug('Tiada data cetakan ditemui — semak nama koleksi/medan pada Firestore atau buka Console untuk diagnostik.');
+        } catch(e) { console.log(e); }
+    }
+    
+    if(!found) {
         renderCount(0);
-    }catch(err){
-        console.error('Payslip stats error', err);
-        setDebug(`Ralat: ${err.message || err}`);
-        el.textContent = '—';
+        setDebug('Tiada rekod cetakan dijumpai.');
     }
 }
 
+// ===== CHART JS =====
+function renderPayslipChart(a, b){
+    const canvas = document.getElementById('payslipChartTop');
+    if(!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const total = a + b;
+
+    // Center Text Plugin
+    const centerTextPlugin = {
+        id: 'centerText',
+        afterDraw(chart) {
+            const { ctx, chartArea } = chart;
+            if (!chartArea) return;
+            const x = (chartArea.left + chartArea.right) / 2;
+            const y = (chartArea.top + chartArea.bottom) / 2;
+            
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = '700 24px Inter';
+            ctx.fillStyle = '#ffffff'; // White text for dark bg
+            ctx.fillText(chart.centerValue !== undefined ? chart.centerValue : total, x, y - 5);
+            ctx.font = '500 12px Inter';
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText(chart.centerLabel || 'Jumlah', x, y + 15);
+            ctx.restore();
+        }
+    };
+
+    if(payslipChart){
+        payslipChart.data.datasets[0].data = [a, b];
+        payslipChart.update();
+        return;
+    }
+
+    payslipChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Awam', 'Swasta'],
+            datasets: [{
+                data: [a, b],
+                backgroundColor: ['#6366f1', '#ec4899'], // Indigo & Pink
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            cutout: '75%',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { 
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    padding: 10,
+                    cornerRadius: 8,
+                    displayColors: true 
+                }
+            }
+        },
+        plugins: [centerTextPlugin]
+    });
+}
 
 function animateCount(el, target){
-  if(!el) return;
-  let start = 0;
-  const duration = 600;
-  const startTime = performance.now();
-
-  function tick(now){
-    const p = Math.min((now - startTime)/duration,1);
-    const eased = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.floor(eased * target);
-    if(p < 1) requestAnimationFrame(tick);
-  }
-  requestAnimationFrame(tick);
+    if(!el) return;
+    let start = 0; const duration = 1000;
+    const startTime = performance.now();
+    function tick(now){
+        const p = Math.min((now - startTime)/duration, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.floor(ease * target);
+        if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
 }
 
-/* ===== Go Top Button ===== */
+// ===== UI UTILS =====
 document.addEventListener("DOMContentLoaded", function() {
-  const goTopBtn = document.getElementById("goTopBtn");
-  if(goTopBtn){
-    window.addEventListener("scroll", function() {
-      goTopBtn.style.display = window.scrollY > 200 ? "block" : "none";
-    });
-    goTopBtn.addEventListener("click", ()=>window.scrollTo({ top: 0, behavior: 'smooth' }));
-  }
-});
-
-document.addEventListener("DOMContentLoaded", function() {
-    // Fade in page
-    document.body.classList.add("fade-in");
-
-    // Semua link dashboard-nav
-    const links = document.querySelectorAll(".dashboard-nav .nav-link");
-
-    links.forEach(link => {
-        link.addEventListener("click", function(e) {
-            e.preventDefault(); // prevent immediate redirect
-
-            const href = this.getAttribute("href");
-
-            // Fade out
-            document.body.style.opacity = 0;
-
-            setTimeout(() => {
-                window.location.href = href; // redirect selepas fade out
-            }, 400); // 400ms sama dengan transition
+    const goTopBtn = document.getElementById("goTopBtn");
+    if(goTopBtn){
+        window.addEventListener("scroll", () => {
+            goTopBtn.style.display = window.scrollY > 200 ? "block" : "none";
         });
-    });
+        goTopBtn.addEventListener("click", ()=>window.scrollTo({ top: 0, behavior: 'smooth' }));
+    }
 });
 
-// SET LIGHT MODE ON PAGE LOAD
-const root = document.documentElement;
-root.dataset.theme = 'light';  // paksa light mode setiap kali buka
-localStorage.setItem('theme', 'light'); // optional: reset saved theme
-
-// Toggle button still boleh tukar semasa session
-const themeToggle = document.getElementById('themeToggle');
-if(themeToggle){
-  themeToggle.onclick = () => {
-    const t = root.dataset.theme === 'light' ? 'dark' : 'light';
-    root.dataset.theme = t;
-  };
-}
-
-const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
-if(mobileLogoutBtn){
-  mobileLogoutBtn.addEventListener('click', async () => {
-    try {
-      await firebase.auth().signOut();
-      alert('Anda telah logout.');
-      location.href = 'login.html';
-    } catch (error) {
-      console.error('Logout gagal:', error);
-      alert('Logout gagal. Sila cuba lagi.');
-    }
-  });
-}
-
-// LOGOUT DARI SIDE PANEL
-const sideLogoutBtn = document.getElementById('sideLogoutBtn');
-if(sideLogoutBtn){
-  sideLogoutBtn.addEventListener('click', async () => {
-    try {
-      await firebase.auth().signOut();
-      alert('Anda telah logout.');
-      location.href = 'login.html';
-    } catch (error) {
-      console.error('Logout gagal:', error);
-      alert('Logout gagal. Sila cuba lagi.');
-    }
-  });
-}
 </script>
-<button id="goTopBtn" title="Go to Top">↑</button>
 </body>
 </html>
