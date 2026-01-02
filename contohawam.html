@@ -852,11 +852,19 @@ body.loaded {
         // Auto scroll top on load
         window.onload = () => window.scrollTo(0,0);
 
-        // Logout
-        document.getElementById('logoutBtn').onclick = async () => {
-            if(firebase.auth()) await firebase.auth().signOut();
-            window.location.href='login.html';
-        };
+        // LOGOUT WITH NOTIFICATION (Sama Dashboard)
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            const notif = document.createElement('div');
+            notif.textContent = 'Sedang Log Keluar...';
+            notif.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background-color: var(--brand-blue); color:white; padding:12px 24px; border-radius:30px; font-weight:600; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index:9999; opacity:0; transition:all 0.3s ease;";
+            document.body.appendChild(notif);
+            setTimeout(() => { notif.style.opacity = 1; notif.style.top = '30px'; }, 10);
+            
+            setTimeout(async () => {
+                await firebase.auth().signOut();
+                location.href = 'login.html';
+            }, 1200);
+        });
 /* =========================================
    FORCE SCROLL TO TOP ON REFRESH
    ========================================= */
@@ -901,3 +909,4 @@ document.addEventListener("DOMContentLoaded", () => {
     </script>
 </body>
 </html>
+
