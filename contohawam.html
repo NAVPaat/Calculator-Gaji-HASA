@@ -14,11 +14,16 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <style>
-/* =========================================
-   PAGE TRANSITION & SCROLL
-   ========================================= */
-html { scroll-behavior: smooth; }
-body { opacity: 1; transition: opacity 0.5s ease-in-out; }
+body {
+    opacity: 0; /* Mula-mula page halimunan */
+    transition: opacity 0.5s ease-in-out; /* Tempoh peralihan 0.5 saat */
+    pointer-events: none; /* Halang klik masa tengah loading */
+}
+
+body.loaded {
+    opacity: 1; /* Muncul sepenuhnya */
+    pointer-events: auto; /* Boleh klik semula */
+}
 
     /* ===== THEME VARIABLES ===== */
     :root {
@@ -246,6 +251,60 @@ body { opacity: 1; transition: opacity 0.5s ease-in-out; }
     .nav-right.active ~ .hamburger span:nth-child(2) { opacity: 0; }
     .nav-right.active ~ .hamburger span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 }
+/* === TOOLTIP STYLES (Tambah ini) === */
+
+/* Pastikan elemen induk ada position relative */
+.nav-link, .logout-btn {
+    position: relative;
+}
+
+/* Kotak Teks Tooltip */
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 10px;
+    padding: 6px 10px;
+    background-color: #1e293b; /* Warna latar gelap */
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    animation: tooltipFade 0.3s forwards;
+    pointer-events: none;
+    z-index: 200;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Anak Panah Kecil (Segitiga) di atas tooltip */
+[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    top: 100%; 
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #1e293b transparent; /* Warna sama dengan background tooltip */
+    opacity: 0;
+    animation: tooltipFade 0.3s forwards;
+    pointer-events: none;
+}
+
+/* Animasi Muncul */
+@keyframes tooltipFade { 
+    to { opacity: 1; margin-top: 10px; } 
+}
+
+/* Sembunyikan tooltip pada Mobile supaya tak semak */
+@media (max-width: 768px) {
+    [data-tooltip]:hover::after, [data-tooltip]:hover::before { display: none; }
+}
 </style>
 </head>
 <body data-kiraan="awam">
@@ -258,13 +317,13 @@ body { opacity: 1; transition: opacity 0.5s ease-in-out; }
             <span class="nav-title">SISTEM KIRAAN GAJI</span>
         </div>
         <div class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></div>
-        <div class="nav-right" id="navMenu">
-            <a href="dashboard.html" class="nav-link">Dashboard</a>
-            <a href="contohawam.html" class="nav-link active">Kiraan Awam</a>
-            <a href="swasta.html" class="nav-link">Kiraan Swasta</a>
-            <button id="logoutBtn" class="logout-btn">Logout</button>
-        </div>
-    </nav>
+    <div class="nav-right" id="navMenu">
+        <a href="dashboard.html" class="nav-link" data-tooltip="Paparan Utama">Dashboard</a>
+        <a href="contohawam.html" class="nav-link active" data-tooltip="Kiraan Sektor Kerajaan">Kiraan Awam</a>
+        <a href="swasta.html" class="nav-link" data-tooltip="Kiraan Sektor Korporat">Kiraan Swasta</a>
+        <button id="logoutBtn" class="logout-btn" data-tooltip="Keluar Sistem">Logout</button>
+    </div>
+</nav>
 
     <header class="custom-header">
         <h1>KIRAAN GAJI SEKTOR AWAM</h1> 
@@ -805,6 +864,40 @@ if (history.scrollRestoration) {
     history.scrollRestoration = 'manual'; // Halang browser ingat position lama
 }
 window.scrollTo(0, 0); // Paksa naik atas serta-merta
+/* =========================================
+   PAGE TRANSITION LOGIC
+   ========================================= */
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // 1. FADE IN (Bila page baru buka)
+    // Kita bagi sedikit masa (10ms) supaya browser sempat render
+    setTimeout(() => {
+        document.body.classList.add("loaded");
+    }, 10);
+
+    // 2. FADE OUT (Bila klik link navigasi)
+    // Cari semua link (<a>) dalam page
+    const links = document.querySelectorAll('a');
+
+    links.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const targetUrl = link.getAttribute('href');
+
+            // Pastikan link tu bukan link kosong (#) atau javascript
+            if (targetUrl && targetUrl !== '#' && !targetUrl.startsWith('javascript')) {
+                e.preventDefault(); // Halang browser buka terus
+                
+                // Buat animasi hilang dulu (Fade Out)
+                document.body.classList.remove("loaded");
+
+                // Tunggu 0.5 saat (sama dengan masa transition CSS), baru pergi ke page lain
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 500); 
+            }
+        });
+    });
+});
     </script>
 </body>
 </html>
