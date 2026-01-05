@@ -88,7 +88,21 @@ body.loaded {
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         height: 70px;
         margin-bottom: 0; /* FIX: Buang gap bawah nav */
-    }
+/* Perubahan Utama Di Sini: */
+    position: sticky; /* Tukar dari relative ke sticky */
+    top: 0; 
+    z-index: 999; 
+    transition: transform 0.3s ease-in-out; /* Animasi gerak */
+    will-change: transform;
+    height: 70px;
+    margin-bottom: 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Class untuk sorok navbar bila scroll ke bawah */
+.dashboard-nav.nav-hidden {
+    transform: translateY(-100%);
+}
     
     .nav-left { display: flex; align-items: center; gap: 12px; }
     .nav-logo { height: 48px; }
@@ -183,9 +197,35 @@ body.loaded {
     #goTopBtn { bottom: 30px; right: 30px; background: var(--text-primary); font-size: 20px; display: none; }
     #goTopBtn:hover { background: var(--brand-blue); transform: translateY(-3px); }
     
-    .petunjuk-popup { display: none; position: fixed; bottom: 90px; left: 30px; background: white; padding: 20px; border-radius: 16px; box-shadow: var(--shadow-md); z-index: 100; border: 1px solid var(--border-light); width: 300px; }
-    .petunjuk-popup table { width: 100%; font-size: 0.85rem; }
-    .petunjuk-popup td { padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
+.petunjuk-popup {
+    /* State asal (Tersembunyi) */
+    position: fixed; 
+    bottom: 90px; 
+    left: 30px; 
+    background: white; 
+    padding: 20px; 
+    border-radius: 16px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+    z-index: 100; 
+    border: 1px solid var(--border-light); 
+    width: 300px;
+    
+    /* Animasi Properties */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px); /* Mula dari bawah sikit */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Class bila popup aktif (Muncul) */
+.petunjuk-popup.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0); /* Naik ke posisi asal */
+}
+
+.petunjuk-popup table { width: 100%; font-size: 0.85rem; }
+.petunjuk-popup td { padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
 
 /* Menu Desktop */
 .nav-right { display: flex; gap: 20px; align-items: center; }
@@ -384,8 +424,8 @@ body.loaded {
                 <div class="col"><label>ITP</label><input type="number" id="elaun_itp_awam" readonly></div> 
             </div>    
             <div class="row">
-                <div class="col"><label>BISH</label><input type="number" id="elaun_bish_awam" readonly></div>
-                <div class="col"><label>BIW</label><input type="number" id="elaun_biw_awam" readonly></div>
+                <div class="col"><label>BISH(Semenanjung)</label><input type="number" id="elaun_bish_awam" readonly></div>
+                <div class="col"><label>BIW(Sabah/Serawak/Labuan)</label><input type="number" id="elaun_biw_awam" readonly></div>
             </div>
             <div class="row">
                 <div class="col"><label>BIPK</label><input type="number" id="elaun_bipk_awam" readonly></div>
@@ -431,8 +471,8 @@ body.loaded {
                         <div class="detail-row"><span>ITKA</span><span id="d-itka">0.00</span></div>
                         <div class="detail-row"><span>ITK</span><span id="d-itk">0.00</span></div>
                         <div class="detail-row"><span>ITP</span><span id="d-itp">0.00</span></div>
-                        <div class="detail-row"><span>BISH</span><span id="d-bish">0.00</span></div>
-                        <div class="detail-row"><span>BIW</span><span id="d-biw">0.00</span></div>
+                        <div class="detail-row"><span>BISH(Semenanjung)</span><span id="d-bish">0.00</span></div>
+                        <div class="detail-row"><span>BIW(Sabah/Serawak/Labuan)</span><span id="d-biw">0.00</span></div>
                         <div class="detail-row"><span>BIPK</span><span id="d-bipk">0.00</span></div>
                         <div class="detail-row"><span>BIP</span><span id="d-bip">0.00</span></div>
 
@@ -475,185 +515,165 @@ body.loaded {
         </table>
     </div>
 
-    <script>
-        // ===========================================
-        // 1. CONFIG FIREBASE
-        // ===========================================
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8",
-            authDomain: "data-staff-6hha55.firebaseapp.com",
-            projectId: "data-staff-6hha55",
-            storageBucket: "data-staff-6hha55.firebasestorage.app",
-            messagingSenderId: "834544418876",
-            appId: "1:834544418876:web:71b355bd0f3faf73244339",
-            measurementId: "G-1VE4LRETY9"
-        };
+<script>
+    // ===========================================
+    // 1. CONFIG FIREBASE
+    // ===========================================
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8",
+        authDomain: "data-staff-6hha55.firebaseapp.com",
+        projectId: "data-staff-6hha55",
+        storageBucket: "data-staff-6hha55.firebasestorage.app",
+        messagingSenderId: "834544418876",
+        appId: "1:834544418876:web:71b355bd0f3faf73244339",
+        measurementId: "G-1VE4LRETY9"
+    };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-            console.log("Firebase Ready.");
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        console.log("Firebase Ready.");
+    }
+
+    // ===========================================
+    // 2. LOGIC JAVASCRIPT UTAMA
+    // ===========================================
+
+    const db = firebase.firestore();
+    let selectedJawatanData = null;
+    let lastCalculationData = null; 
+
+    const els = {
+        jawatan: document.getElementById('jawatan_awam'),
+        wilayah: document.getElementById('wilayah_awam'),
+        kategori: document.getElementById('kategoriJawatan'),
+        gajiPokok: document.getElementById('awamGajiPokok'),
+        jawatanText: document.getElementById('awamJawatan'),
+        itka: document.getElementById('elaun_itka_awam'),
+        itk: document.getElementById('elaun_itk_awam'),
+        itp: document.getElementById('elaun_itp_awam'),
+        bish: document.getElementById('elaun_bish_awam'),
+        biw: document.getElementById('elaun_biw_awam'),
+        bipk: document.getElementById('elaun_bipk_awam'),
+        bip: document.getElementById('elaun_bip_awam'),
+        kgt: document.getElementById('kgt_tahun_ini'),
+        kgtAdd: document.getElementById('kgt_tambahan'),
+        statusPgt: document.getElementById('awamTelah'),
+        pgtDropdown: document.getElementById('awamPGT'), 
+        resultArea: document.getElementById('resultContent'),
+        printBtn: document.getElementById('printBtn'),
+        loadingMsg: document.getElementById('loadingMsg')
+    };
+
+    // --- FETCH DATA (YANG DAH DIKEMASKINI DENGAN SORTING) ---
+    db.collection('senarai_jawatan').onSnapshot((snapshot) => {
+        if(snapshot.empty) {
+            els.jawatan.innerHTML = '<option>Tiada Data</option>';
+            return;
         }
+        els.jawatan.innerHTML = '<option value="" selected>-- Sila Pilih --</option>';
 
-        // ===========================================
-        // 2. LOGIC JAVASCRIPT
-        // ===========================================
-
-        const db = firebase.firestore();
-        let selectedJawatanData = null;
-        let lastCalculationData = null; 
-
-        const els = {
-            jawatan: document.getElementById('jawatan_awam'),
-            wilayah: document.getElementById('wilayah_awam'),
-            kategori: document.getElementById('kategoriJawatan'),
-            gajiPokok: document.getElementById('awamGajiPokok'),
-            jawatanText: document.getElementById('awamJawatan'),
-            itka: document.getElementById('elaun_itka_awam'),
-            itk: document.getElementById('elaun_itk_awam'),
-            itp: document.getElementById('elaun_itp_awam'),
-            bish: document.getElementById('elaun_bish_awam'),
-            biw: document.getElementById('elaun_biw_awam'),
-            bipk: document.getElementById('elaun_bipk_awam'),
-            bip: document.getElementById('elaun_bip_awam'),
-            kgt: document.getElementById('kgt_tahun_ini'),
-            kgtAdd: document.getElementById('kgt_tambahan'),
-            statusPgt: document.getElementById('awamTelah'),
-            pgtDropdown: document.getElementById('awamPGT'), 
-            resultArea: document.getElementById('resultContent'),
-            printBtn: document.getElementById('printBtn'),
-            loadingMsg: document.getElementById('loadingMsg')
-        };
-
-// --- FETCH DATA (YANG DAH DIKEMASKINI DENGAN SORTING) ---
-        db.collection('senarai_jawatan').onSnapshot((snapshot) => {
-            
-            // 1. Bersihkan dropdown dulu
-            if(snapshot.empty) {
-                els.jawatan.innerHTML = '<option>Tiada Data</option>';
-                return;
-            }
-            els.jawatan.innerHTML = '<option value="" selected>-- Sila Pilih --</option>';
-
-            // 2. Buat satu list sementara (Array)
-            let senaraiSementara = [];
-
-            // 3. Masukkan semua data dari database ke dalam list sementara
-            snapshot.forEach((doc) => {
-                senaraiSementara.push(doc.data());
-            });
-
-            // 4. SUSUN DATA (MAGIC PART)
-            // Ini akan susun ikut column 'id_susunan' dari kecil ke besar (1, 2, 3...)
-            senaraiSementara.sort((a, b) => {
-                // Kalau tak ada id_susunan, kita anggap dia 0
-                let idA = a.id_susunan || 0; 
-                let idB = b.id_susunan || 0;
-                return idA - idB;
-            });
-
-            // 5. Masukkan data yang dah TERSUSUN ke dalam dropdown
-            senaraiSementara.forEach((data) => {
-                const option = document.createElement('option');
-                
-                // Kekalkan cara asal anda simpan data dalam value
-                option.value = JSON.stringify(data);
-                
-                // Tentukan nama untuk dipaparkan
-                let nama = data.nama_jawatan || data.Nama_Jawatan || data.Jawatan || data.name || "Tiada Nama";
-                
-                option.text = nama;
-                els.jawatan.appendChild(option);
-            });
+        let senaraiSementara = [];
+        snapshot.forEach((doc) => {
+            senaraiSementara.push(doc.data());
         });
 
-        // --- PILIH JAWATAN ---
-        els.jawatan.addEventListener('change', function() {
-            if(this.value) {
-                try {
-                    const d = JSON.parse(this.value);
-                    selectedJawatanData = d;
-                    
-                    els.wilayah.disabled = false;
-                    els.wilayah.value = ""; 
-
-                    els.jawatanText.value = d.nama_jawatan || d.Nama_Jawatan || d.Jawatan || "";
-                    els.kategori.value = d.kategori || d.Kategori || "";
-                    els.gajiPokok.value = parseFloat(d.gaji_pokok || d.Gaji_Pokok || d.gaji || 0);
-                    
-                    els.itka.value = parseFloat(d.itka || d.ITKA || 0);
-                    els.itk.value = parseFloat(d.itk || d.ITK || 0);
-                    els.itp.value = parseFloat(d.itp || d.ITP || 0);
-                    els.bipk.value = parseFloat(d.bipk || d.BIPK || 0);
-                    els.bip.value = parseFloat(d.bip || d.BIP || 0);
-                    
-                    els.kgtAdd.value = 0;
-                    els.bish.value = 0; els.biw.value = 0; els.kgt.value = 0;
-                    
-                    // Reset paparan jika tukar jawatan
-                    els.resultArea.style.display = 'none';
-                    els.printBtn.style.display = 'none';
-                } catch(e) { console.error(e); }
-            }
+        // Susun Data (ID Susunan)
+        senaraiSementara.sort((a, b) => {
+            let idA = a.id_susunan || 0; 
+            let idB = b.id_susunan || 0;
+            return idA - idB;
         });
 
-        // --- PILIH WILAYAH ---
-        els.wilayah.addEventListener('change', function() {
-            if(!selectedJawatanData) return;
-            const w = this.value;
-            const d = selectedJawatanData;
-            if (w === 'Semenanjung') {
-                els.bish.value = parseFloat(d.bish || d.BISH || 0);
-                els.biw.value = 0;
-            } else {
-                els.bish.value = 0;
-                els.biw.value = parseFloat(d.biw || d.BIW || 0);
-            }
+        senaraiSementara.forEach((data) => {
+            const option = document.createElement('option');
+            option.value = JSON.stringify(data);
+            let nama = data.nama_jawatan || data.Nama_Jawatan || data.Jawatan || data.name || "Tiada Nama";
+            option.text = nama;
+            els.jawatan.appendChild(option);
         });
+    });
 
-// --- KIRAAN UTAMA (Fixed KGT Logic) ---
+    // --- PILIH JAWATAN ---
+    els.jawatan.addEventListener('change', function() {
+        if(this.value) {
+            try {
+                const d = JSON.parse(this.value);
+                selectedJawatanData = d;
+                
+                els.wilayah.disabled = false;
+                els.wilayah.value = ""; 
+
+                els.jawatanText.value = d.nama_jawatan || d.Nama_Jawatan || d.Jawatan || "";
+                els.kategori.value = d.kategori || d.Kategori || "";
+                els.gajiPokok.value = parseFloat(d.gaji_pokok || d.Gaji_Pokok || d.gaji || 0);
+                
+                els.itka.value = parseFloat(d.itka || d.ITKA || 0);
+                els.itk.value = parseFloat(d.itk || d.ITK || 0);
+                els.itp.value = parseFloat(d.itp || d.ITP || 0);
+                els.bipk.value = parseFloat(d.bipk || d.BIPK || 0);
+                els.bip.value = parseFloat(d.bip || d.BIP || 0);
+                
+                els.kgtAdd.value = 0;
+                els.bish.value = 0; els.biw.value = 0; els.kgt.value = 0;
+                
+                els.resultArea.style.display = 'none';
+                els.printBtn.style.display = 'none';
+            } catch(e) { console.error(e); }
+        }
+    });
+
+    // --- PILIH WILAYAH ---
+    els.wilayah.addEventListener('change', function() {
+        if(!selectedJawatanData) return;
+        const w = this.value;
+        const d = selectedJawatanData;
+        if (w === 'Semenanjung') {
+            els.bish.value = parseFloat(d.bish || d.BISH || 0);
+            els.biw.value = 0;
+        } else {
+            els.bish.value = 0;
+            els.biw.value = parseFloat(d.biw || d.BIW || 0);
+        }
+    });
+/* =========================================
+       HELPER: FORMAT DUIT (RM 1,234.56)
+       ========================================= */
+    function formatMoney(amount) {
+        return parseFloat(amount).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+    // --- KIRAAN UTAMA ---
     window.computeAwam = function() {
         console.log("Mengira..."); 
 
-        // 1. Ambil Element Input
         var elGaji = document.getElementById('awamGajiPokok');
-        var elStatusPGT = document.getElementById('awamTelah'); // Dropdown YA/TIDAK
-        var elPGT = document.getElementById('awamPGT'); // Dropdown Bulan
+        var elStatusPGT = document.getElementById('awamTelah'); 
+        var elPGT = document.getElementById('awamPGT'); 
         var elJawatan = document.getElementById('awamJawatan');
         var elWilayah = document.getElementById('wilayah_awam');
         var elKategori = document.getElementById('kategoriJawatan');
         
-        // Safety Check
         if (!elGaji) { alert("Input Gaji Pokok tiada!"); return; }
 
-        // 2. Logic KGT (Bahagian yang dibaiki)
         var kgtVal = 0;
-        
-        // Kita check dulu adakah user dah pilih jawatan (data wujud?)
         if (typeof selectedJawatanData !== 'undefined' && selectedJawatanData) {
-            
-            // Ambil pilihan user: YA atau TIDAK
             var status = elStatusPGT ? elStatusPGT.value : "TIDAK"; 
-            
             if (status === 'TIDAK') {
-                // Jika TIDAK, ambil nilai dari data database
-                // Saya letak pelbagai kemungkinan ejaan field database
                 kgtVal = parseFloat(selectedJawatanData.nilai_kgt || selectedJawatanData.Nilai_KGT || selectedJawatanData.KGT || selectedJawatanData.kgt || 0);
             } else {
-                // Jika YA, nilai jadi 0
                 kgtVal = 0;
             }
         }
         
-        // Update input field "KGT Tahun Ini" supaya user nampak nilai tu berubah
         var elKgtInput = document.getElementById('kgt_tahun_ini');
         if(elKgtInput) elKgtInput.value = kgtVal.toFixed(2);
 
-        // 3. Ambil Nilai Lain & Kira
         var gaji = parseFloat(elGaji.value) || 0;
         var kgtAdd = parseFloat(document.getElementById('kgt_tambahan').value) || 0;
         
-        // Elaun-elaun
         var itka = parseFloat(document.getElementById('elaun_itka_awam').value) || 0;
         var itk  = parseFloat(document.getElementById('elaun_itk_awam').value) || 0;
         var itp  = parseFloat(document.getElementById('elaun_itp_awam').value) || 0;
@@ -662,27 +682,23 @@ body.loaded {
         var bipk = parseFloat(document.getElementById('elaun_bipk_awam').value) || 0;
         var bip  = parseFloat(document.getElementById('elaun_bip_awam').value) || 0;
 
-        // Kira Jumlah Besar
         var totalElaun = itka + itk + itp + bish + biw + bipk + bip;
         var grandTotal = gaji + kgtVal + kgtAdd + totalElaun;
         
-        // Text untuk Paparan
         var txtJawatan = elJawatan ? elJawatan.value : "-";
         var txtWilayah = elWilayah ? elWilayah.value : "-";
         var txtKategori = elKategori ? elKategori.value : "-";
         var txtPGT = (elPGT && elPGT.options.length > 0) ? elPGT.options[elPGT.selectedIndex].text : "-";
 
-        // 4. Masukkan Data ke Result Box
         document.getElementById('d-jawatan').innerText = txtJawatan;
         document.getElementById('d-wilayah').innerText = txtWilayah;
         document.getElementById('d-kategori').innerText = txtKategori;
         document.getElementById('d-bulan-pgt').innerText = txtPGT;
         
         document.getElementById('d-gaji').innerText = gaji.toFixed(2);
-        document.getElementById('d-kgt').innerText = kgtVal.toFixed(2); // Nilai KGT Auto
-        document.getElementById('d-kgt-add').innerText = kgtAdd.toFixed(2); // Nilai KGT Manual
+        document.getElementById('d-kgt').innerText = kgtVal.toFixed(2);
+        document.getElementById('d-kgt-add').innerText = kgtAdd.toFixed(2);
         
-        // Elaun Display
         document.getElementById('d-itka').innerText = itka.toFixed(2);
         document.getElementById('d-itk').innerText = itk.toFixed(2);
         document.getElementById('d-itp').innerText = itp.toFixed(2);
@@ -691,10 +707,8 @@ body.loaded {
         document.getElementById('d-bipk').innerText = bipk.toFixed(2);
         document.getElementById('d-bip').innerText = bip.toFixed(2);
         
-        // Grand Total Display
         document.getElementById('d-grand-total').innerText = "RM " + grandTotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 
-        // 5. Simpan Data Global (Dashboard & Print)
         lastCalculationData = {
             jenis_kiraan: "Awam",
             jawatan: txtJawatan,
@@ -709,204 +723,184 @@ body.loaded {
             tarikh: new Date().toLocaleString()
         };
 
-        // 6. Paparkan Result
         var resultDiv = document.getElementById('resultContent');
         resultDiv.style.display = 'block'; 
         document.getElementById('printBtn').style.display = 'inline-block';
         resultDiv.scrollIntoView({ behavior: 'smooth' });
 
-        // Update Dashboard
         if(typeof saveToFirebase === 'function') {
             saveToFirebase(lastCalculationData);
         }
     };
 
-        // --- SAVE & PRINT ---
-        window.printResult = function() {
-            if(!lastCalculationData) return;
-            const d = lastCalculationData;
+    // --- PRINT FUNCTION ---
+    window.printResult = function() {
+        if(!lastCalculationData) return;
+        const d = lastCalculationData;
+        const w = window.open('', '', 'width=800,height=800');
+        w.document.write(`
+            <html><head><title>Slip Gaji Simulasi</title>
+            <style>
+                body { font-family: sans-serif; padding: 40px; color:#000; position: relative; }
+                .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+                .header h2 { margin: 0; text-transform: uppercase; }
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; position: relative; z-index: 1; }
+                th, td { border: 1px solid #000; padding: 8px; text-align: left; background: transparent; }
+                th { background: #eee; }
+                .right { text-align: right; }
+                .total-row td { font-weight: bold; background: #eee; font-size: 1.1rem; }
+                .warning { margin-top: 30px; border: 1px dashed #000; padding: 15px; font-size: 0.8rem; text-align: center; position: relative; z-index: 1; background: white; }
+                .watermark {
+                    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg);
+                    font-size: 5rem; color: rgba(0, 0, 0, 0.1); border: 5px solid rgba(0, 0, 0, 0.1);
+                    padding: 20px; z-index: 0; pointer-events: none; font-weight: bold; text-transform: uppercase; white-space: nowrap;
+                }
+            </style>
+            </head><body>
+                <div class="watermark">RUJUKAN SAHAJA</div>
+                <div class="header"><h2>HASA UiTM</h2><p>Simulasi Kiraan Gaji Sektor Awam</p></div>
+                <div class="info-grid">
+                    <div><strong>Jawatan:</strong> ${d.jawatan}</div><div><strong>Tarikh:</strong> ${d.tarikh}</div>
+                    <div><strong>Kategori:</strong> ${d.kategori}</div><div><strong>Wilayah:</strong> ${d.wilayah}</div>
+                    <div><strong>Bulan PGT:</strong> ${d.bulanPGT}</div>
+                </div>
+                <table>
+                    <tr><th>Perkara</th><th class="right">Amaun (RM)</th></tr>
+                    <tr><td>Gaji Pokok</td><td class="right">${fmt(d.gajiPokok)}</td></tr>
+                    <tr><td>ITKA</td><td class="right">${fmt(d.elaunList.itka)}</td></tr>
+                    <tr><td>ITK</td><td class="right">${fmt(d.elaunList.itk)}</td></tr>
+                    <tr><td>ITP</td><td class="right">${fmt(d.elaunList.itp)}</td></tr>
+                    <tr><td>BISH (Semenanjung)</td><td class="right">${fmt(d.elaunList.bish)}</td></tr>
+                    <tr><td>BIW (S/S/L)</td><td class="right">${fmt(d.elaunList.biw)}</td></tr>
+                    <tr><td>BIPK</td><td class="right">${fmt(d.elaunList.bipk)}</td></tr>
+                    <tr><td>BIP</td><td class="right">${fmt(d.elaunList.bip)}</td></tr>
+                    <tr><td>KGT Tahun Ini</td><td class="right">${fmt(d.kgt)}</td></tr>
+                    <tr><td>KGT Tambahan (Manual)</td><td class="right">${fmt(d.kgtTambahan)}</td></tr>
+                    <tr class="total-row"><td>JUMLAH PENDAPATAN KASAR</td><td class="right">RM ${fmt(d.jumlahKasar)}</td></tr>
+                </table>
+                <div class="warning"><strong>PERHATIAN:</strong> Jumlah yang dipaparkan adalah anggaran simulasi sahaja. Sila rujuk slip gaji rasmi jabatan.</div>
+                <script>window.print();<\/script>
+            </body></html>
+        `);
+        w.document.close();
+    };
 
-            // Open Print Window
-            const w = window.open('', '', 'width=800,height=800');
-            w.document.write(`
-                <html><head><title>Slip Gaji Simulasi</title>
-                <style>
-                    body { font-family: sans-serif; padding: 40px; color:#000; position: relative; }
-                    .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-                    .header h2 { margin: 0; text-transform: uppercase; }
-                    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-                    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; position: relative; z-index: 1; }
-                    th, td { border: 1px solid #000; padding: 8px; text-align: left; background: transparent; }
-                    th { background: #eee; }
-                    .right { text-align: right; }
-                    .total-row td { font-weight: bold; background: #eee; font-size: 1.1rem; }
-                    .warning { margin-top: 30px; border: 1px dashed #000; padding: 15px; font-size: 0.8rem; text-align: center; position: relative; z-index: 1; background: white; }
-                    
-                    /* WATERMARK STYLE */
-                    .watermark {
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%) rotate(-45deg);
-                        font-size: 5rem;
-                        color: rgba(0, 0, 0, 0.1);
-                        border: 5px solid rgba(0, 0, 0, 0.1);
-                        padding: 20px;
-                        z-index: 0;
-                        pointer-events: none;
-                        font-weight: bold;
-                        text-transform: uppercase;
-                        white-space: nowrap;
-                    }
-                </style>
-                </head><body>
-                    
-                    <div class="watermark">RUJUKAN SAHAJA</div>
+    function saveToFirebase(data) {
+        const user = firebase.auth().currentUser;
+        const uid = user ? user.uid : "anonymous";
+        db.collection('printedSlips').add({
+            userId: uid,
+            ...data,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => console.log("Data saved!")).catch(e => console.error("Save failed", e));
+    }
 
-                    <div class="header">
-                        <h2>HASA UiTM</h2>
-                        <p>Simulasi Kiraan Gaji Sektor Awam</p>
-                    </div>
-                    
-                    <div class="info-grid">
-                        <div><strong>Jawatan:</strong> ${d.jawatan}</div>
-                        <div><strong>Tarikh:</strong> ${d.tarikh}</div>
-                        <div><strong>Kategori:</strong> ${d.kategori}</div>
-                        <div><strong>Wilayah:</strong> ${d.wilayah}</div>
-                        <div><strong>Bulan PGT:</strong> ${d.bulanPGT}</div>
-                    </div>
+    function fmt(n) { return parseFloat(n).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'); }
 
-                    <table>
-                        <tr><th>Perkara</th><th class="right">Amaun (RM)</th></tr>
-                        <tr><td>Gaji Pokok</td><td class="right">${fmt(d.gajiPokok)}</td></tr>
-                        <tr><td>ITKA</td><td class="right">${fmt(d.elaunList.itka)}</td></tr>
-                        <tr><td>ITK</td><td class="right">${fmt(d.elaunList.itk)}</td></tr>
-                        <tr><td>ITP</td><td class="right">${fmt(d.elaunList.itp)}</td></tr>
-                        <tr><td>BISH (Semenanjung)</td><td class="right">${fmt(d.elaunList.bish)}</td></tr>
-                        <tr><td>BIW (S/S/L)</td><td class="right">${fmt(d.elaunList.biw)}</td></tr>
-                        <tr><td>BIPK</td><td class="right">${fmt(d.elaunList.bipk)}</td></tr>
-                        <tr><td>BIP</td><td class="right">${fmt(d.elaunList.bip)}</td></tr>
-                        <tr><td>KGT Tahun Ini</td><td class="right">${fmt(d.kgt)}</td></tr>
-                        <tr><td>KGT Tambahan (Manual)</td><td class="right">${fmt(d.kgtTambahan)}</td></tr>
-                        <tr class="total-row">
-                            <td>JUMLAH PENDAPATAN KASAR</td>
-                            <td class="right">RM ${fmt(d.jumlahKasar)}</td>
-                        </tr>
-                    </table>
+    window.resetForm = function() {
+        window.scrollTo(0, 0); 
+        setTimeout(() => location.reload(), 100); 
+    };
 
-                    <div class="warning">
-                        <strong>PERHATIAN:</strong> Jumlah yang dipaparkan adalah anggaran simulasi sahaja berdasarkan data yang dimasukkan. 
-                        Sila rujuk slip gaji rasmi jabatan untuk pengesahan muktamad.
-                    </div>
+    /* =========================================
+       3. UI & EVENT LISTENERS
+       ========================================= */
+    
+    // Force Scroll Top on Refresh
+    if (history.scrollRestoration) { history.scrollRestoration = 'manual'; }
+    window.scrollTo(0, 0);
 
-                    <script>window.print();<\/script>
-                </body></html>
-            `);
-            w.document.close();
-        };
+    document.addEventListener("DOMContentLoaded", () => {
+        // Fade In Animation
+        setTimeout(() => document.body.classList.add("loaded"), 10);
 
-        function saveToFirebase(data) {
-            const user = firebase.auth().currentUser;
-            const uid = user ? user.uid : "anonymous";
+        // 1. Hamburger Menu
+        const navBtn = document.getElementById('hamburgerBtn');
+        const navMenu = document.getElementById('navMenu');
+        if(navBtn) navBtn.onclick = () => navMenu.classList.toggle('active');
+
+// LOGIC PETUNJUK (SMOOTH ANIMATION)
+        const pBtn = document.getElementById('petunjukBtn');
+        const pPop = document.getElementById('petunjukPopup');
+        
+        if(pBtn && pPop) {
+            // Pastikan tiada style 'display:none' yang kacau CSS
+            pPop.style.display = ''; 
+
+            // Toggle Class 'active' bila tekan butang ?
+            pBtn.onclick = (e) => {
+                e.stopPropagation();
+                pPop.classList.toggle('active');
+            };
+
+            // Tutup bila klik di luar kotak
+            window.addEventListener('click', (e) => {
+                if (pPop.classList.contains('active') && !pPop.contains(e.target) && e.target !== pBtn) {
+                    pPop.classList.remove('active');
+                }
+            });
             
-            db.collection('printedSlips').add({
-                userId: uid,
-                ...data,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => console.log("Data saved for dashboard!"))
-              .catch(e => console.error("Save failed", e));
+            // Tutup bila tekan butang "Tutup" dalam popup
+            const closeBtn = pPop.querySelector('button');
+            if(closeBtn) {
+                closeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    pPop.classList.remove('active');
+                }
+            }
         }
 
-        // --- UTILS ---
-        function fmt(n) { return parseFloat(n).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'); }
+        // 3. Navbar Scroll & GoTop Logic
+        const navbar = document.querySelector('.dashboard-nav');
+        const goTop = document.getElementById('goTopBtn');
+        let lastScrollTop = 0;
 
-        window.resetForm = function() {
-            window.scrollTo(0, 0); 
-            setTimeout(() => location.reload(), 100); 
-        };
+        window.addEventListener('scroll', () => {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if(scrollTop < 0) return;
 
-        // UI Listeners
-        document.addEventListener("DOMContentLoaded", () => {
-            const navBtn = document.getElementById('hamburgerBtn');
-            const navMenu = document.getElementById('navMenu');
-            if(navBtn) navBtn.onclick = () => navMenu.classList.toggle('active');
+            // Navbar Hide/Show
+            if (scrollTop > lastScrollTop && scrollTop > 50) {
+                navbar.classList.add('nav-hidden');
+            } else {
+                navbar.classList.remove('nav-hidden');
+            }
+            lastScrollTop = scrollTop;
 
-            // Petunjuk Toggle
-            document.getElementById('petunjukBtn').onclick = () => {
-                const p = document.getElementById('petunjukPopup');
-                p.style.display = (p.style.display === 'block') ? 'none' : 'block';
-            };
+            // Go Top Show/Hide
+            if (goTop) {
+                goTop.style.display = scrollTop > 300 ? "block" : "none";
+            }
         });
 
-        // GoToTop Logic
-        const goTop = document.getElementById('goTopBtn');
-        window.onscroll = () => {
-            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-                goTop.style.display = "block";
-            } else {
-                goTop.style.display = "none";
-            }
-        };
-        goTop.onclick = () => window.scrollTo({top: 0, behavior: 'smooth'});
+        if(goTop) goTop.onclick = () => window.scrollTo({top: 0, behavior: 'smooth'});
 
-        // Auto scroll top on load
-        window.onload = () => window.scrollTo(0,0);
-
-        // LOGOUT WITH NOTIFICATION (Sama Dashboard)
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
+        // 4. Logout Logic
+        document.getElementById('logoutBtn')?.addEventListener('click', async () => {
             const notif = document.createElement('div');
             notif.textContent = 'Sedang Log Keluar...';
             notif.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background-color: var(--brand-blue); color:white; padding:12px 24px; border-radius:30px; font-weight:600; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index:9999; opacity:0; transition:all 0.3s ease;";
             document.body.appendChild(notif);
             setTimeout(() => { notif.style.opacity = 1; notif.style.top = '30px'; }, 10);
-            
             setTimeout(async () => {
                 await firebase.auth().signOut();
                 location.href = 'login.html';
             }, 1200);
         });
-/* =========================================
-   FORCE SCROLL TO TOP ON REFRESH
-   ========================================= */
-if (history.scrollRestoration) {
-    history.scrollRestoration = 'manual'; // Halang browser ingat position lama
-}
-window.scrollTo(0, 0); // Paksa naik atas serta-merta
-/* =========================================
-   PAGE TRANSITION LOGIC
-   ========================================= */
-document.addEventListener("DOMContentLoaded", () => {
-    
-    // 1. FADE IN (Bila page baru buka)
-    // Kita bagi sedikit masa (10ms) supaya browser sempat render
-    setTimeout(() => {
-        document.body.classList.add("loaded");
-    }, 10);
 
-    // 2. FADE OUT (Bila klik link navigasi)
-    // Cari semua link (<a>) dalam page
-    const links = document.querySelectorAll('a');
-
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            const targetUrl = link.getAttribute('href');
-
-            // Pastikan link tu bukan link kosong (#) atau javascript
-            if (targetUrl && targetUrl !== '#' && !targetUrl.startsWith('javascript')) {
-                e.preventDefault(); // Halang browser buka terus
-                
-                // Buat animasi hilang dulu (Fade Out)
-                document.body.classList.remove("loaded");
-
-                // Tunggu 0.5 saat (sama dengan masa transition CSS), baru pergi ke page lain
-                setTimeout(() => {
-                    window.location.href = targetUrl;
-                }, 500); 
-            }
+        // 5. Page Transition (Links)
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const targetUrl = link.getAttribute('href');
+                if (targetUrl && targetUrl !== '#' && !targetUrl.startsWith('javascript')) {
+                    e.preventDefault();
+                    document.body.classList.remove("loaded");
+                    setTimeout(() => window.location.href = targetUrl, 500);
+                }
+            });
         });
     });
-});
-    </script>
+</script>
 </body>
 </html>
-
