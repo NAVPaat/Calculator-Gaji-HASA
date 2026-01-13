@@ -14,14 +14,19 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <style>
+/* =========================================
+   PAGE TRANSITION STYLES (UPDATED: FADE UP)
+   ========================================= */
 body {
-    opacity: 0; /* Mula-mula page halimunan */
-    transition: opacity 0.5s ease-in-out; /* Tempoh peralihan 0.5 saat */
+    opacity: 0; 
+    transform: translateY(30px); /* Mula dari bawah sedikit (30px) */
+    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); /* Animasi licin */
     pointer-events: none; /* Halang klik masa tengah loading */
 }
 
 body.loaded {
     opacity: 1; /* Muncul sepenuhnya */
+    transform: translateY(0); /* Naik ke posisi asal */
     pointer-events: auto; /* Boleh klik semula */
 }
 
@@ -52,6 +57,7 @@ body.loaded {
         position: relative;
         overflow-x: hidden;
         padding-bottom: 50px;
+        /* Transition styles handled above */
     }
 
     /* BACKGROUND */
@@ -82,27 +88,22 @@ body.loaded {
         display: flex; justify-content: space-between; align-items: center; padding: 15px 30px;
         background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
         border-bottom: 1px solid rgba(255,255,255,0.6); 
-        position: relative; /* Ikut scroll (akan hilang bila scroll bawah) */
         width: 100%;
-        z-index: 999; 
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         height: 70px;
         margin-bottom: 0; /* FIX: Buang gap bawah nav */
-/* Perubahan Utama Di Sini: */
-    position: sticky; /* Tukar dari relative ke sticky */
-    top: 0; 
-    z-index: 999; 
-    transition: transform 0.3s ease-in-out; /* Animasi gerak */
-    will-change: transform;
-    height: 70px;
-    margin-bottom: 0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-}
+        /* Perubahan Utama Di Sini: */
+        position: sticky; /* Tukar dari relative ke sticky */
+        top: 0; 
+        z-index: 999; 
+        transition: transform 0.3s ease-in-out; /* Animasi gerak */
+        will-change: transform;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
 
-/* Class untuk sorok navbar bila scroll ke bawah */
-.dashboard-nav.nav-hidden {
-    transform: translateY(-100%);
-}
+    /* Class untuk sorok navbar bila scroll ke bawah */
+    .dashboard-nav.nav-hidden {
+        transform: translateY(-100%);
+    }
     
     .nav-left { display: flex; align-items: center; gap: 12px; }
     .nav-logo { height: 48px; }
@@ -165,18 +166,15 @@ body.loaded {
     .circle.inactive { color: var(--text-secondary); }
 
     /* RESULT SECTION */
-    /* RESULT SECTION */
-/* UPDATE: Saya dah buang 'display: none' di hujung baris ini */
-.result-box { 
-    background: #fff; 
-    border: 1px solid var(--border-light); 
-    padding: 0; 
-    border-radius: 16px; 
-    margin-top: 30px; 
-    overflow: hidden; 
-    box-shadow: var(--shadow-sm); 
-    /* display: none; <--- BUANG ATAU PADAM INI */
-}
+    .result-box { 
+        background: #fff; 
+        border: 1px solid var(--border-light); 
+        padding: 0; 
+        border-radius: 16px; 
+        margin-top: 30px; 
+        overflow: hidden; 
+        box-shadow: var(--shadow-sm); 
+    }
     .result-header { background: #f1f5f9; padding: 15px 25px; border-bottom: 1px solid var(--border-light); color: #0f172a; font-weight: 700; font-size: 1.1rem; }
     .result-content { padding: 25px; }
     
@@ -197,154 +195,154 @@ body.loaded {
     #goTopBtn { bottom: 30px; right: 30px; background: var(--text-primary); font-size: 20px; display: none; }
     #goTopBtn:hover { background: var(--brand-blue); transform: translateY(-3px); }
     
-.petunjuk-popup {
-    /* State asal (Tersembunyi) */
-    position: fixed; 
-    bottom: 90px; 
-    left: 30px; 
-    background: white; 
-    padding: 20px; 
-    border-radius: 16px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
-    z-index: 100; 
-    border: 1px solid var(--border-light); 
-    width: 300px;
-    
-    /* Animasi Properties */
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(20px); /* Mula dari bawah sikit */
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Class bila popup aktif (Muncul) */
-.petunjuk-popup.active {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0); /* Naik ke posisi asal */
-}
-
-.petunjuk-popup table { width: 100%; font-size: 0.85rem; }
-.petunjuk-popup td { padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
-
-/* Menu Desktop */
-.nav-right { display: flex; gap: 20px; align-items: center; }
-.nav-link { text-decoration: none; color: #475569; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
-.nav-link:hover, .nav-link.active { color: var(--brand-blue); }
-.logout-btn { background: #fee2e2; color: #ef4444; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; }
-
-/* Burger Default Hidden */
-.hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; z-index: 50; }
-.hamburger span { width: 25px; height: 3px; background-color: #0f172a; border-radius: 2px; transition: 0.3s; }
-
-
-/* --- MOBILE RESPONSIVE (Title Jadi Center Sini) --- */
-@media (max-width: 768px) {
-    .dashboard-nav { padding: 0 20px; } /* Kurangkan padding tepi */
-
-    /* 1. Tunjuk Burger */
-    .hamburger { display: flex; }
-
-    /* 2. MAGIC: Title Lari ke Tengah */
-    .nav-title {
-        position: absolute; /* Cabut dari .nav-left */
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%); /* Center betul-betul */
+    .petunjuk-popup {
+        /* State asal (Tersembunyi) */
+        position: fixed; 
+        bottom: 90px; 
+        left: 30px; 
+        background: white; 
+        padding: 20px; 
+        border-radius: 16px; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+        z-index: 100; 
+        border: 1px solid var(--border-light); 
+        width: 300px;
         
-        font-size: 0.95rem; /* Kecilkan sikit */
-        width: 60%; /* Hadkan lebar supaya tak langgar logo/burger */
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        z-index: 10;
+        /* Animasi Properties */
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(20px); /* Mula dari bawah sikit */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* 3. Menu Dropdown */
-    .nav-right {
-        position: absolute;
-        top: 70px;
-        left: 0;
-        width: 100%;
-        background: white;
-        border-bottom: 1px solid #e2e8f0;
-        box-shadow: 0 10px 15px rgba(0,0,0,0.05);
-        
-        display: flex; flex-direction: column; align-items: center;
-        max-height: 0; opacity: 0; overflow: hidden;
-        transition: all 0.4s ease-in-out;
-        padding: 0; gap: 0;
-    }
-
-    .nav-right.active {
-        max-height: 400px;
+    /* Class bila popup aktif (Muncul) */
+    .petunjuk-popup.active {
         opacity: 1;
-        padding: 20px 0;
-        gap: 15px;
+        visibility: visible;
+        transform: translateY(0); /* Naik ke posisi asal */
     }
 
-    .nav-link { width: 100%; padding: 12px; display: block; text-align: center; }
-    
-    /* Burger Animation */
-    .nav-right.active ~ .hamburger span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-    .nav-right.active ~ .hamburger span:nth-child(2) { opacity: 0; }
-    .nav-right.active ~ .hamburger span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-}
-/* === TOOLTIP STYLES (Tambah ini) === */
+    .petunjuk-popup table { width: 100%; font-size: 0.85rem; }
+    .petunjuk-popup td { padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
 
-/* Pastikan elemen induk ada position relative */
-.nav-link, .logout-btn {
-    position: relative;
-}
+    /* Menu Desktop */
+    .nav-right { display: flex; gap: 20px; align-items: center; }
+    .nav-link { text-decoration: none; color: #475569; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
+    .nav-link:hover, .nav-link.active { color: var(--brand-blue); }
+    .logout-btn { background: #fee2e2; color: #ef4444; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; }
 
-/* Kotak Teks Tooltip */
-[data-tooltip]:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 10px;
-    padding: 6px 10px;
-    background-color: #1e293b; /* Warna latar gelap */
-    color: #fff;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 6px;
-    white-space: nowrap;
-    opacity: 0;
-    animation: tooltipFade 0.3s forwards;
-    pointer-events: none;
-    z-index: 200;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
+    /* Burger Default Hidden */
+    .hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; z-index: 50; }
+    .hamburger span { width: 25px; height: 3px; background-color: #0f172a; border-radius: 2px; transition: 0.3s; }
 
-/* Anak Panah Kecil (Segitiga) di atas tooltip */
-[data-tooltip]:hover::before {
-    content: '';
-    position: absolute;
-    top: 100%; 
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent #1e293b transparent; /* Warna sama dengan background tooltip */
-    opacity: 0;
-    animation: tooltipFade 0.3s forwards;
-    pointer-events: none;
-}
 
-/* Animasi Muncul */
-@keyframes tooltipFade { 
-    to { opacity: 1; margin-top: 10px; } 
-}
+    /* --- MOBILE RESPONSIVE (Title Jadi Center Sini) --- */
+    @media (max-width: 768px) {
+        .dashboard-nav { padding: 0 20px; } /* Kurangkan padding tepi */
 
-/* Sembunyikan tooltip pada Mobile supaya tak semak */
-@media (max-width: 768px) {
-    [data-tooltip]:hover::after, [data-tooltip]:hover::before { display: none; }
-}
+        /* 1. Tunjuk Burger */
+        .hamburger { display: flex; }
+
+        /* 2. MAGIC: Title Lari ke Tengah */
+        .nav-title {
+            position: absolute; /* Cabut dari .nav-left */
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%); /* Center betul-betul */
+            
+            font-size: 0.95rem; /* Kecilkan sikit */
+            width: 60%; /* Hadkan lebar supaya tak langgar logo/burger */
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 10;
+        }
+
+        /* 3. Menu Dropdown */
+        .nav-right {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+            
+            display: flex; flex-direction: column; align-items: center;
+            max-height: 0; opacity: 0; overflow: hidden;
+            transition: all 0.4s ease-in-out;
+            padding: 0; gap: 0;
+        }
+
+        .nav-right.active {
+            max-height: 400px;
+            opacity: 1;
+            padding: 20px 0;
+            gap: 15px;
+        }
+
+        .nav-link { width: 100%; padding: 12px; display: block; text-align: center; }
+        
+        /* Burger Animation */
+        .nav-right.active ~ .hamburger span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .nav-right.active ~ .hamburger span:nth-child(2) { opacity: 0; }
+        .nav-right.active ~ .hamburger span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+    }
+    /* === TOOLTIP STYLES (Tambah ini) === */
+
+    /* Pastikan elemen induk ada position relative */
+    .nav-link, .logout-btn {
+        position: relative;
+    }
+
+    /* Kotak Teks Tooltip */
+    [data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 10px;
+        padding: 6px 10px;
+        background-color: #1e293b; /* Warna latar gelap */
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: 6px;
+        white-space: nowrap;
+        opacity: 0;
+        animation: tooltipFade 0.3s forwards;
+        pointer-events: none;
+        z-index: 200;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Anak Panah Kecil (Segitiga) di atas tooltip */
+    [data-tooltip]:hover::before {
+        content: '';
+        position: absolute;
+        top: 100%; 
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent transparent #1e293b transparent; /* Warna sama dengan background tooltip */
+        opacity: 0;
+        animation: tooltipFade 0.3s forwards;
+        pointer-events: none;
+    }
+
+    /* Animasi Muncul */
+    @keyframes tooltipFade { 
+        to { opacity: 1; margin-top: 10px; } 
+    }
+
+    /* Sembunyikan tooltip pada Mobile supaya tak semak */
+    @media (max-width: 768px) {
+        [data-tooltip]:hover::after, [data-tooltip]:hover::before { display: none; }
+    }
 </style>
 </head>
 <body data-kiraan="awam">
@@ -896,7 +894,8 @@ body.loaded {
                 if (targetUrl && targetUrl !== '#' && !targetUrl.startsWith('javascript')) {
                     e.preventDefault();
                     document.body.classList.remove("loaded");
-                    setTimeout(() => window.location.href = targetUrl, 500);
+                    // Update masa timeout kepada 600ms supaya sama dengan CSS
+                    setTimeout(() => window.location.href = targetUrl, 600);
                 }
             });
         });
