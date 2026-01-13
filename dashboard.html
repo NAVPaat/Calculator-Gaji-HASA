@@ -18,18 +18,21 @@
 
 <style>
 /* =========================================
-   PAGE TRANSITION STYLES
+   PAGE TRANSITION STYLES (UPDATED: FADE UP)
    ========================================= */
 body {
-    opacity: 0; /* Mula-mula page halimunan */
-    transition: opacity 0.5s ease-in-out; /* Tempoh peralihan 0.5 saat */
+    opacity: 0; 
+    transform: translateY(30px); /* Mula dari bawah sedikit (30px) */
+    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); /* Animasi licin (Bezier Curve) */
     pointer-events: none; /* Halang klik masa tengah loading */
 }
 
 body.loaded {
     opacity: 1; /* Muncul sepenuhnya */
+    transform: translateY(0); /* Naik ke posisi asal */
     pointer-events: auto; /* Boleh klik semula */
 }
+
 /* ===== THEME VARIABLES ===== */
 :root {
     --bg-main: #f8fafc;
@@ -54,13 +57,8 @@ body {
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
-    /* Added for smooth transition logic */
-    opacity: 0; 
-    transition: opacity 0.5s ease-in-out;
+    /* Transition styles are handled in the block above */
 }
-
-/* Class to trigger fade in when loaded */
-body.loaded { opacity: 1; }
 
 /* =========================================
    FULL PAGE MODERN BACKGROUND
@@ -134,12 +132,10 @@ p, .small { color: var(--text-secondary); line-height: 1.6; }
     backdrop-filter: blur(12px); 
     border-bottom: 1px solid rgba(255,255,255,0.5);
     position: sticky; top: 0; z-index: 100;
-    /* TAMBAH 2 BARIS INI UNTUK SMOOTH */
     transition: transform 0.3s ease-in-out;
     will-change: transform;
 }
 
-/* TAMBAH CLASS BARU INI (Untuk sorok navbar) */
 .dashboard-nav.nav-hidden {
     transform: translateY(-100%); /* Tarik navbar ke atas sampai hilang */
 }
@@ -188,14 +184,12 @@ p, .small { color: var(--text-secondary); line-height: 1.6; }
 }
 @keyframes tooltipFade { to { opacity: 1; } }
 
-/* GANTI BAHAGIAN INI SAHAJA DALAM <style> */
 @media (max-width: 768px) {
     .dashboard-nav { padding: 15px 20px; }
     .nav-title { font-size: 0.95rem; }
     .hamburger { display: flex; }
     
     .nav-right {
-        /* Tukar display:none kepada display:flex supaya boleh animate */
         display: flex; 
         flex-direction: column;
         position: absolute; 
@@ -207,30 +201,26 @@ p, .small { color: var(--text-secondary); line-height: 1.6; }
         align-items: stretch; 
         text-align: center;
         
-        /* === SETUP ANIMASI === */
-        max-height: 0;       /* Mula-mula tinggi 0 (tutup) */
-        opacity: 0;          /* Halimunan */
-        overflow: hidden;    /* Sorok isi dalam */
-        padding: 0;          /* Padam padding supaya takde gap */
-        border-bottom: none; /* Sorok border */
+        max-height: 0;       
+        opacity: 0;          
+        overflow: hidden;    
+        padding: 0;          
+        border-bottom: none; 
         
-        /* Kelajuan Animasi */
         transition: all 0.4s ease-in-out;
     }
 
     .nav-right.active {
-        /* === BILA MENU BUKA === */
-        max-height: 500px;   /* Bagi ruang cukup besar */
-        opacity: 1;          /* Muncul */
-        padding: 20px;       /* Masukkan balik padding asal */
+        max-height: 500px;   
+        opacity: 1;          
+        padding: 20px;       
         border-bottom: 1px solid var(--border-light);
-        gap: 15px;           /* Jarak antara item */
+        gap: 15px;           
     }
 
     .nav-link { padding: 10px; border-radius: 8px; }
     .nav-link:hover { background: #f1f5f9; }
     
-    /* Sembunyikan tooltip di mobile */
     [data-tooltip]:hover::after, [data-tooltip]:hover::before { display: none; }
 }
 
@@ -424,13 +414,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if(targetUrl && targetUrl !== '#' && !targetUrl.startsWith('javascript')) {
                 e.preventDefault(); // Stop immediate jump
                 
-                // Fade out effect
-                document.body.style.opacity = 0;
+                // Fade out effect (Reverse transition)
+                document.body.classList.remove('loaded');
                 
-                // Wait for transition (500ms matching CSS) then go
+                // Wait for transition (matching CSS duration) then go
                 setTimeout(() => {
                     window.location.href = targetUrl;
-                }, 500);
+                }, 600); // 600ms match CSS transition
             }
         });
     });
@@ -450,7 +440,7 @@ function setupLogout(buttonId){
       document.body.appendChild(notif);
       
       // Visual fade out for logout too
-      document.body.style.opacity = 0;
+      document.body.classList.remove('loaded');
 
       setTimeout(async () => {
         await firebase.auth().signOut();
@@ -653,10 +643,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Buat animasi hilang dulu (Fade Out)
                 document.body.classList.remove("loaded");
 
-                // Tunggu 0.5 saat (sama dengan masa transition CSS), baru pergi ke page lain
+                // Tunggu 0.6 saat (sama dengan masa transition CSS), baru pergi ke page lain
                 setTimeout(() => {
                     window.location.href = targetUrl;
-                }, 500); 
+                }, 600); 
             }
         });
     });
