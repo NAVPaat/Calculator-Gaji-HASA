@@ -196,6 +196,26 @@ body.loaded {
     .petunjuk-btn { bottom: 30px; left: 30px; background: var(--brand-blue); font-size: 24px; }
     #goTopBtn { bottom: 30px; right: 30px; background: var(--text-primary); font-size: 20px; display: none; }
     #goTopBtn:hover { background: var(--brand-blue); transform: translateY(-3px); }
+
+/* Hover: tukar shape + keluarkan perkataan */
+.petunjuk-btn:hover {
+    width: 140px;
+    border-radius: 40px;
+    background: #5E2A84;
+    color: #ffffff;
+}
+
+/* Tukar simbol kepada perkataan */
+.petunjuk-btn:hover::after {
+    content: "PETUNJUK";
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Hilangkan simbol bila hover */
+.petunjuk-btn:hover {
+    font-size: 0;
+}
     
 .petunjuk-popup {
     /* State asal (Tersembunyi) */
@@ -895,3 +915,4 @@ body.loaded {
 </script>
 </body>
 </html>
+
