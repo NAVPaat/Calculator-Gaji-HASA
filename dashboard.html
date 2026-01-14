@@ -426,31 +426,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-/* ========================
-   LOGOUT LOGIC
-   ======================== */
-function setupLogout(buttonId){
-  const btn = document.getElementById(buttonId);
-  if(!btn) return;
-  btn.addEventListener('click', async () => {
-    try {
-      const notif = document.createElement('div');
-      notif.textContent = 'Sedang Log Keluar...';
-      notif.style.cssText = "position:fixed; top:30px; left:50%; transform:translateX(-50%); background: #0f172a; color:white; padding:12px 25px; border-radius:50px; font-weight:600; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index:9999;";
-      document.body.appendChild(notif);
-      
-      // Visual fade out for logout too
-      document.body.classList.remove('loaded');
-
-      setTimeout(async () => {
-        await firebase.auth().signOut();
-        location.href = 'login.html';
-      }, 1500);
-    } catch (e) { alert('Logout gagal.'); }
-  });
-}
-setupLogout('logoutBtn');
-setupLogout('sideLogoutBtn');
+        // 4. Logout Logic
+        document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+            const notif = document.createElement('div');
+            notif.textContent = 'Sedang Log Keluar...';
+            notif.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background-color: var(--brand-blue); color:white; padding:12px 24px; border-radius:30px; font-weight:600; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index:9999; opacity:0; transition:all 0.3s ease;";
+            document.body.appendChild(notif);
+            setTimeout(() => { notif.style.opacity = 1; notif.style.top = '30px'; }, 10);
+            setTimeout(async () => {
+                await firebase.auth().signOut();
+                location.href = 'login.html';
+            }, 1200);
+        });
 
 /* ========================
    AUTH CHANGE
@@ -682,3 +669,4 @@ window.scrollTo(0, 0); // Paksa naik atas serta-merta
 </script>
 </body>
 </html>
+
