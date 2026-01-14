@@ -7,7 +7,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -40,18 +40,18 @@ html, body {
   position: relative;
   z-index: 1;
   text-align: center;
-  padding: 40px 50px;
+  padding: 45px 40px;
   border-radius: 24px;
   
   /* Glassmorphism Effect */
-  background: rgba(25, 25, 25, 0.4); /* Darker elegant glass */
+  background: rgba(20, 20, 20, 0.6); /* Lebih gelap sedikit untuk kontras tulisan */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
   
-  max-width: 500px;
-  width: 90%;
+  max-width: 650px;
+  width: 85%;
   
   opacity: 0;
   transform: translateY(30px) scale(0.95);
@@ -68,45 +68,53 @@ html, body {
   transform: translateY(0) scale(1);
 }
 
-/* Greeting Subtitle (Selamat Pagi) */
-.greet-label {
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 10px;
-  font-weight: 500;
+/* 1. LAYER ATAS: ARABIC */
+.arabic-greeting {
+    font-family: 'Amiri', serif; /* Font khas Arab */
+    font-size: 2rem; /* Besar */
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.4;
+    margin-bottom: 5px;
+    letter-spacing: normal;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-/* User Name (Main Text) */
+/* 2. LAYER TENGAH: MASA (Pagi/Petang) */
+.time-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 3px; /* Jarak huruf luas untuk gaya moden */
+  text-transform: uppercase;
+  color: #a3a3a3; /* Warna kelabu cerah */
+  margin-bottom: 20px;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 10px;
+  display: inline-block;
+}
+
+/* 3. LAYER BAWAH: NAMA USER */
 .greet-name {
   font-family: 'Poppins', sans-serif;
-  font-size: 2.5rem; /* Besar */
+  font-size: 2.2rem;
   font-weight: 700;
   color: #fff;
   line-height: 1.2;
-  min-height: 60px; /* Reserve space */
-  text-shadow: 0 0 20px rgba(255,255,255,0.3);
-  margin-bottom: 25px;
-}
-
-/* Gradient Text Effect for Name (Optional) */
-.highlight-text {
-  background: linear-gradient(135deg, #fff 0%, #d1d5db 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  min-height: 50px;
+  text-shadow: 0 0 25px rgba(255,255,255,0.2);
+  margin-bottom: 30px;
+  word-wrap: break-word;
 }
 
 /* Loading Line */
 .loader-wrapper {
-  width: 100px;
+  width: 120px;
   height: 4px;
   background: rgba(255,255,255,0.1);
   border-radius: 4px;
   overflow: hidden;
   position: relative;
-  margin-top: 10px;
 }
 
 .loader-bar {
@@ -114,14 +122,14 @@ html, body {
   height: 100%;
   background: linear-gradient(90deg, #FF6B6B, #5E2A84);
   border-radius: 4px;
-  transition: width 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 3s cubic-bezier(0.4, 0, 0.2, 1); /* Slowed down slightly */
 }
 
 /* Blinking Cursor */
 .cursor {
   display: inline-block;
   width: 3px;
-  height: 1em; /* Ikut saiz font */
+  height: 1em;
   background: #FF6B6B;
   vertical-align: middle;
   margin-left: 5px;
@@ -146,8 +154,10 @@ html, body {
 
 /* Mobile Adjustments */
 @media (max-width: 480px) {
-  #greetingContainer { padding: 30px 20px; }
-  .greet-name { font-size: 1.8rem; }
+  #greetingContainer { padding: 35px 20px; }
+  .arabic-greeting { font-size: 1.6rem; }
+  .greet-name { font-size: 1.5rem; }
+  .time-label { font-size: 0.75rem; letter-spacing: 2px; }
 }
 </style>
 </head>
@@ -156,7 +166,9 @@ html, body {
 <canvas id="particleCanvas"></canvas>
 
 <div id="greetingContainer">
-  <div class="greet-label" id="timeGreeting">SELAMAT DATANG</div>
+  <div class="arabic-greeting">السلام عليكم ورحمة الله وبركاته</div>
+  
+  <div class="time-label" id="timeGreeting">...</div>
   
   <div class="greet-name">
     <span id="typedName"></span><span class="cursor"></span>
@@ -238,7 +250,7 @@ function hexToRgb(hex){
 }
 
 // ===== 2. ADVANCED TYPING & ANIMATION =====
-function typeText(el, text, speed=70, callback){ 
+function typeText(el, text, speed=50, callback){ 
   let i=0;
   const cursor = document.querySelector('.cursor');
   // Initial delay slightly
@@ -269,9 +281,7 @@ onAuthChange(async user => {
         }
     }catch(e){ console.warn('Cannot fetch fullname:', e); }
 
-    // Format Name (First Name Only for impact, or Fullname)
-    // Ambil nama pertama sahaja jika terlalu panjang, atau biarkan full
-    const displayName = fullname.length > 20 ? fullname.split(' ')[0] : fullname;
+    const displayName = fullname; 
 
     // Time Logic
     const hour = new Date().getHours();
@@ -282,33 +292,35 @@ onAuthChange(async user => {
     else{ timeGreeting='SELAMAT MALAM'; emoji='🌙'; }
 
     // DOM Elements
-    const labelEl = document.getElementById('timeGreeting');
+    const timeEl = document.getElementById('timeGreeting');
     const nameEl = document.getElementById('typedName');
     const container = document.getElementById('greetingContainer');
     const progressBar = document.getElementById('progressLine');
 
-    // Set Subtitle first
-    labelEl.innerHTML = `${emoji} &nbsp; ${timeGreeting}`;
+    // Set Time Greeting (Line 2)
+    timeEl.innerHTML = `${emoji} &nbsp; ${timeGreeting}`;
 
     // Start Sequence
     setTimeout(()=>{
         container.classList.add('show'); // 1. Card Pops up
         
         // 2. Start Typing Name
-        typeText(nameEl, displayName, 60, () => {
+        const typeSpeed = displayName.length > 20 ? 40 : 60;
+        
+        typeText(nameEl, displayName, typeSpeed, () => {
              // 3. Typing Done
         });
 
-        // 4. Start Progress Bar concurrently
+        // 4. Start Progress Bar
         setTimeout(() => {
             progressBar.style.width = '100%';
         }, 500);
 
-        // 5. Redirect Sequence
+        // 5. Redirect Sequence (Bagi masa lebih sikit sebab ada 3 baris nak baca)
         setTimeout(() => {
-            container.classList.add('fade-out'); // Warp speed effect
+            container.classList.add('fade-out'); 
             setTimeout(() => window.location.href='dashboard.html', 1500);
-        }, 2800); // Total wait time
+        }, 4000); 
 
     }, 300);
 });
