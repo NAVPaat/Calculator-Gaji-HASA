@@ -3,670 +3,393 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Dashboard — HASA UiTM</title>
+<title>HASA Dashboard Pro</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 <script src="firebase-config.js"></script>
 <script src="auth.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 /* =========================================
-   PAGE TRANSITION STYLES (UPDATED: FADE UP)
+   1. VARIABLES & RESET
    ========================================= */
-body {
-    opacity: 0; 
-    transform: translateY(30px); /* Mula dari bawah sedikit (30px) */
-    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); /* Animasi licin (Bezier Curve) */
-    pointer-events: none; /* Halang klik masa tengah loading */
-}
-
-body.loaded {
-    opacity: 1; /* Muncul sepenuhnya */
-    transform: translateY(0); /* Naik ke posisi asal */
-    pointer-events: auto; /* Boleh klik semula */
-}
-
-/* ===== THEME VARIABLES ===== */
 :root {
-    --bg-main: #f8fafc;
-    --bg-card: #ffffff;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --brand-blue: #4f46e5;
-    --brand-green: #10b981;
-    --border-light: #e2e8f0;
-    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-    --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --primary: #4f46e5;       /* Indigo 600 */
+    --primary-dark: #4338ca;  /* Indigo 700 */
+    --secondary: #8b5cf6;     /* Violet 500 */
+    --accent: #06b6d4;        /* Cyan 500 */
+    --dark: #0f172a;          /* Slate 900 */
+    --text-grey: #64748b;     /* Slate 500 */
+    --bg-body: #f8fafc;       /* Slate 50 */
+    
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+    --shadow-card: 0 10px 30px -10px rgba(0,0,0,0.06);
+    --sidebar-width: 270px;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
 
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-body);
+    color: #334155;
     min-height: 100vh;
-    position: relative;
     overflow-x: hidden;
-    /* Transition styles are handled in the block above */
 }
 
 /* =========================================
-   FULL PAGE MODERN BACKGROUND
+   2. AMBIENT BACKGROUND
    ========================================= */
-.animated-bg {
-    position: fixed; /* Guna fixed supaya ia kekal penuh walaupun scroll */
-    top: 0; 
-    left: 0; 
-    width: 100%;
-    height: 100%; /* Penuh satu skrin */
-    
-    /* Warna Moden Mesh Gradient */
-    background-color: #f3f4f6;
-    background-image: 
-        radial-gradient(at 0% 0%, hsla(253,16%,7%,0) 0, transparent 50%), 
-        radial-gradient(at 50% 0%, hsla(225,39%,30%,0) 0, transparent 50%), 
-        radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%);
-        
-    background-image: 
-        radial-gradient(at 40% 20%, hsla(28,100%,74%,1) 0px, transparent 50%),
-        radial-gradient(at 80% 0%, hsla(189,100%,56%,1) 0px, transparent 50%),
-        radial-gradient(at 0% 50%, hsla(355,100%,93%,1) 0px, transparent 50%),
-        radial-gradient(at 80% 50%, hsla(340,100%,76%,1) 0px, transparent 50%),
-        radial-gradient(at 0% 100%, hsla(22,100%,77%,1) 0px, transparent 50%),
-        radial-gradient(at 80% 100%, hsla(242,100%,70%,1) 0px, transparent 50%),
-        radial-gradient(at 0% 0%, hsla(343,100%,76%,1) 0px, transparent 50%);
-
-    /* Blur & Filter untuk efek lembut */
-    filter: blur(60px); 
-    opacity: 0.6; /* Transparansi supaya tak ganggu teks */
-    z-index: -1;
-    
-    /* Animasi Pergerakan */
-    background-size: 150% 150%;
-    animation: gradientFull 15s ease infinite alternate;
+.ambient-bg {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+    background: radial-gradient(at 0% 0%, #eef2ff 0px, transparent 50%),
+                radial-gradient(at 100% 0%, #f0fdfa 0px, transparent 50%),
+                radial-gradient(at 100% 100%, #fdf4ff 0px, transparent 50%);
 }
 
-@keyframes gradientFull {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+/* =========================================
+   3. LAYOUT STRUCTURE
+   ========================================= */
+.app-container {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    min-height: 100vh;
 }
 
-/* ===== LAYOUT ===== */
-.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-.grid-2 { display: grid; grid-template-columns: 280px 1fr; gap: 24px; }
-@media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
-
-/* ===== CARDS ===== */
-.card, .fx-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-light);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.3s ease;
-}
-.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-
-/* ===== TYPOGRAPHY ===== */
-h2 { font-size: 1.8rem; margin: 0 0 10px 0; font-weight: 800; }
-h3 { font-size: 1.2rem; margin: 0 0 10px 0; }
-h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin: 0 0 15px 0; font-weight: 700; }
-p, .small { color: var(--text-secondary); line-height: 1.6; }
-
-/* ===== NAVBAR (UPDATED FOR BURGER & TOOLTIP) ===== */
-.dashboard-nav {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 15px 30px;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(12px); 
-    border-bottom: 1px solid rgba(255,255,255,0.5);
-    position: sticky; top: 0; z-index: 100;
-    transition: transform 0.3s ease-in-out;
-    will-change: transform;
+/* =========================================
+   4. SIDEBAR (GLASSMORPHISM)
+   ========================================= */
+.sidebar {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border-right: var(--glass-border);
+    padding: 30px 24px;
+    display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh;
+    z-index: 50;
 }
 
-.dashboard-nav.nav-hidden {
-    transform: translateY(-100%); /* Tarik navbar ke atas sampai hilang */
+.brand {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 50px;
+    padding-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.brand-text { font-weight: 800; font-size: 1.25rem; color: var(--dark); letter-spacing: -0.5px; }
+
+.nav-links { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.nav-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px; border-radius: 12px;
+    text-decoration: none; color: var(--text-grey);
+    font-weight: 600; font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+.nav-item:hover { background: white; color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+.nav-item.active {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white; box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);
+}
+.nav-icon { width: 22px; font-size: 1.1rem; display: flex; justify-content: center; }
+
+/* Mini Profile */
+.user-mini {
+    margin-top: auto; background: white; padding: 16px;
+    border-radius: 16px; border: 1px solid #e2e8f0;
+    display: flex; align-items: center; gap: 12px;
+}
+.avatar {
+    width: 40px; height: 40px; background: #e0e7ff; color: var(--primary);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1.1rem;
 }
 
-.nav-left { display: flex; align-items: center; gap: 12px; }
-.nav-logo { height: 48px; }
-.nav-title { font-weight: 800; font-size: 1.5rem; color: #1e293b; }
+/* =========================================
+   5. MAIN CONTENT
+   ========================================= */
+.main-content { padding: 40px 60px; }
 
-.nav-right { display: flex; gap: 20px; align-items: center; }
-.nav-link { text-decoration: none; color: #475569; font-weight: 600; font-size: 0.9rem; transition: 0.2s; position: relative; }
-.nav-link:hover, .nav-link.active { color: var(--brand-blue); }
-
-.hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
-.hamburger span { width: 25px; height: 3px; background-color: #0f172a; border-radius: 2px; transition: 0.3s; }
-
-/* === TOOLTIP STYLES (NEW) === */
-[data-tooltip]:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 10px;
-    padding: 6px 10px;
-    background-color: #1e293b;
-    color: #fff;
-    font-size: 0.75rem;
-    border-radius: 6px;
-    white-space: nowrap;
-    opacity: 0;
-    animation: tooltipFade 0.3s forwards;
-    pointer-events: none;
-    z-index: 200;
+/* HEADER & GREETING (ENHANCED) */
+.header-section {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 40px;
 }
-[data-tooltip]:hover::before { /* Arrow for tooltip */
-    content: '';
-    position: absolute;
-    top: 100%; left: 50%;
-    transform: translateX(-50%);
-    margin-top: 5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent #1e293b transparent;
-    opacity: 0;
-    animation: tooltipFade 0.3s forwards;
+.greet-box h1 {
+    font-size: 2.2rem; margin: 0; letter-spacing: -1px; color: var(--dark);
+    line-height: 1.2;
 }
-@keyframes tooltipFade { to { opacity: 1; } }
-
-@media (max-width: 768px) {
-    .dashboard-nav { padding: 15px 20px; }
-    .nav-title { font-size: 0.95rem; }
-    .hamburger { display: flex; }
-    
-    .nav-right {
-        display: flex; 
-        flex-direction: column;
-        position: absolute; 
-        top: 100%; 
-        left: 0; 
-        width: 100%;
-        background: white; 
-        box-shadow: 0 10px 15px rgba(0,0,0,0.1);
-        align-items: stretch; 
-        text-align: center;
-        
-        max-height: 0;       
-        opacity: 0;          
-        overflow: hidden;    
-        padding: 0;          
-        border-bottom: none; 
-        
-        transition: all 0.4s ease-in-out;
-    }
-
-    .nav-right.active {
-        max-height: 500px;   
-        opacity: 1;          
-        padding: 20px;       
-        border-bottom: 1px solid var(--border-light);
-        gap: 15px;           
-    }
-
-    .nav-link { padding: 10px; border-radius: 8px; }
-    .nav-link:hover { background: #f1f5f9; }
-    
-    [data-tooltip]:hover::after, [data-tooltip]:hover::before { display: none; }
+.highlight-name {
+    background: linear-gradient(135deg, var(--primary) 0%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
 }
-
-/* ===== BUTTONS ===== */
-.btn-outline {
+.wave-emoji {
     display: inline-block;
-    border: 2px solid var(--border-light);
-    color: var(--text-primary);
-    padding: 10px 20px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-size: 13px; font-weight: 700;
-    transition: all 0.2s; background: white; text-align: center;
+    animation: wave-animation 2.5s infinite;
+    transform-origin: 70% 70%;
 }
-.btn-outline:hover {
-    border-color: var(--brand-blue); color: var(--brand-blue);
-    background: #f8fafc; transform: translateY(-2px);
+@keyframes wave-animation {
+    0% { transform: rotate( 0.0deg) }
+    10% { transform: rotate(14.0deg) }
+    20% { transform: rotate(-8.0deg) }
+    30% { transform: rotate(14.0deg) }
+    40% { transform: rotate(-4.0deg) }
+    50% { transform: rotate(10.0deg) }
+    60% { transform: rotate( 0.0deg) }
+    100% { transform: rotate( 0.0deg) }
 }
-.logout-btn {
-    background: #fee2e2; color: #ef4444; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; position: relative;
+.greet-sub {
+    font-size: 1.05rem; color: #64748b; margin-top: 8px; font-weight: 500;
 }
-.logout-btn:hover { background: #fecaca; }
-
-/* ===== INTERACTIVE STATS ===== */
-.fx-summary { display: flex; gap: 24px; margin-bottom: 30px; }
-.fx-stats { flex: 1; display: flex; flex-direction: column; gap: 20px; }
-.fx-chart { flex: 1.2; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 260px; background: rgba(255,255,255,0.9); }
-
-.fx-card {
-    flex: 1; display: flex; flex-direction: column; justify-content: center; cursor: pointer;
-    background: rgba(255,255,255,0.9);
-}
-.fx-card.awam { border-left: 5px solid var(--brand-blue); }
-.fx-card.swasta { border-left: 5px solid var(--brand-green); }
-
-.fx-card:hover { transform: scale(1.02); }
-.fx-card.active-filter { background: #f1f5f9 !important; border-color: transparent; }
-
-.fx-value { font-size: 2.8rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
-.fx-label { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); letter-spacing: 1px; }
-
-#payslipChartTop { width: 100%; max-height: 200px; }
-.fx-chart-title { position: absolute; top: 20px; left: 24px; font-weight: 800; color: var(--text-secondary); font-size: 0.8rem; }
-#resetFilterBtn {
-    position: absolute; top: 15px; right: 20px; padding: 5px 12px; background: var(--brand-blue); color: white;
-    border: none; border-radius: 20px; font-size: 0.7rem; font-weight: 700; cursor: pointer; display: none;
+.date-badge {
+    background: white; padding: 10px 20px; border-radius: 50px;
+    font-weight: 600; color: var(--primary); border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03); white-space: nowrap;
 }
 
-@media (max-width: 800px) { .fx-summary { flex-direction: column; } .fx-stats { flex-direction: row; } }
-@media (max-width: 600px) { .fx-stats { flex-direction: column; } }
+/* HERO CARD (INFO) */
+.hero-card {
+    background: white; border-radius: 24px; padding: 40px;
+    box-shadow: var(--shadow-card); margin-bottom: 40px;
+    border: 1px solid rgba(255,255,255,0.8);
+    position: relative; overflow: hidden;
+}
+.hero-card::before {
+    content:''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+    background: linear-gradient(to bottom, var(--primary), var(--secondary));
+}
+.hero-title { font-size: 1.5rem; font-weight: 800; color: var(--dark); margin-bottom: 15px; }
+.hero-desc { font-size: 1rem; color: #475569; line-height: 1.7; max-width: 800px; }
 
-/* ===== OTHER ===== */
-.stat-number { font-size: 3rem; font-weight: 800; color: var(--text-primary); }
-.kv { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 0.9rem; }
-#goTopBtn { display: none; position: fixed; bottom: 30px; right: 30px; width: 45px; height: 45px; background: var(--brand-blue); color: white; border: none; border-radius: 50%; font-size: 20px; cursor: pointer; box-shadow: var(--shadow-md); z-index: 99; }
+/* ACTION GRID */
+.action-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+}
+.card-action {
+    background: white; padding: 35px; border-radius: 20px;
+    text-decoration: none; color: inherit;
+    border: 1px solid #f1f5f9;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative; overflow: hidden;
+}
+.card-action:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary);
+    box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.15);
+}
+.icon-box {
+    width: 60px; height: 60px; border-radius: 16px; margin-bottom: 25px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+}
+.ib-blue { background: #eff6ff; color: #2563eb; }
+.ib-teal { background: #f0fdfa; color: #0d9488; }
 
-/* Custom Footer */
-.custom-footer { text-align:center; color: var(--text-secondary); padding:40px 20px; font-size:0.9rem; margin-top: 40px; }
+.ca-title { font-size: 1.35rem; font-weight: 700; color: var(--dark); margin-bottom: 10px; }
+.ca-desc { color: #64748b; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; }
+.btn-arrow {
+    font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 6px;
+    font-size: 0.95rem; transition: gap 0.2s;
+}
+.card-action:hover .btn-arrow { gap: 12px; }
+
+/* MOBILE RESPONSIVE */
+.menu-btn { display: none; font-size: 1.5rem; background: none; border: none; cursor: pointer; color: var(--dark); }
+@media (max-width: 1000px) {
+    .app-container { grid-template-columns: 1fr; }
+    .sidebar { display: none; position: fixed; width: 280px; box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+    .sidebar.active { display: flex; }
+    .main-content { padding: 25px; }
+    .action-grid { grid-template-columns: 1fr; }
+    .menu-btn { display: block; margin-right: 15px; }
+    .header-section { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .greet-box h1 { font-size: 1.8rem; }
+}
 </style>
 </head>
-<body> <div class="animated-bg"></div>
+<body>
 
-<nav class="dashboard-nav">
-    <div class="nav-left">
-        <img src="image/HASA.png" class="nav-logo" alt="Logo">
-        <span class="nav-title">DASHBOARD KIRAAN GAJI</span>
-    </div>
-    
-    <div class="hamburger" id="hamburgerBtn">
-        <span></span><span></span><span></span>
-    </div>
+    <div class="ambient-bg"></div>
 
-    <div class="nav-right" id="navMenu">
-        <a href="dashboard.html" class="nav-link active" data-tooltip="Paparan Utama">Dashboard</a>
-        <a href="contohawam.html" class="nav-link" data-tooltip="Kiraan Sektor Kerajaan">Kiraan Awam</a>        
-        <a href="swasta.html" class="nav-link" data-tooltip="Kiraan Sektor Korporat">Kiraan Swasta</a>
-        <button id="logoutBtn" class="logout-btn" data-tooltip="Keluar Sistem">Logout</button>
-    </div>
-</nav>
-
-<div class="container">
-    <div id="topPayslipSummary" class="fx-summary">
-      <div class="fx-stats">
-        <div class="fx-card awam" id="cardAwam">
-          <div class="fx-label">CETAKAN AWAM</div>
-          <div class="fx-value" id="awamCountTop">0</div>
-          <div class="fx-sub">Sektor Kerajaan</div>
-        </div>
-
-        <div class="fx-card swasta" id="cardSwasta">
-          <div class="fx-label">CETAKAN SWASTA</div>
-          <div class="fx-value" id="swastaCountTop">0</div>
-          <div class="fx-sub">Sektor Korporat</div>
-        </div>
-      </div>
-
-      <div class="fx-chart card">
-        <div class="fx-chart-title">AGIHAN CETAKAN</div>
-        <button id="resetFilterBtn">↻ Reset</button>
-        <canvas id="payslipChartTop"></canvas>
-      </div>
-    </div>
-
-    <div class="grid-2">
-        <div class="side">
-            <div class="card">
-                <h3 id="userName">Memuatkan...</h3>
-                <div class="small" id="userEmail">...</div>
-                <div style="height:20px"></div>
-                <div class="kv"><div>Peranan</div><div id="userRole">-</div></div>
-                <div class="kv"><div>Daftar</div><div id="userCreated">-</div></div>
-
-                <div style="height:25px"></div>
-                <a class="btn-outline" href="profile.html" style="width:100%; margin-bottom:10px;">EDIT PROFILE</a>
-                <button id="sideLogoutBtn" class="btn-outline" style="width:100%; border-color: #fee2e2; color: #ef4444; background: #fff1f2;">LOGOUT</button>
-            </div>
-        </div>
-
-        <div class="main-panel">
-            <div class="card" style="border:none; background:transparent; box-shadow:none; padding:0; margin-bottom: 20px;">
-                <h2 style="color:#1e293b;">Selamat Datang</h2>
-                <p class="small" style="font-size:1rem; color:#475569;">Papan pemuka utama untuk mengurus dan memantau rekod kiraan gaji.</p>
+    <div class="app-container">
+        
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <img src="image/HASA.png" alt="Logo" style="height:36px;">
+                <span class="brand-text">Sistem HASA</span>
             </div>
 
-            <div class="card">
-                <h4>Pautan Pantas</h4>
-                <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                    <a class="btn-outline nav-link" href="contohawam.html" style="border-color: var(--brand-blue); color: var(--brand-blue);" data-tooltip="Ke Kiraan Awam">🖩 Kiraan Awam</a>
-                    <a class="btn-outline nav-link" href="swasta.html" style="border-color: var(--brand-green); color: var(--brand-green);" data-tooltip="Ke Kiraan Swasta">🖩 Kiraan Swasta</a>
+            <nav class="nav-links">
+                <a href="dashboard.html" class="nav-item active">
+                    <span class="nav-icon">📊</span> Dashboard
+                </a>
+                <a href="contohawam.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span> Kiraan Awam
+                </a>
+                <a href="swasta.html" class="nav-item">
+                    <span class="nav-icon">💼</span> Kiraan Swasta
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span> Profil
+                </a>
+                <a href="#" id="logoutBtn" class="nav-item" style="color:#ef4444; margin-top:auto;">
+                    <span class="nav-icon">🚪</span> Log Keluar
+                </a>
+            </nav>
+
+            <div class="user-mini">
+                <div class="avatar" id="sideAvatar">?</div>
+                <div style="overflow:hidden;">
+                    <div id="sideName" style="font-weight:700; font-size:0.9rem; white-space:nowrap;">Memuatkan...</div>
+                    <div id="sideEmail" style="font-size:0.75rem; color:#94a3b8; text-overflow:ellipsis; overflow:hidden;">...</div>
                 </div>
             </div>
+        </aside>
 
-            <div style="height:24px"></div>
+        <main class="main-content">
+            
+            <header class="header-section">
+                <div style="display:flex; align-items:center;">
+                    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+                    
+                    <div class="greet-box">
+                        <h1 id="greetingTitle">
+                            Selamat Datang <span class="wave-emoji">👋</span>
+                        </h1>
+                        <p class="greet-sub" id="greetingSub">
+                            Sistem sedia untuk membantu kiraan anda.
+                        </p>
+                    </div>
 
-            <div id="payslipStats" class="card">
-                <h4>Statistik Keseluruhan</h4>
-                <div style="text-align: center; padding: 20px 0;">
-                    <div class="stat-number" id="payslipCount">—</div>
-                    <div style="font-size: 1.1rem; color:var(--text-secondary); margin-top:10px;">Jumlah Cetakan Slip Gaji</div>
                 </div>
-                <div style="border-top: 1px solid var(--border-light); padding-top: 15px; text-align: center;">
-                    <div id="payslipDebug" class="small" style="opacity:0.6; font-size:0.8rem">Menunggu data...</div>
+                <div class="date-badge" id="liveDate">...</div>
+            </header>
+
+            <section class="hero-card">
+                <h2 class="hero-title">Tentang Sistem Kalkulator Gaji HASA</h2>
+                <p class="hero-desc">
+                    Sistem ini direka khas untuk memudahkan <strong>Kakitangan, Pemohon, dan Unit Sumber Manusia (HR)</strong> membuat simulasi gaji.
+                    Ia merangkumi struktur gaji <strong>Skim U</strong> (Sektor Awam) dan juga caruman pekerja (Sektor Swasta).
+                </p>
+                
+                <div style="margin-top:20px; display:flex; gap:15px; flex-wrap:wrap;">
+                    <span style="background:#f1f5f9; padding:8px 15px; border-radius:8px; font-size:0.85rem; font-weight:600; color:#64748b;">
+                        ✅ Rujukan Pantas
+                    </span>
+                    <span style="background:#f1f5f9; padding:8px 15px; border-radius:8px; font-size:0.85rem; font-weight:600; color:#64748b;">
+                        ✅ Kiraan Automatik
+                    </span>
+                    <span style="background:#f1f5f9; padding:8px 15px; border-radius:8px; font-size:0.85rem; font-weight:600; color:#64748b;">
+                        ✅ Data Selamat
+                    </span>
                 </div>
-            </div>
+            </section>
 
-            <div style="height:24px"></div>
+            <section class="action-grid">
+                
+                <a href="contohawam.html" class="card-action">
+                    <div class="icon-box ib-blue">🏛️</div>
+                    <div class="ca-title">Kiraan Sektor Awam</div>
+                    <div class="ca-desc">
+                        Simulasi gaji bagi jawatan Skim U. Termasuk kiraan Gaji Pokok, ITKA, dan ITP secara automatik.
+                    </div>
+                    <div class="btn-arrow">Mula Kira Sekarang ➜</div>
+                </a>
 
-            <div id="moreArea" class="card">
-                <h4>Maklumat Akaun</h4>
-                <div id="accountData" class="small" style="line-height:1.8;"></div>
-            </div> 
-        </div>
+                <a href="swasta.html" class="card-action">
+                    <div class="icon-box ib-teal">💼</div>
+                    <div class="ca-title">Kiraan Sektor Swasta</div>
+                    <div class="ca-desc">
+                        Kalkulator gaji bersih untuk pekerja swasta/kontrak. Termasuk caruman KWSP (11%) & PERKESO.
+                    </div>
+                    <div class="btn-arrow">Mula Kira Sekarang ➜</div>
+                </a>
+
+            </section>
+
+        </main>
     </div>
-</div>
 
-<footer class="custom-footer">
-    © 2025 HASA UiTM — Sistem Kiraan Gaji Kakitangan
-</footer>
-
-<button id="goTopBtn" title="Go to Top">↑</button>
+    <div id="accountData" style="display:none;"></div>
+    <button id="sideLogoutBtn" style="display:none;"></button>
 
 <script>
-/* ========================
-   PAGE TRANSITION & BURGER LOGIC
-   ======================== */
-document.addEventListener("DOMContentLoaded", () => {
-    // Trigger smooth fade in on load
-    document.body.classList.add('loaded');
+/* ===============================
+   LOGIC SCRIPT
+   =============================== */
 
-    // Burger Menu
-    const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const navMenu = document.getElementById('navMenu');
+// 1. Mobile Menu
+function toggleMenu() {
+    document.getElementById('sidebar').classList.toggle('active');
+}
+
+// 2. Date & Time Greetings
+function updateTime() {
+    const now = new Date();
     
-    if(hamburgerBtn && navMenu) {
-        hamburgerBtn.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-        });
+    // Date
+    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    document.getElementById('liveDate').textContent = now.toLocaleDateString('ms-MY', options);
+
+    // Time Logic
+    const h = now.getHours();
+    let timeGreet = "Selamat Pagi";
+    let subGreet = "Mulakan hari anda dengan senyuman!";
+    
+    if(h >= 12 && h < 14) {
+        timeGreet = "Selamat Tengahari";
+        subGreet = "Rehat sebentar dan semak rekod anda.";
+    } else if(h >= 14 && h < 19) {
+        timeGreet = "Selamat Petang";
+        subGreet = "Teruskan produktiviti anda hari ini.";
+    } else if(h >= 19) {
+        timeGreet = "Selamat Malam";
+        subGreet = "Ringkasan sistem & status semasa anda.";
     }
 
-    // Go Top Button
-    const btn = document.getElementById("goTopBtn");
-    window.onscroll = () => { btn.style.display = window.scrollY > 300 ? "block" : "none"; };
-    btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.greetingBase = timeGreet;
+    window.subMsg = subGreet;
+}
+updateTime();
 
-    // Smooth Transition Logic for Navigation Links
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            const targetUrl = link.getAttribute('href');
-            // Check if it's a valid internal link and not just '#'
-            if(targetUrl && targetUrl !== '#' && !targetUrl.startsWith('javascript')) {
-                e.preventDefault(); // Stop immediate jump
-                
-                // Fade out effect (Reverse transition)
-                document.body.classList.remove('loaded');
-                
-                // Wait for transition (matching CSS duration) then go
-                setTimeout(() => {
-                    window.location.href = targetUrl;
-                }, 600); // 600ms match CSS transition
-            }
-        });
-    });
-});
-
-        // 4. Logout Logic
-        document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-            const notif = document.createElement('div');
-            notif.textContent = 'Sedang Log Keluar...';
-            notif.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background-color: var(--brand-blue); color:white; padding:12px 24px; border-radius:30px; font-weight:600; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index:9999; opacity:0; transition:all 0.3s ease;";
-            document.body.appendChild(notif);
-            setTimeout(() => { notif.style.opacity = 1; notif.style.top = '30px'; }, 10);
-            setTimeout(async () => {
-                await firebase.auth().signOut();
-                location.href = 'login.html';
-            }, 1200);
-        });
-
-/* ========================
-   AUTH CHANGE
-   ======================== */
+// 3. Firebase Auth
 onAuthChange(async user => {
     if(!user){ location.href='login.html'; return; }
-    const { uid, data } = await getCurrentUserDoc();
 
-    document.getElementById('userName').textContent = data?.fullname || user.email.split('@')[0];
-    document.getElementById('userEmail').textContent = user.email;
-    document.getElementById('userCreated').textContent = data?.createdAt ? new Date(data.createdAt.seconds*1000).toLocaleDateString('en-GB') : '-';
+    try {
+        const { data } = await getCurrentUserDoc();
+        const fullname = data?.fullname || user.email.split('@')[0];
+        const firstName = fullname.split(' ')[0].toUpperCase();
 
-    let role = user.email.endsWith('@uitm.edu.my') ? 'Pentadbir' : 'Pengguna';
-    document.getElementById('userRole').textContent = role;
+        // UPDATE GREETING (ENHANCED)
+        const greetingHTML = `${window.greetingBase}, <br><span class="highlight-name">${fullname.toUpperCase()}</span>! <span class="wave-emoji">👋</span>`;
+        
+        document.getElementById('greetingTitle').innerHTML = greetingHTML;
+        document.getElementById('greetingSub').textContent = window.subMsg;
 
-    document.getElementById('accountData').innerHTML = `
-        <div style="display:flex; border-bottom:1px solid #eee; padding:8px 0;"><strong style="width:100px">Nama:</strong> ${data?.fullname || '-'}</div>
-        <div style="display:flex; border-bottom:1px solid #eee; padding:8px 0;"><strong style="width:100px">Telefon:</strong> ${data?.phone || '-'}</div>
-        <div style="display:flex; border-bottom:1px solid #eee; padding:8px 0;"><strong style="width:100px">Email:</strong> ${data?.email || '-'}</div>
-    `;
+        // Update Sidebar
+        document.getElementById('sideName').textContent = fullname;
+        document.getElementById('sideEmail').textContent = user.email;
+        document.getElementById('sideAvatar').textContent = firstName.charAt(0);
 
-    if(typeof updatePayslipStats === 'function') updatePayslipStats();
+    } catch(e) { console.error(e); }
 });
 
-/* ========================
-   STATS & CHART LOGIC
-   ======================== */
-let _payslipUnsub = null;
-let payslipChart = null; 
-
-async function updatePayslipStats(){
-    const el = document.getElementById('payslipCount');
-    const debugEl = document.getElementById('payslipDebug');
-    if(!el) return; el.textContent = '...';
-
-    const db = firebase.firestore();
-    const updateUI = (total, awam, swasta) => {
-        el.textContent = total;
-        animateCount(document.getElementById('awamCountTop'), awam || 0);
-        animateCount(document.getElementById('swastaCountTop'), swasta || 0);
-        renderPayslipChart(Number(awam) || 0, Number(swasta) || 0);
-        if(debugEl) debugEl.textContent = `Kemaskini terakhir: ${new Date().toLocaleTimeString()}`;
-    };
-
-    const candidateColls = ['printedSlips','prints','print_logs'];
-    let found = false;
-
-    for(const coll of candidateColls){
-        try {
-            const snap = await db.collection(coll).limit(1).get();
-            if(!snap.empty){
-                found = true;
-                _payslipUnsub = db.collection(coll).onSnapshot(s => {
-                    let c = {awam:0, swasta:0};
-                    s.forEach(d => {
-                        const t = (d.data().jenis_kiraan || '').toLowerCase();
-                        if(t.includes('awam')) c.awam++;
-                        else if(t.includes('swasta')) c.swasta++;
-                    });
-                    updateUI(s.size, c.awam, c.swasta);
-                });
-                break;
-            }
-        } catch(e){}
+// 4. Logout
+document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+    e.preventDefault();
+    if(confirm('Anda pasti ingin log keluar?')) {
+        await firebase.auth().signOut();
+        window.location.href = 'login.html';
     }
-    if(!found) { updateUI(0, 0, 0); if(debugEl) debugEl.textContent = 'Tiada data cetakan.'; }
-}
-
-function renderPayslipChart(a, b){
-    const canvas = document.getElementById('payslipChartTop');
-    if(!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const total = a + b;
-
-    const centerTextPlugin = {
-        id: 'centerText',
-        afterDraw(chart) {
-            const { ctx, chartArea } = chart;
-            if (!chartArea) return;
-            const x = (chartArea.left + chartArea.right) / 2;
-            const y = (chartArea.top + chartArea.bottom) / 2;
-            
-            ctx.save();
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.font = '800 24px Inter'; ctx.fillStyle = '#0f172a';
-            ctx.fillText(chart.centerValue !== undefined ? chart.centerValue : total, x, y - 5);
-            ctx.font = '600 12px Inter'; ctx.fillStyle = '#64748b';
-            ctx.fillText(chart.centerLabel || 'Jumlah', x, y + 15);
-            ctx.restore();
-        }
-    };
-
-    if(payslipChart){
-        payslipChart.data.datasets[0].data = [a, b];
-        payslipChart.update();
-        if(!canvas.dataset.init) { setupChartInteraction(payslipChart, a, b); canvas.dataset.init = true; }
-        return;
-    }
-
-    payslipChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Awam', 'Swasta'],
-            datasets: [{
-                data: [a, b],
-                backgroundColor: ['#4f46e5', '#10b981'],
-                borderWidth: 2, borderColor: '#ffffff',
-                hoverOffset: 10, borderRadius: 5
-            }]
-        },
-        options: {
-            cutout: '75%', responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b', padding: 12, cornerRadius: 8 } }
-        },
-        plugins: [centerTextPlugin]
-    });
-    setupChartInteraction(payslipChart, a, b);
-    canvas.dataset.init = true;
-}
-
-function setupChartInteraction(chart, awamTotal, swastaTotal) {
-    const cardAwam = document.getElementById('cardAwam');
-    const cardSwasta = document.getElementById('cardSwasta');
-    const resetBtn = document.getElementById('resetFilterBtn');
-    const dataset = chart.data.datasets[0];
-
-    const applyFilter = (type) => {
-        resetBtn.style.display = 'block';
-        cardAwam.classList.remove('active-filter');
-        cardSwasta.classList.remove('active-filter');
-        if (type === 'awam') {
-            cardAwam.classList.add('active-filter');
-            dataset.backgroundColor = ['#4f46e5', '#e2e8f0']; 
-            chart.centerValue = awamTotal; chart.centerLabel = 'Awam';
-        } else {
-            cardSwasta.classList.add('active-filter');
-            dataset.backgroundColor = ['#e2e8f0', '#10b981'];
-            chart.centerValue = swastaTotal; chart.centerLabel = 'Swasta';
-        }
-        chart.update();
-    };
-
-    resetBtn.onclick = () => {
-        resetBtn.style.display = 'none';
-        cardAwam.classList.remove('active-filter');
-        cardSwasta.classList.remove('active-filter');
-        dataset.backgroundColor = ['#4f46e5', '#10b981'];
-        delete chart.centerValue; chart.centerLabel = 'Jumlah';
-        chart.update();
-    };
-
-    cardAwam.onclick = () => applyFilter('awam');
-    cardSwasta.onclick = () => applyFilter('swasta');
-}
-
-function animateCount(el, target){
-    if(!el) return;
-    const duration = 1000; const startTime = performance.now();
-    function tick(now){
-        const p = Math.min((now - startTime)/duration, 1);
-        const ease = 1 - Math.pow(1 - p, 3);
-        el.textContent = Math.floor(ease * target);
-        if(p < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-}
-/* =========================================
-   PAGE TRANSITION LOGIC
-   ========================================= */
-document.addEventListener("DOMContentLoaded", () => {
-    
-    // 1. FADE IN (Bila page baru buka)
-    // Kita bagi sedikit masa (10ms) supaya browser sempat render
-    setTimeout(() => {
-        document.body.classList.add("loaded");
-    }, 10);
-
-    // 2. FADE OUT (Bila klik link navigasi)
-    // Cari semua link (<a>) dalam page
-    const links = document.querySelectorAll('a');
-
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            const targetUrl = link.getAttribute('href');
-
-            // Pastikan link tu bukan link kosong (#) atau javascript
-            if (targetUrl && targetUrl !== '#' && !targetUrl.startsWith('javascript')) {
-                e.preventDefault(); // Halang browser buka terus
-                
-                // Buat animasi hilang dulu (Fade Out)
-                document.body.classList.remove("loaded");
-
-                // Tunggu 0.6 saat (sama dengan masa transition CSS), baru pergi ke page lain
-                setTimeout(() => {
-                    window.location.href = targetUrl;
-                }, 600); 
-            }
-        });
-    });
 });
-// Variable untuk simpan kedudukan scroll terakhir
-let lastScrollTop = 0;
-const navbar = document.querySelector('.dashboard-nav');
 
-window.addEventListener('scroll', function() {
-    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
-    // Jangan buat apa-apa kalau scroll "bounce" kat atas sekali (Safari/Mobile)
-    if(scrollTop < 0) return;
-
-    // Logic: Kalau scroll ke bawah DAN dah lepas 50px dari atas
-    if (scrollTop > lastScrollTop && scrollTop > 50) {
-        // Tambah class untuk sorok
-        navbar.classList.add('nav-hidden');
-    } else {
-        // Buang class untuk tunjuk balik (bila scroll ke atas)
-        navbar.classList.remove('nav-hidden');
-    }
-    
-    lastScrollTop = scrollTop;
-});
-/* =========================================
-   FORCE SCROLL TO TOP ON REFRESH
-   ========================================= */
-if (history.scrollRestoration) {
-    history.scrollRestoration = 'manual'; // Halang browser ingat position lama
-}
-window.scrollTo(0, 0); // Paksa naik atas serta-merta
 </script>
 </body>
 </html>
-
