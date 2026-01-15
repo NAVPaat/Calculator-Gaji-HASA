@@ -34,11 +34,9 @@
         background: #f3f0ff;
         color: var(--text-dark);
         
-        /* --- PEMBETULAN UTAMA DISINI --- */
-        height: 100vh;       /* Paksa tinggi ikut skrin peranti */
-        width: 100vw;        /* Paksa lebar ikut skrin peranti */
-        overflow: hidden;    /* POTONG/HIDE apa sahaja yang terkeluar (Blobs) */
-        /* ------------------------------- */
+        height: 100vh;        /* Paksa tinggi ikut skrin peranti */
+        width: 100vw;         /* Paksa lebar ikut skrin peranti */
+        overflow: hidden;     /* POTONG/HIDE apa sahaja yang terkeluar (Blobs) */
 
         display: flex;
         flex-direction: column;
@@ -137,7 +135,7 @@
 
     /* ===== HEADER SECTION ===== */
     .header-section { margin-bottom: 25px; }
-    
+     
     .app-title {
         font-family: 'Poppins', sans-serif;
         font-weight: 800;
@@ -237,19 +235,8 @@
         box-shadow: 0 10px 20px -5px rgba(94, 42, 132, 0.3);
         margin-bottom: 15px;
     }
-    
+     
     .btn-primary:hover { box-shadow: 0 15px 25px -5px rgba(94, 42, 132, 0.4); }
-
-    .btn-outline {
-        background: white;
-        border: 1px solid #e5e7eb;
-        color: var(--text-dark);
-        margin-bottom: 15px;
-    }
-    
-    .btn-outline:hover { background: #f9fafb; border-color: #d1d5db; }
-
-    .google-icon { width: 20px; height: 20px; }
 
     .links-wrapper {
         text-align: center;
@@ -327,11 +314,6 @@
                     <span>Login</span>
                     <span id="loginSpinner" class="spinner"></span>
                 </button>
-
-                <button id="googleBtn" type="button" class="btn btn-outline">
-                    <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)"><path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/><path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/><path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.734 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"/><path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/></g></svg>
-                    Log Masuk dengan Google
-                </button>
                 
                 <div class="links-wrapper">
                     <a href="reset.html" class="link" style="color:#6b7280; font-size:0.85rem">Lupa kata laluan?</a>
@@ -352,7 +334,6 @@
     const emailEl = document.getElementById('email');
     const passInput = document.getElementById('password');
     const loginBtn = document.getElementById('loginBtn');
-    const googleBtn = document.getElementById('googleBtn');
     const loginMsg = document.getElementById('loginMsg');
     const showBtn = document.getElementById('showPassBtn');
     const spinner = document.getElementById('loginSpinner');
@@ -405,17 +386,6 @@
         }
     });
 
-    // Google login
-    googleBtn.addEventListener('click', async () => {
-        setMessage('');
-        try {
-            await loginWithGoogle();
-            window.location.href = 'dashboard.html';
-        } catch (err) {
-            setMessage('Gagal login Google: ' + err.message, 'error');
-        }
-    });
-
     // Toggle Password
     showBtn.addEventListener('click', () => {
         const type = passInput.type === 'password' ? 'text' : 'password';
@@ -440,4 +410,3 @@
 </script>
 </body>
 </html>
-
