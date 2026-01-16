@@ -666,10 +666,9 @@ nav, .navbar {
         <table>
             <tr><td><strong>ITKA</strong></td><td>Imbuhan Tetap Khidmat Awam</td></tr>
             <tr><td><strong>ITK</strong></td><td>Imbuhan Tetap Keraian</td></tr>
-            <tr><td><strong>BISH</strong></td><td>Bantuan Insentif Sara Hidup</td></tr>
+            <tr><td><strong>ITP</strong></td><td>Imbuhan Tetap Perumahan</td></tr>
+            <tr><td><strong>BISH</strong></td><td>Bantuan Sara Hidup</td></tr>
             <tr><td><strong>BIW</strong></td><td>Bayaran Insentif Wilayah</td></tr>
-            <tr><td><strong>BIPK</strong></td><td>Bayaran Insentif Perkhidmatan Kritital</td></tr>
-            <tr><td><strong>BIP</strong></td><td>Bayaran Insentif Pakar</td></tr>
         </table>
     </div>
 
@@ -748,11 +747,12 @@ nav, .navbar {
             </div>
 
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-    <h3>Senarai Pengalaman Kerja</h3>
+    <h2>Senarai Pengalaman Kerja</h2>
     <button type="button" class="btn-add-pill" onclick="addExperienceRow()">
         <span style="font-size:1.2em">+</span> Tambah
     </button>
 </div>
+<i><h5>Isi sehingga 4 pengalaman. Sistem akan kira tempoh hari → tahun → Boleh Ambil Kira.</h5></i>
 <div class="form-section">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
     </div>
@@ -823,7 +823,7 @@ nav, .navbar {
         const navbar = document.querySelector('.dashboard-nav');
         let lastScrollTop = 0;
 
-        window.addEventListener('scroll', function() {
+        window.addEventListener('scroll', function() {  
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             if(scrollTop < 0) return;
             if (scrollTop > lastScrollTop && scrollTop > 50) navbar?.classList.add('nav-hidden');
@@ -1026,50 +1026,7 @@ nav, .navbar {
             row.querySelector('.exp-title').innerText = `# Pengalaman ${index + 1}`;
         });
     }
-/* =========================================
-   FUNGSI RESET PENUH (Scroll + Clear Form + Hilang Result)
-   ========================================= */
-function resetSwastaForm() {
-    // 1. Naik ke atas (Smooth Scroll)
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // 2. Reset Borang HTML Asas
-    const form = document.getElementById('swastaForm');
-    if (form) form.reset();
-
-    // 3. PAKSA Reset Dropdown & Input Readonly
-    const gradeSelect = document.getElementById('gradeSelect');
-    if (gradeSelect) gradeSelect.selectedIndex = 0; // Balik ke "Sila Pilih"
-
-    const wilayahSelect = document.getElementById('wilayahPemohon');
-    if (wilayahSelect) wilayahSelect.selectedIndex = 0;
-
-    // Kosongkan nilai Gaji & Input Tersembunyi
-    const idsToClear = ['gajiMinimum', 'jawatan_swasta', 'kategoriJawatan'];
-    idsToClear.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = "";
-    });
-
-    // 4. Reset Kotak Pengalaman (Buang semua, tinggal 1 kosong)
-    const container = document.getElementById('experienceContainer');
-    if (container) {
-        container.innerHTML = ''; 
-        addExperienceRow(); // Tambah balik satu kotak kosong
-    }
-
-    // 5. HILANGKAN RESULT (Ini yang anda mahu)
-    const resultDiv = document.getElementById('resultContentSwasta');
-    if (resultDiv) {
-        resultDiv.innerHTML = ""; // Padam semua isi dalam kotak result
-        // Jika kotak result ada border/padding asal dalam CSS, boleh tambah:
-        // resultDiv.style.display = 'none'; 
-    }
-    
-    // 6. Sorokkan Butang Print
-    const printBtn = document.getElementById('printBtn');
-    if (printBtn) printBtn.style.display = 'none';
-}
     /* =========================================
        5. MAIN CALCULATION (DESIGN BARU - ALA AWAM)
        ========================================= */
@@ -1312,4 +1269,3 @@ function resetSwastaForm() {
 </script>
 </body>
 </html>
-
