@@ -775,48 +775,72 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
         document.getElementById('res_kgt').innerText = "RM " + totalKGT.toFixed(2);
         document.getElementById('res_gaji_baru').innerText = "RM " + gajiBaru.toFixed(2);
         
-        // 2. Gantikan Paparan Elaun (Total + Kotak Perincian)
+// 2. Gantikan Paparan Elaun (Total + Kotak Perincian)
         const resElaunEl = document.getElementById('res_elaun');
         
         if(resElaunEl) {
-            // A. Pastikan variable wujud (elak error jika undefined)
-            const valITKA = (typeof itka !== 'undefined') ? itka : 0;
-            const valITP  = (typeof itp !== 'undefined') ? itp : 0;
-            const valBISH = (typeof bish !== 'undefined') ? bish : 0;
-            const valBIPK = (typeof bipk !== 'undefined') ? bipk : 0;
+            // Kita guna array 'allowances' yang dah didefinisikan di atas (baris 613 dlm file asal anda)
+            // Ini memastikan Nama Penuh (contoh: IMBUHAN TETAP...) dipaparkan, bukan singkatan.
+            
+            let detailRows = "";
 
-            // B. Bina HTML untuk Kotak Perincian (Style 'Clean Box')
+            // Loop setiap elaun untuk bina baris HTML
+            allowances.forEach(item => {
+                // Hanya paparkan jika nilai > 0 (supaya kemas)
+                // Jika anda mahu papar RM 0.00 juga, buang syarat 'if (item.val > 0)'
+                if (item.val > 0) {
+                    detailRows += `
+                    <div style="
+                        display: flex; 
+                        justify-content: space-between; 
+                        align-items: center; 
+                        padding: 8px 0; 
+                        border-bottom: 1px dashed #cbd5e1;
+                    ">
+                        <span style="
+                            font-size: 0.75rem; 
+                            font-weight: 600; 
+                            color: #64748b; 
+                            text-transform: uppercase; 
+                            padding-right: 15px; 
+                            line-height: 1.4;
+                            flex: 1;
+                        ">${item.name}</span>
+                        <span style="
+                            font-size: 0.9rem; 
+                            font-weight: 700; 
+                            color: #0f172a; 
+                            white-space: nowrap;
+                        ">RM ${item.val.toFixed(2)}</span>
+                    </div>
+                    `;
+                }
+            });
+
+            // Jika tiada elaun langsung
+            if (detailRows === "") {
+                detailRows = `<div style="text-align:center; color:#94a3b8; font-style:italic; padding:10px; font-size:0.85rem;">Tiada elaun tambahan.</div>`;
+            }
+
+            // Bina Kotak Luar (Container)
             const detailBoxHtml = `
                 <div style="
-                    margin-top: 10px;
+                    margin-top: 15px;
                     background-color: #F8FAFC; 
-                    border-radius: 8px; 
-                    padding: 15px; 
-                    font-size: 0.85rem; 
-                    color: #475569;
-                    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                    border-radius: 12px; 
+                    padding: 20px; 
                     border: 1px solid #e2e8f0;
-                    text-align: left;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
                 ">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <span>ITKA</span> <b>RM ${valITKA.toFixed(2)}</b>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <span>ITP</span> <b>RM ${valITP.toFixed(2)}</b>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <span>BISH</span> <b>RM ${valBISH.toFixed(2)}</b>
-                    </div>
-                    <div style="display:flex; justify-content:space-between;">
-                        <span>Kritikal</span> <b>RM ${valBIPK.toFixed(2)}</b>
-                    </div>
+                    ${detailRows}
                 </div>
             `;
 
-            // C. Masukkan Total + Kotak ke dalam element 'res_elaun'
+            // Masukkan Total + Kotak ke dalam element 'res_elaun'
             resElaunEl.innerHTML = `
-                <div style="font-weight:800; font-size:1.1rem; color:#0f172a; margin-bottom:5px;">
-                    RM ${totalElaun.toFixed(2)}
+                <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-bottom:5px;">
+                    <span style="font-size:0.9rem; color:#64748b;">Jumlah Elaun:</span>
+                    <span style="font-weight:800; font-size:1.2rem; color:#0f172a;">RM ${totalElaun.toFixed(2)}</span>
                 </div>
                 ${detailBoxHtml}
             `;
