@@ -471,24 +471,35 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
     let globalJawatanData = {};
     let calculatedData = {};
 
-    // ===========================================
+// ===========================================
     // 2. PAGE INIT
     // ===========================================
     document.addEventListener("DOMContentLoaded", async () => {
-        // Navbar Auth
+        
+        // --- AUTH CHECKER ---
         firebase.auth().onAuthStateChanged(user => {
-            const nameEl = document.getElementById('navName');
-            const avatarEl = document.getElementById('navAvatar');
-            if(user && nameEl) {
-                let simpleName = user.email.split('@')[0];
-                nameEl.innerText = simpleName;
-                avatarEl.innerText = simpleName.charAt(0).toUpperCase();
-            } else if(!user) {
-               // window.location.href = 'login.html'; // Uncomment jika perlu
+            if (!user) {
+                // 1. JIKA TIADA USER (BELUM LOGIN)
+                // Guna 'replace' supaya user tak boleh tekan Back button untuk masuk balik
+                window.location.replace("login.html"); 
+            } else {
+                // 2. JIKA ADA USER (DAH LOGIN)
+                const nameEl = document.getElementById('navName');
+                const avatarEl = document.getElementById('navAvatar');
+                
+                if(nameEl && avatarEl) {
+                    // Ambil nama dari email (contoh: ali@gmail.com -> ali)
+                    let simpleName = user.email.split('@')[0];
+                    nameEl.innerText = simpleName;
+                    
+                    // Ambil huruf pertama untuk avatar (a -> A)
+                    avatarEl.innerText = simpleName.charAt(0).toUpperCase();
+                }
             }
         });
 
         await loadJawatanFromFirebase();
+        // ... kod selebihnya ...
         addExperienceRow(); // Add default row
         
         // UI Listeners
