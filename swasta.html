@@ -411,7 +411,7 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
                         <span>Gaji Pokok Baru</span><span id="res_gaji_baru" style="color:var(--primary);">-</span>
                     </div>
                     
-                    <div class="detail-row"><span>Jumlah Elaun</span><span id="res_elaun">-</span></div>
+                    <div class="detail-row"><span id="res_elaun">-</span><span>Jumlah Elaun</span></div>
 
                     <div class="total-box">
                         <div class="total-label">ANGGARAN GAJI KASAR</div>
@@ -775,41 +775,46 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
         document.getElementById('res_kgt').innerText = "RM " + totalKGT.toFixed(2);
         document.getElementById('res_gaji_baru').innerText = "RM " + gajiBaru.toFixed(2);
         
-// 2. Gantikan Paparan Elaun (Total + Kotak Perincian)
+// ==========================================
+        // 2. PAPARAN ELAUN (FULL WIDTH & KEMAS)
+        // ==========================================
         const resElaunEl = document.getElementById('res_elaun');
         
         if(resElaunEl) {
-            // Kita guna array 'allowances' yang dah didefinisikan di atas (baris 613 dlm file asal anda)
-            // Ini memastikan Nama Penuh (contoh: IMBUHAN TETAP...) dipaparkan, bukan singkatan.
-            
             let detailRows = "";
+            let hasAllowance = false;
 
-            // Loop setiap elaun untuk bina baris HTML
-            allowances.forEach(item => {
-                // Hanya paparkan jika nilai > 0 (supaya kemas)
-                // Jika anda mahu papar RM 0.00 juga, buang syarat 'if (item.val > 0)'
+            // Loop array 'allowances' (yang anda dah define kat atas dalam function ni)
+            allowances.forEach((item, index) => {
                 if (item.val > 0) {
+                    hasAllowance = true;
+                    // Check kalau ni item terakhir untuk buang border bawah
+                    const isLast = index === allowances.length - 1; 
+                    const borderStyle = isLast ? "" : "border-bottom: 1px dashed #e2e8f0;";
+                    
                     detailRows += `
                     <div style="
                         display: flex; 
                         justify-content: space-between; 
                         align-items: center; 
-                        padding: 8px 0; 
-                        border-bottom: 1px dashed #cbd5e1;
+                        padding: 12px 0; 
+                        ${borderStyle}
+                        width: 100%;
                     ">
                         <span style="
-                            font-size: 0.75rem; 
+                            font-size: 0.8rem; 
                             font-weight: 600; 
                             color: #64748b; 
                             text-transform: uppercase; 
-                            padding-right: 15px; 
-                            line-height: 1.4;
-                            flex: 1;
+                            letter-spacing: 0.5px;
+                            text-align: left;
                         ">${item.name}</span>
+                        
                         <span style="
-                            font-size: 0.9rem; 
+                            font-size: 0.95rem; 
                             font-weight: 700; 
-                            color: #0f172a; 
+                            color: #334155; 
+                            text-align: right;
                             white-space: nowrap;
                         ">RM ${item.val.toFixed(2)}</span>
                     </div>
@@ -818,31 +823,37 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
             });
 
             // Jika tiada elaun langsung
-            if (detailRows === "") {
-                detailRows = `<div style="text-align:center; color:#94a3b8; font-style:italic; padding:10px; font-size:0.85rem;">Tiada elaun tambahan.</div>`;
+            if (!hasAllowance) {
+                detailRows = `
+                    <div style="text-align:center; color:#94a3b8; font-style:italic; padding:15px; font-size:0.85rem;">
+                        Tiada elaun tambahan
+                    </div>`;
             }
 
-            // Bina Kotak Luar (Container)
-            const detailBoxHtml = `
+            // Render ke dalam HTML
+            // Kita letak Total di header kecil, dan breakdown di dalam kotak
+            resElaunEl.innerHTML = `
                 <div style="
-                    margin-top: 15px;
+                    display:flex; 
+                    justify-content:flex-end; 
+                    align-items:center; 
+                    gap:10px; 
+                    margin-bottom:8px;
+                    padding-right: 5px;
+                ">
+                    <span style="font-size:0.85rem; color:#64748b; font-weight:500;">Jumlah Elaun:</span>
+                    <span style="font-weight:800; font-size:1.1rem; color:#10b981;">RM ${totalElaun.toFixed(2)}</span>
+                </div>
+
+                <div style="
                     background-color: #F8FAFC; 
                     border-radius: 12px; 
-                    padding: 20px; 
+                    padding: 5px 20px; /* Padding kiri kanan untuk jarak dari tepi kotak */
                     border: 1px solid #e2e8f0;
-                    box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+                    width: 100%;
                 ">
                     ${detailRows}
                 </div>
-            `;
-
-            // Masukkan Total + Kotak ke dalam element 'res_elaun'
-            resElaunEl.innerHTML = `
-                <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-bottom:5px;">
-                    <span style="font-size:0.9rem; color:#64748b;">Jumlah Elaun:</span>
-                    <span style="font-weight:800; font-size:1.2rem; color:#0f172a;">RM ${totalElaun.toFixed(2)}</span>
-                </div>
-                ${detailBoxHtml}
             `;
         }
 
