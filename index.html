@@ -87,6 +87,7 @@
             padding: 12px 28px; border-radius: 50px; font-weight: 700; font-size: 0.95rem; text-decoration: none;
             background: white; border: 2px solid #e2e8f0; color: var(--text-dark);
             transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            display: flex; align-items: center; gap: 8px; /* Tambah gap untuk jarak icon */
         }
         .nav-btn:hover { border-color: var(--uitm-purple); color: var(--uitm-purple); transform: translateY(-2px); }
 
@@ -205,10 +206,27 @@
             background: rgba(255,255,255,0.5); backdrop-filter: blur(5px);
         }
 
-        /* Responsive */
+        /* ===== RESPONSIVE & MOBILE NAV BUTTON UPDATE ===== */
         @media (max-width: 768px) {
             h1 { font-size: 2.5rem; }
             .cards-grid { grid-template-columns: 1fr; }
+
+            /* --- UPDATED: MOBILE LOGIN BUTTON STYLE --- */
+            .btn-text {
+                display: none; /* Sorok perkataan Log Masuk */
+            }
+            .nav-btn {
+                padding: 0;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                justify-content: center;
+                gap: 0;
+            }
+            .nav-btn i {
+                font-size: 1.1rem !important; /* Besarkan icon sikit */
+                margin: 0 !important;
+            }
         }
 
     </style>
@@ -224,7 +242,10 @@
             <i class="fa-solid fa-calculator" style="color:var(--uitm-purple)"></i>
             HASA <span>UiTM</span>
         </div>
-        <a href="login.html" class="nav-btn">Log Masuk <i class="fa-solid fa-arrow-right" style="margin-left:5px; font-size:0.8rem"></i></a>
+        <a href="login.html" class="nav-btn">
+            <span class="btn-text">Log Masuk</span> 
+            <i class="fa-solid fa-arrow-right" style="font-size:0.8rem"></i>
+        </a>
     </nav>
 
     <div class="container">
