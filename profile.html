@@ -407,37 +407,64 @@
         </div>
     </div>
 
-    <script>
+  <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.add("loaded");
             
-            // Mobile Menu Logout Link Logic
             const mobileLogout = document.getElementById('mobileLogout');
             if(mobileLogout) {
                 mobileLogout.addEventListener('click', () => {
-                    if(document.getElementById('logoutBtn')) {
-                        document.getElementById('logoutBtn').click();
-                    }
+                    if(document.getElementById('logoutBtn')) document.getElementById('logoutBtn').click();
                 });
             }
         });
 
-        // ===================================
-        // SMOOTH HAMBURGER TOGGLE
-        // ===================================
         function toggleMenu() {
             const navMenu = document.getElementById('navMenu');
             const mobileLogout = document.getElementById('mobileLogout');
-            
             navMenu.classList.toggle('active');
-            
             if (navMenu.classList.contains('active')) {
                 if(window.innerWidth <= 900) mobileLogout.style.display = 'block';
             }
         }
 
         // ===================================
-        // LOGIC PROFILE (FIREBASE)
+        // HELPERS: IMAGE COMPRESSION
+        // ===================================
+        function compressImage(file, maxWidth, quality) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const elem = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth) {
+                            height = height * (maxWidth / width);
+                            width = maxWidth;
+                        }
+
+                        elem.width = width;
+                        elem.height = height;
+                        const ctx = elem.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        ctx.canvas.toBlob((blob) => {
+                            resolve(blob); // Return file yang dah compress
+                        }, 'image/jpeg', quality);
+                    };
+                    img.onerror = (err) => reject(err);
+                };
+                reader.onerror = (err) => reject(err);
+            });
+        }
+
+        // ===================================
+        // LOGIC PROFILE
         // ===================================
         const logoutBtn = document.getElementById('logoutBtn');
         const profileForm = document.getElementById('profileForm');
@@ -448,7 +475,7 @@
         const initialsText = document.getElementById('initialsText');
         
         let currentUserUid = null;
-        let selectedFile = null; // Variable simpan file sementara
+        let selectedFile = null; 
 
         // 1. Load Data
         onAuthChange(async user => {
@@ -459,39 +486,27 @@
             saveBtn.disabled = true;
 
             try {
-                // A. Handle Profile Pic Existing
                 if(user.photoURL) {
                     profileImagePreview.src = user.photoURL;
                     profileImagePreview.style.display = 'block';
                     initialsText.style.display = 'none';
-                    
-                    // Update juga dekat navbar kecil
-                    const navAvatar = document.getElementById('navAvatar');
-                    navAvatar.innerHTML = `<img src="${user.photoURL}" style="width:100%; height:100%; object-fit:cover;">`;
+                    document.getElementById('navAvatar').innerHTML = `<img src="${user.photoURL}" style="width:100%; height:100%; object-fit:cover;">`;
                 }
 
-                // B. Load Firestore Data
                 const { data } = await getCurrentUserDoc();
                 
-                // Set Inputs
                 document.getElementById('fullname').value = data?.fullname || '';
                 document.getElementById('phone').value = data?.phone || '';
                 document.getElementById('email').value = user.email;
                 
-                // Update Side Panel Info
                 let displayName = data?.fullname || user.email.split('@')[0];
                 document.getElementById('displayFullname').innerText = displayName;
                 
-                // Set Initials if no image
-                if(!user.photoURL) {
-                    initialsText.innerText = displayName.charAt(0).toUpperCase();
-                }
+                if(!user.photoURL) initialsText.innerText = displayName.charAt(0).toUpperCase();
 
-                // Role Logic
                 const role = user.email.endsWith('@uitm.edu.my') ? 'Staf UiTM' : 'Pengguna Awam';
                 document.getElementById('role').value = role;
 
-                // Format Date
                 let joined = '-';
                 if(data?.createdAt && data.createdAt.seconds) {
                     joined = new Date(data.createdAt.seconds * 1000).toLocaleDateString('en-GB');
@@ -501,52 +516,32 @@
 
             } catch (e) {
                 console.error("Error loading profile", e);
-                showMsg('Gagal memuatkan data profil.', 'error');
             } finally {
                 saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> SIMPAN PERUBAHAN';
                 saveBtn.disabled = false;
             }
         });
 
-        // 2. Auth State Changed (Navbar Logic)
         firebase.auth().onAuthStateChanged(async user => {
             const nameEl = document.getElementById('navName');
             const avatarEl = document.getElementById('navAvatar');
-
             if(nameEl && user) {
                 let finalName = user.displayName || user.email.split('@')[0];
-                
-                // Try fetching Firestore name preferrably
                 try {
                     const doc = await firebase.firestore().collection('users').doc(user.uid).get();
-                    if(doc.exists && doc.data().fullname) {
-                        finalName = doc.data().fullname;
-                    }
+                    if(doc.exists && doc.data().fullname) finalName = doc.data().fullname;
                 } catch(e) {}
-
                 const firstName = finalName.split(' ')[0];
                 nameEl.innerText = firstName;
-                
-                // Jika user ada photoURL, guna itu. Jika tidak, huruf
-                if(user.photoURL) {
-                    avatarEl.innerHTML = `<img src="${user.photoURL}" style="width:100%; height:100%; object-fit:cover;">`;
-                } else {
-                    avatarEl.innerText = firstName.charAt(0).toUpperCase();
-                }
+                if(!user.photoURL) avatarEl.innerText = firstName.charAt(0).toUpperCase();
             }
         });
 
-        // 3. Logic Preview Gambar Bila Pilih File
+        // 2. Preview Logic
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                if(file.size > 2 * 1024 * 1024) { // Limit 2MB
-                    alert("Saiz gambar terlalu besar. Sila pilih bawah 2MB.");
-                    return;
-                }
-                selectedFile = file; // Simpan untuk upload nanti
-                
-                // Preview immediate
+                selectedFile = file; 
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     profileImagePreview.src = e.target.result;
@@ -557,11 +552,11 @@
             }
         });
 
-        // 4. Update Data Logic (PROFILE + IMAGE + PASSWORD)
+        // 3. Save Logic (WITH COMPRESSION)
         profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             msgBox.style.display = 'none';
-            saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan...';
+            saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...';
             saveBtn.disabled = true;
 
             const fullname = document.getElementById('fullname').value.trim();
@@ -569,80 +564,58 @@
             const newPass = document.getElementById('newPassword').value;
             const confirmPass = document.getElementById('confirmPassword').value;
 
-            // Validation Asas
-            if(!fullname || !phone){
-                showMsg('Sila lengkapkan nama dan nombor telefon.', 'error');
-                resetBtn();
-                return;
-            }
-
             try {
                 const user = firebase.auth().currentUser;
-                let photoURL = user.photoURL; // Default guna yang lama
+                let photoURL = user.photoURL;
 
-                // A. Upload Gambar (Jika ada file baru dipilih)
+                // A. COMPRESS & UPLOAD IMAGE
                 if(selectedFile) {
-                    // Create path: users/UID/profile.jpg
+                    saveBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-bounce"></i> Mengupload...';
+                    
+                    // Compress: Max lebar 500px, Quality 0.7 (70%)
+                    const compressedBlob = await compressImage(selectedFile, 500, 0.7);
+                    
                     const storageRef = firebase.storage().ref();
                     const fileRef = storageRef.child(`users/${currentUserUid}/profile.jpg`);
                     
-                    // Upload
-                    await fileRef.put(selectedFile);
-                    
-                    // Get URL
+                    await fileRef.put(compressedBlob);
                     photoURL = await fileRef.getDownloadURL();
                     
-                    // Update Auth Profile
                     await user.updateProfile({ photoURL: photoURL });
+                    // Cache buster trick untuk refresh gambar serta merta
+                    document.getElementById('navAvatar').innerHTML = `<img src="${photoURL}" style="width:100%; height:100%; object-fit:cover;">`;
                 }
 
-                // B. Update Maklumat Firestore
+                // B. Update Firestore
+                saveBtn.innerHTML = '<i class="fa-solid fa-pen-to-square fa-bounce"></i> Mengemaskini...';
                 await firebase.firestore().collection('users').doc(currentUserUid).update({
                     fullname,
                     phone,
-                    photoURL: photoURL, // Simpan juga link gambar di firestore
+                    photoURL: photoURL, 
                     lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // Update Auth Display Name juga supaya sync
                 await user.updateProfile({ displayName: fullname });
 
-                // C. Update Kata Laluan (Optional)
+                // C. Update Password
                 if (newPass) {
                     if (newPass.length < 6) throw new Error("Kata laluan minima 6 aksara.");
-                    if (newPass !== confirmPass) throw new Error("Pengesahan kata laluan tidak sepadan.");
+                    if (newPass !== confirmPass) throw new Error("Kata laluan tidak sepadan.");
                     await user.updatePassword(newPass);
-                    
                     document.getElementById('newPassword').value = '';
                     document.getElementById('confirmPassword').value = '';
                 }
 
-                // D. Update UI
                 document.getElementById('displayFullname').innerText = fullname;
-                if(!photoURL) {
-                    document.getElementById('bigAvatar').innerHTML = `<span id="initialsText">${fullname.charAt(0).toUpperCase()}</span>`;
-                }
-
-                showMsg('Profil berjaya dikemaskini!', 'success');
-                setTimeout(() => msgBox.style.display = 'none', 3000);
+                showMsg('Berjaya disimpan!', 'success');
 
             } catch(err){
                 console.error(err);
-                if (err.code === 'auth/requires-recent-login') {
-                    showMsg('Sila log masuk semula untuk tukar kata laluan.', 'error');
-                } else {
-                    showMsg(err.message || 'Ralat sistem.', 'error');
-                }
+                showMsg(err.message || 'Ralat sistem.', 'error');
             } finally {
-                resetBtn();
-            }
-        });
-
-        // 5. Logout Logic
-        logoutBtn.addEventListener('click', async () => {
-            if(confirm("Log keluar dari sistem?")) {
-                await firebase.auth().signOut();
-                location.href='login.html';
+                saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> SIMPAN PERUBAHAN';
+                saveBtn.disabled = false;
+                setTimeout(() => msgBox.style.display = 'none', 3000);
             }
         });
 
@@ -651,12 +624,7 @@
             msgBox.className = `msg-box msg-${type}`;
             msgBox.style.display = 'block';
         }
-
-        function resetBtn() {
-            saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> SIMPAN PERUBAHAN';
-            saveBtn.disabled = false;
-        }
     </script>
-
 </body>
 </html>
+
