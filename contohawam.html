@@ -47,9 +47,9 @@ body {
 /* =========================================
    2. BACKGROUND
    ========================================= */
-.bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: #f8fafc; overflow: hidden; }
+.bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: #bcd7f1; overflow: hidden; }
 .blob { position: absolute; filter: blur(80px); opacity: 0.6; z-index: -1; animation: floatBlob 10s infinite alternate; }
-.blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #E0E7FF; }
+.blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #abbdf6; }
 .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #F0FDFA; }
 @keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
 
@@ -184,12 +184,22 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
 .petunjuk-table td { padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; color: #334155; }
 .petunjuk-table strong { color: var(--primary); }
 
-   /* RESPONSIVE & MOBILE MENU ANIMATION */
+/* =========================================
+       7. RESPONSIVE MOBILE (UPDATED)
+       ========================================= */
     @media (max-width: 900px) {
         body { height: auto; overflow-y: auto; }
-        .navbar { margin: 0; border-radius: 0; padding: 15px; top: 0; }
         
-        /* Mobile Nav Container - Hidden State */
+        /* 1. NAVBAR: Jadikan Floating Pill di Mobile */
+        .navbar { 
+            margin: 15px;          /* Beri jarak dari tepi skrin */
+            border-radius: 30px;   /* Bucu bulat penuh */
+            padding: 15px 20px; 
+            top: 0; 
+            width: auto;           /* Lebar ikut margin (tak full screen) */
+        }
+        
+        /* 2. DROPDOWN MENU: Kemaskan supaya tak petak */
         .nav-center { 
             display: flex; 
             flex-direction: column; 
@@ -198,7 +208,12 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
             left: 0; 
             width: 100%; 
             background: white; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05); 
+            
+            /* Tambah radius & shadow pada menu yang turun */
+            border-radius: 25px;   
+            margin-top: 10px;      /* Ada jarak sikit dari navbar atas */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            
             gap: 15px; 
             text-align: center;
             
@@ -206,22 +221,27 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
             max-height: 0;
             overflow: hidden;
             opacity: 0;
-            padding: 0 20px; /* No vertical padding when closed */
-            transition: all 0.4s ease-in-out; /* Smooth Slide */
+            padding: 0 20px; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Animasi melantun sikit */
         }
         
         /* Mobile Nav Container - Active State */
         .nav-center.active { 
-            max-height: 400px; /* Sufficient height to open */
+            max-height: 400px; 
             opacity: 1;
-            padding: 20px; /* Restore padding */
+            padding: 25px 20px; /* Padding lebih selesa */
         }
         
         .user-pill { display: none; }
         .hamburger { display: block; }
         
+        /* Adjust Greeting Font Size Mobile */
+        .greeting-main { font-size: 1.6rem; } 
+        .arabic-text { font-size: 1.5rem; }
+        
         .main-wrapper { padding: 20px; }
         .glass-panel { flex-direction: column; padding: 30px; gap: 30px; }
+        
         .profile-left { 
             border-right: none; border-bottom: 1px dashed var(--border); 
             padding-right: 0; padding-bottom: 30px; width: 100%; 
@@ -721,11 +741,40 @@ window.printResult = function() {
                 </div>
             </div>
 
-            <div class="info-box">
-                <div class="info-row"><label>Jawatan</label><div>${d.jawatan}</div></div>
-                <div class="info-row"><label>Wilayah</label><div>${d.wilayah}</div></div>
-                <div class="info-row"><label>Tarikh Cetakan</label><div>${d.date}</div></div>
-                <div class="info-row"><label>Kategori</label><div>Skim U (Awam)</div></div>
+<div class="info-box" style="margin-bottom: 20px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px;">
+                <table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 0.95rem;">
+                    
+                    <tr style="border-bottom: 1px dashed #f1f5f9;">
+                        <td style="width: 130px; padding: 8px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">
+                            Jawatan
+                        </td>
+                        <td style="width: 20px; padding: 8px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
+                        <td style="padding: 8px 0; color: #0f172a; font-weight: 700; vertical-align: top; text-align: left;">
+                            ${d.jawatan}
+                        </td>
+                    </tr>
+
+                    <tr style="border-bottom: 1px dashed #f1f5f9;">
+                        <td style="padding: 8px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">
+                            Wilayah
+                        </td>
+                        <td style="padding: 8px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
+                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600; vertical-align: top; text-align: left;">
+                            ${d.wilayah}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 8px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">
+                            Tarikh Cetak
+                        </td>
+                        <td style="padding: 8px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
+                        <td style="padding: 8px 0; color: #0f172a; font-weight: 500; vertical-align: top; text-align: left;">
+                            ${d.date}
+                        </td>
+                    </tr>
+
+                </table>
             </div>
 
             <table>
