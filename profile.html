@@ -13,7 +13,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script> <script src="firebase-config.js"></script>
 <script src="auth.js"></script>
 
 <style>
@@ -21,10 +21,10 @@
        1. CORE THEME
        ========================================= */
     :root {
-        --primary: #7C3AED;       
-        --primary-dark: #5B21B6;  
-        --secondary: #A78BFA;     
-        --bg-body: #F5F3FF;       
+        --primary: #7C3AED;        
+        --primary-dark: #5B21B6;   
+        --secondary: #A78BFA;      
+        --bg-body: #F5F3FF;        
         --surface: #ffffff;
         --text-main: #334155;
         --text-light: #64748b;
@@ -39,10 +39,9 @@
         font-family: 'Poppins', sans-serif;
         background-color: var(--bg-body);
         color: var(--text-main);
-        /* UPDATE: Benarkan scroll */
         min-height: 100vh; 
-        overflow-x: hidden; /* Elak scroll kiri-kanan */
-        overflow-y: auto;   /* Scroll atas-bawah dibenarkan */
+        overflow-x: hidden; 
+        overflow-y: auto;   
         display: flex; flex-direction: column;
     }
 
@@ -65,7 +64,7 @@
         border-radius: 50px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         position: relative; z-index: 1000; flex-shrink: 0;
     }
-    
+     
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; color: var(--primary); }
     .brand img { height: 28px; }
 
@@ -83,12 +82,20 @@
     .text-container { display: flex; flex-direction: column; align-items: flex-end; overflow: hidden; height: 18px; justify-content: center; position: relative; width: 90px; }
     .user-name { font-weight: 600; font-size: 0.8rem; color: var(--text-main); position: absolute; right: 0; transition: 0.3s; text-transform: uppercase; }
     .logout-text { font-weight: 700; font-size: 0.8rem; color: #ef4444; position: absolute; right: 0; transform: translateY(20px); opacity: 0; transition: 0.3s; }
-    .avatar { width: 32px; height: 32px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; transition: 0.3s; }
+    
+    /* Small Avatar in Navbar */
+    .avatar { 
+        width: 32px; height: 32px; background: var(--primary); color: white; 
+        border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+        font-weight: 700; font-size: 0.9rem; transition: 0.3s; 
+        overflow: hidden; /* Ensure image fits */
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
     .user-pill:hover { background: #fee2e2; border-color: #ef4444; }
     .user-pill:hover .user-name { transform: translateY(-20px); opacity: 0; }
     .user-pill:hover .logout-text { transform: translateY(0); opacity: 1; }
-    .user-pill:hover .avatar { background: #ef4444; }
+    .user-pill:hover .avatar { filter: brightness(0.9); }
 
     .hamburger { display: none; font-size: 1.3rem; color: var(--text-main); cursor: pointer; padding: 5px; }
 
@@ -98,12 +105,11 @@
     .main-wrapper {
         flex: 1; 
         display: flex; 
-        align-items: flex-start; /* Ubah center ke flex-start supaya boleh scroll jika panjang */
+        align-items: flex-start;
         justify-content: center;
         padding: 30px 20px; 
         position: relative; 
         z-index: 10;
-        /* height auto supaya ikut content */
         height: auto; 
     }
 
@@ -115,39 +121,71 @@
         padding: 40px; 
         box-shadow: var(--shadow-card); 
         border: 1px solid white;
-        display: flex; gap: 40px; align-items: flex-start;
-        /* Buang min-height fix supaya tak kembang melampau */
+        display: flex; gap: 40px; 
+        align-items: stretch; /* Pastikan tinggi sama */
+        min-height: 450px; /* Tinggi minimum supaya nampak balance */
     }
 
-    /* LEFT SIDE: INFO */
+    /* LEFT SIDE: INFO (UPDATED CENTER) */
     .profile-left { 
         flex: 1; 
         text-align: center; 
         border-right: 1px dashed var(--border); 
         padding-right: 40px; 
-        display: flex; flex-direction: column; 
-        align-items: center; justify-content: flex-start; 
-        height: 100%; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; /* PENTING: Center Vertically */
     }
-    
+     
+    /* PROFILE PIC WRAPPER (NEW) */
+    .avatar-wrapper {
+        position: relative;
+        width: 140px; height: 140px;
+        margin-bottom: 20px;
+        cursor: pointer;
+        group: hover;
+    }
+
     .big-avatar {
-        width: 100px; height: 100px; 
+        width: 100%; height: 100%; 
         background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        font-size: 3rem; font-weight: 700; margin-bottom: 15px;
+        color: white; border-radius: 50%; 
+        display: flex; align-items: center; justify-content: center;
+        font-size: 3.5rem; font-weight: 700; 
         box-shadow: 0 15px 30px rgba(124, 58, 237, 0.3); 
         border: 4px solid white;
+        overflow: hidden; /* Crop gambar jadi bulat */
+        transition: transform 0.3s ease;
     }
     
-    .profile-title { font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 5px; letter-spacing: -0.5px; }
+    .big-avatar img {
+        width: 100%; height: 100%; object-fit: cover;
+    }
+
+    /* CAMERA OVERLAY (NEW) */
+    .camera-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 1.5rem; opacity: 0;
+        transition: 0.3s ease;
+        border: 4px solid white; /* Ikut border avatar */
+    }
+
+    .avatar-wrapper:hover .camera-overlay { opacity: 1; }
+    .avatar-wrapper:hover .big-avatar { transform: scale(0.98); }
+     
+    .profile-title { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.5px; line-height: 1.2; }
+    
     .profile-subtitle { 
-        font-size: 0.8rem; color: var(--text-light); 
-        background: #F5F3FF; padding: 4px 10px; border-radius: 15px; 
-        display: inline-block; margin-top: 5px;
+        font-size: 0.85rem; color: var(--text-light); 
+        background: #F5F3FF; padding: 6px 15px; border-radius: 20px; 
+        display: inline-block; margin-top: 5px; font-weight: 500;
     }
 
     /* RIGHT SIDE: FORM */
-    .profile-right { flex: 2; }
+    .profile-right { flex: 2; display: flex; flex-direction: column; justify-content: center; }
 
     .form-section-title {
         font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.2px;
@@ -156,7 +194,7 @@
     }
 
     label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: var(--text-main); }
-    
+     
     input[type="text"], input[type="email"], input[type="password"] {
         width: 100%; padding: 12px 15px; 
         border: 1px solid var(--border); border-radius: 12px; 
@@ -164,12 +202,12 @@
         font-size: 0.9rem; font-family: 'Poppins', sans-serif; 
         transition: 0.3s; margin-bottom: 15px;
     }
-    
+     
     input:focus { 
         background: white; border-color: var(--primary); 
         box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1); 
     }
-    
+     
     input[readonly] { 
         background: #f1f5f9; color: #94a3b8; cursor: not-allowed; 
         border-color: #f1f5f9;
@@ -194,22 +232,20 @@
     .msg-success { background: #F3E8FF; color: #6B21A8; border: 1px solid #D8B4FE; }
     .msg-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
 
-/* =========================================
+    /* =========================================
        7. RESPONSIVE MOBILE (UPDATED)
        ========================================= */
     @media (max-width: 900px) {
         body { height: auto; overflow-y: auto; }
         
-        /* 1. NAVBAR: Jadikan Floating Pill di Mobile */
         .navbar { 
-            margin: 15px;          /* Beri jarak dari tepi skrin */
-            border-radius: 30px;   /* Bucu bulat penuh */
+            margin: 15px;          
+            border-radius: 30px;   
             padding: 15px 20px; 
             top: 0; 
-            width: auto;           /* Lebar ikut margin (tak full screen) */
+            width: auto;           
         }
         
-        /* 2. DROPDOWN MENU: Kemaskan supaya tak petak */
         .nav-center { 
             display: flex; 
             flex-direction: column; 
@@ -218,43 +254,38 @@
             left: 0; 
             width: 100%; 
             background: white; 
-            
-            /* Tambah radius & shadow pada menu yang turun */
             border-radius: 25px;   
-            margin-top: 10px;      /* Ada jarak sikit dari navbar atas */
+            margin-top: 10px;      
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            
             gap: 15px; 
             text-align: center;
-            
-            /* Animation Properties */
             max-height: 0;
             overflow: hidden;
             opacity: 0;
             padding: 0 20px; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Animasi melantun sikit */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        /* Mobile Nav Container - Active State */
         .nav-center.active { 
-            max-height: 400px; 
+            max-height: 500px; 
             opacity: 1;
-            padding: 25px 20px; /* Padding lebih selesa */
+            padding: 25px 20px; 
         }
         
         .user-pill { display: none; }
         .hamburger { display: block; }
         
-        /* Adjust Greeting Font Size Mobile */
-        .greeting-main { font-size: 1.6rem; } 
-        .arabic-text { font-size: 1.5rem; }
-        
         .main-wrapper { padding: 20px; }
         .glass-panel { flex-direction: column; padding: 30px; gap: 30px; }
         
         .profile-left { 
-            border-right: none; border-bottom: 1px dashed var(--border); 
-            padding-right: 0; padding-bottom: 30px; width: 100%; 
+            border-right: none; 
+            border-bottom: 1px dashed var(--border); 
+            padding-right: 0; 
+            padding-bottom: 30px; 
+            width: 100%; 
+            /* Kekal center di mobile */
+            justify-content: center; 
         }
         .row { flex-direction: column; gap: 0; }
         input { margin-bottom: 15px; }
@@ -303,7 +334,18 @@
             <div class="glass-panel">
                 
                 <div class="profile-left">
-                    <div class="big-avatar" id="bigAvatar">U</div>
+                    
+                    <div class="avatar-wrapper" onclick="document.getElementById('fileInput').click()">
+                        <div class="big-avatar" id="bigAvatar">
+                            <span id="initialsText">U</span>
+                            <img id="profileImagePreview" src="" alt="Profile" style="display:none;">
+                        </div>
+                        <div class="camera-overlay">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+
                     <div class="profile-title" id="displayFullname">Pengguna</div>
                     <div class="profile-subtitle">Ahli sejak: <span id="displayDate">-</span></div>
                 </div>
@@ -401,8 +443,12 @@
         const profileForm = document.getElementById('profileForm');
         const msgBox = document.getElementById('profileMsg');
         const saveBtn = document.getElementById('saveBtn');
-
+        const fileInput = document.getElementById('fileInput');
+        const profileImagePreview = document.getElementById('profileImagePreview');
+        const initialsText = document.getElementById('initialsText');
+        
         let currentUserUid = null;
+        let selectedFile = null; // Variable simpan file sementara
 
         // 1. Load Data
         onAuthChange(async user => {
@@ -413,6 +459,18 @@
             saveBtn.disabled = true;
 
             try {
+                // A. Handle Profile Pic Existing
+                if(user.photoURL) {
+                    profileImagePreview.src = user.photoURL;
+                    profileImagePreview.style.display = 'block';
+                    initialsText.style.display = 'none';
+                    
+                    // Update juga dekat navbar kecil
+                    const navAvatar = document.getElementById('navAvatar');
+                    navAvatar.innerHTML = `<img src="${user.photoURL}" style="width:100%; height:100%; object-fit:cover;">`;
+                }
+
+                // B. Load Firestore Data
                 const { data } = await getCurrentUserDoc();
                 
                 // Set Inputs
@@ -423,7 +481,11 @@
                 // Update Side Panel Info
                 let displayName = data?.fullname || user.email.split('@')[0];
                 document.getElementById('displayFullname').innerText = displayName;
-                document.getElementById('bigAvatar').innerText = displayName.charAt(0).toUpperCase();
+                
+                // Set Initials if no image
+                if(!user.photoURL) {
+                    initialsText.innerText = displayName.charAt(0).toUpperCase();
+                }
 
                 // Role Logic
                 const role = user.email.endsWith('@uitm.edu.my') ? 'Staf UiTM' : 'Pengguna Awam';
@@ -446,42 +508,56 @@
             }
         });
 
-        // 2. Auth State Changed (For Navbar Name Update - FIRST NAME ONLY)
+        // 2. Auth State Changed (Navbar Logic)
         firebase.auth().onAuthStateChanged(async user => {
             const nameEl = document.getElementById('navName');
             const avatarEl = document.getElementById('navAvatar');
 
             if(nameEl && user) {
-                let finalName = user.email.split('@')[0];
+                let finalName = user.displayName || user.email.split('@')[0];
+                
+                // Try fetching Firestore name preferrably
                 try {
                     const doc = await firebase.firestore().collection('users').doc(user.uid).get();
                     if(doc.exists && doc.data().fullname) {
                         finalName = doc.data().fullname;
                     }
-                } catch(e) { console.error("Error fetching name:", e); }
+                } catch(e) {}
 
-                // --- ADJUSTMENT: AMBIL FIRST NAME SAHAJA ---
                 const firstName = finalName.split(' ')[0];
-                
                 nameEl.innerText = firstName;
-                if(avatarEl) avatarEl.innerText = firstName.charAt(0).toUpperCase();
+                
+                // Jika user ada photoURL, guna itu. Jika tidak, huruf
+                if(user.photoURL) {
+                    avatarEl.innerHTML = `<img src="${user.photoURL}" style="width:100%; height:100%; object-fit:cover;">`;
+                } else {
+                    avatarEl.innerText = firstName.charAt(0).toUpperCase();
+                }
             }
         });
 
-        // 3. Extra Safety Check
-        document.addEventListener("DOMContentLoaded", async () => {
-            if (typeof loadJawatanFromFirebase === 'function') {
-                await loadJawatanFromFirebase();
-            }
-            if (typeof addExperienceRow === 'function') {
-                addExperienceRow();
-            }
-            if (typeof setupUI === 'function') {
-                setupUI();
+        // 3. Logic Preview Gambar Bila Pilih File
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if(file.size > 2 * 1024 * 1024) { // Limit 2MB
+                    alert("Saiz gambar terlalu besar. Sila pilih bawah 2MB.");
+                    return;
+                }
+                selectedFile = file; // Simpan untuk upload nanti
+                
+                // Preview immediate
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    profileImagePreview.src = e.target.result;
+                    profileImagePreview.style.display = 'block';
+                    initialsText.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
             }
         });
 
-        // 4. Update Data Logic (UPDATED: WITH PASSWORD CHANGE)
+        // 4. Update Data Logic (PROFILE + IMAGE + PASSWORD)
         profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             msgBox.style.display = 'none';
@@ -490,8 +566,6 @@
 
             const fullname = document.getElementById('fullname').value.trim();
             const phone = document.getElementById('phone').value.trim();
-            
-            // Ambil nilai input password
             const newPass = document.getElementById('newPassword').value;
             const confirmPass = document.getElementById('confirmPassword').value;
 
@@ -503,60 +577,61 @@
             }
 
             try {
-                // A. Update Maklumat Peribadi (Firestore)
+                const user = firebase.auth().currentUser;
+                let photoURL = user.photoURL; // Default guna yang lama
+
+                // A. Upload Gambar (Jika ada file baru dipilih)
+                if(selectedFile) {
+                    // Create path: users/UID/profile.jpg
+                    const storageRef = firebase.storage().ref();
+                    const fileRef = storageRef.child(`users/${currentUserUid}/profile.jpg`);
+                    
+                    // Upload
+                    await fileRef.put(selectedFile);
+                    
+                    // Get URL
+                    photoURL = await fileRef.getDownloadURL();
+                    
+                    // Update Auth Profile
+                    await user.updateProfile({ photoURL: photoURL });
+                }
+
+                // B. Update Maklumat Firestore
                 await firebase.firestore().collection('users').doc(currentUserUid).update({
                     fullname,
                     phone,
+                    photoURL: photoURL, // Simpan juga link gambar di firestore
                     lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
+                // Update Auth Display Name juga supaya sync
+                await user.updateProfile({ displayName: fullname });
 
-                // B. Update Kata Laluan (Firebase Auth) - Jika ada input
+                // C. Update Kata Laluan (Optional)
                 if (newPass) {
-                    if (newPass.length < 6) {
-                        throw new Error("Kata laluan mestilah sekurang-kurangnya 6 aksara.");
-                    }
-                    if (newPass !== confirmPass) {
-                        throw new Error("Pengesahan kata laluan tidak sepadan.");
-                    }
-
-                    const user = firebase.auth().currentUser;
-                    if (user) {
-                        await user.updatePassword(newPass);
-                        // Reset input password selepas berjaya
-                        document.getElementById('newPassword').value = '';
-                        document.getElementById('confirmPassword').value = '';
-                        console.log("Kata laluan berjaya dikemaskini.");
-                    }
+                    if (newPass.length < 6) throw new Error("Kata laluan minima 6 aksara.");
+                    if (newPass !== confirmPass) throw new Error("Pengesahan kata laluan tidak sepadan.");
+                    await user.updatePassword(newPass);
+                    
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
                 }
 
-                // Update Visual Side Panel
+                // D. Update UI
                 document.getElementById('displayFullname').innerText = fullname;
-                document.getElementById('bigAvatar').innerText = fullname.charAt(0).toUpperCase();
-                
-                // Update Navbar Name Immediately
-                const firstName = fullname.split(' ')[0];
-                document.getElementById('navName').innerText = firstName;
-                document.getElementById('navAvatar').innerText = firstName.charAt(0).toUpperCase();
-
-                // Papar Mesej Berjaya
-                if(newPass) {
-                    showMsg('Profil dan Kata Laluan berjaya dikemaskini!', 'success');
-                } else {
-                    showMsg('Profil berjaya dikemaskini!', 'success');
+                if(!photoURL) {
+                    document.getElementById('bigAvatar').innerHTML = `<span id="initialsText">${fullname.charAt(0).toUpperCase()}</span>`;
                 }
-                
+
+                showMsg('Profil berjaya dikemaskini!', 'success');
                 setTimeout(() => msgBox.style.display = 'none', 3000);
 
             } catch(err){
                 console.error(err);
-                
-                // Handle Error Khusus Password
                 if (err.code === 'auth/requires-recent-login') {
-                    showMsg('Untuk keselamatan, sila log keluar dan log masuk semula untuk menukar kata laluan.', 'error');
-                } else if (err.message) {
-                    showMsg(err.message, 'error');
+                    showMsg('Sila log masuk semula untuk tukar kata laluan.', 'error');
                 } else {
-                    showMsg('Ralat sistem. Sila cuba lagi.', 'error');
+                    showMsg(err.message || 'Ralat sistem.', 'error');
                 }
             } finally {
                 resetBtn();
@@ -585,4 +660,3 @@
 
 </body>
 </html>
-
