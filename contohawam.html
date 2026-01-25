@@ -83,12 +83,32 @@ body {
 .text-container { display: flex; flex-direction: column; align-items: flex-end; overflow: hidden; height: 20px; justify-content: center; position: relative; width: 100px; }
 .user-name { font-weight: 600; font-size: 0.9rem; color: var(--text-main); position: absolute; right: 0; transition: 0.3s; text-transform: uppercase; }
 .logout-text { font-weight: 700; font-size: 0.9rem; color: #ef4444; position: absolute; right: 0; transform: translateY(20px); opacity: 0; transition: 0.3s; }
-.avatar { width: 38px; height: 38px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; transition: 0.3s; }
+
+/* AVATAR STYLES (UPDATED - BULAT & FIT) */
+.avatar { 
+    width: 38px; 
+    height: 38px; 
+    background: var(--primary); 
+    color: white; 
+    border-radius: 50%; /* Wajib bulat */
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: 700; 
+    transition: 0.3s; 
+    overflow: hidden; /* Potong gambar yg lebih */
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Pastikan gambar tak gepeng */
+}
 
 .user-pill:hover { background: #fee2e2; border-color: #ef4444; }
 .user-pill:hover .user-name { transform: translateY(-20px); opacity: 0; }
 .user-pill:hover .logout-text { transform: translateY(0); opacity: 1; }
-.user-pill:hover .avatar { background: #ef4444; }
 
 .hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
 
@@ -190,67 +210,32 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
     @media (max-width: 900px) {
         body { height: auto; overflow-y: auto; }
         
-        /* 1. NAVBAR: Jadikan Floating Pill di Mobile */
         .navbar { 
-            margin: 15px;          /* Beri jarak dari tepi skrin */
-            border-radius: 30px;   /* Bucu bulat penuh */
-            padding: 15px 20px; 
-            top: 0; 
-            width: auto;           /* Lebar ikut margin (tak full screen) */
+            margin: 15px; border-radius: 30px; padding: 15px 20px; 
+            top: 0; width: auto; 
         }
         
-        /* 2. DROPDOWN MENU: Kemaskan supaya tak petak */
         .nav-center { 
-            display: flex; 
-            flex-direction: column; 
-            position: absolute; 
-            top: 100%; 
-            left: 0; 
-            width: 100%; 
-            background: white; 
-            
-            /* Tambah radius & shadow pada menu yang turun */
-            border-radius: 25px;   
-            margin-top: 10px;      /* Ada jarak sikit dari navbar atas */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            
-            gap: 15px; 
-            text-align: center;
-            
-            /* Animation Properties */
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            padding: 0 20px; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Animasi melantun sikit */
+            display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; 
+            background: white; border-radius: 25px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            gap: 15px; text-align: center; max-height: 0; overflow: hidden; opacity: 0; padding: 0 20px; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        /* Mobile Nav Container - Active State */
-        .nav-center.active { 
-            max-height: 400px; 
-            opacity: 1;
-            padding: 25px 20px; /* Padding lebih selesa */
-        }
+        .nav-center.active { max-height: 400px; opacity: 1; padding: 25px 20px; }
         
         .user-pill { display: none; }
         .hamburger { display: block; }
         
-        /* Adjust Greeting Font Size Mobile */
-        .greeting-main { font-size: 1.6rem; } 
-        .arabic-text { font-size: 1.5rem; }
-        
         .main-wrapper { padding: 20px; }
         .glass-panel { flex-direction: column; padding: 30px; gap: 30px; }
         
-        .profile-left { 
-            border-right: none; border-bottom: 1px dashed var(--border); 
-            padding-right: 0; padding-bottom: 30px; width: 100%; 
-        }
+        .profile-left { border-right: none; border-bottom: 1px dashed var(--border); padding-right: 0; padding-bottom: 30px; width: 100%; }
         .row { flex-direction: column; gap: 0; }
         input { margin-bottom: 15px; }
     }
 
-/* Warning Box (Kotak Oren) */
+/* Warning Box */
 .warning-box {
     margin-top: 20px;
     background: #fff7ed;
@@ -266,7 +251,7 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
     line-height: 1.5;
 }
 
-/* Print Styles (Akan diguna oleh Javascript) */
+/* Print Styles */
 @media print {
     .watermark {
         position: fixed; top: 50%; left: 50%; 
@@ -354,7 +339,7 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
 
             <div class="row">
                 <div class="col">
-                    <label>Gaji Pokok (RM)</label>
+                    <label>Gaji Minimum (RM)</label>
                     <input type="number" id="awamGajiPokok" placeholder="0.00">
                 </div>
                 <div class="col">
@@ -388,13 +373,15 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
                 <div class="col">
                     <label>Dapat PGT Tahun Ini?</label>
                     <select id="awamTelah">
+                        <option value="" disabled selected>-- Sila Pilih --</option>
                         <option value="YA">YA</option>
-                        <option value="TIDAK" selected>TIDAK</option>
+                        <option value="TIDAK">TIDAK</option>
                     </select>
                 </div>
                 <div class="col">
                     <label>Bulan Pergerakan Gaji</label>
                     <select id="awamPGT">
+                        <option value="" disabled selected>-- Pilih Bulan --</option>
                         <option value="Jan">Januari</option>
                         <option value="Apr">April</option>
                         <option value="Jul">Julai</option>
@@ -407,51 +394,55 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
                 <i class="fa-solid fa-calculator"></i> KIRA GAJI SEKARANG
             </button>
 
-<div id="resultContent" class="result-box">
-    <div class="result-header">
-        <span>KEPUTUSAN SIMULASI</span>
-        <i class="fa-solid fa-receipt"></i>
-    </div>
-    <div class="result-content">
-        <div class="detail-row"><span>Jawatan</span><span id="d-jawatan">-</span></div>
-        <div class="detail-row"><span>Wilayah</span><span id="d-wilayah">-</span></div>
-        
-        <div class="form-section-title" style="margin-top:20px;">PENDAPATAN UTAMA</div>
-        <div class="detail-row"><span>Gaji Pokok</span><span id="d-gaji">-</span></div>
+            <div id="resultContent" class="result-box">
+                <div class="result-header">
+                    <span>KEPUTUSAN SIMULASI</span>
+                    <i class="fa-solid fa-receipt"></i>
+                </div>
+                <div class="result-content">
+                    <div class="detail-row"><span>Jawatan</span><span id="d-jawatan">-</span></div>
+                    <div class="detail-row"><span>Wilayah</span><span id="d-wilayah">-</span></div>
+                    <div class="detail-row"><span>Kategori</span><span id="d-kategori" style="font-weight:700;">-</span></div>
+                    
+                    <div class="form-section-title" style="margin-top:20px;">MAKLUMAT PERGERAKAN GAJI</div>
+                    <div class="detail-row"><span>Status PGT Tahun Ini</span><span id="d-pgt-status" style="font-weight:700;">-</span></div>
+                    <div class="detail-row"><span>Bulan Pergerakan Gaji (TPG)</span><span id="d-pgt-month" style="font-weight:700;">-</span></div>
 
-        <div class="form-section-title" style="margin-top:20px;">PERINCIAN ELAUN</div>
-        <div class="detail-row"><span>Imbuhan Tetap Khidmat Awam (ITKA)</span><span id="d-itka">-</span></div>
-        <div class="detail-row"><span>Imbuhan Tetap Keraian (ITK)</span><span id="d-itk">-</span></div>
-        <div class="detail-row"><span>Imbuhan Tetap Perumahan (ITP)</span><span id="d-itp">-</span></div>
-        <div class="detail-row"><span>Bantuan Sara Hidup (BISH)</span><span id="d-bish">-</span></div>
-        <div class="detail-row"><span>Bayaran Insentif Wilayah (BIW)</span><span id="d-biw">-</span></div>
-        <div class="detail-row"><span>Bayaran Insentif Kritikal (BIPK)</span><span id="d-bipk">-</span></div>
-        <div class="detail-row"><span>Bayaran Insentif Pos (BIP)</span><span id="d-bip">-</span></div>
-        
-        <div class="form-section-title" style="margin-top:20px;">LAIN-LAIN</div>
-        <div class="detail-row"><span>KGT Tahun Ini</span><span id="d-kgt">-</span></div>
-        <div class="detail-row"><span>KGT Tambahan</span><span id="d-kgt-add">-</span></div>
+                    <div class="form-section-title" style="margin-top:20px;">PENDAPATAN UTAMA</div>
+                    <div class="detail-row"><span>Gaji Pokok</span><span id="d-gaji">-</span></div>
 
-        <div class="total-box">
-            <div class="total-label">JUMLAH PENDAPATAN KASAR</div>
-            <div class="total-amount" id="d-grand-total">RM 0.00</div>
-        </div>
+                    <div class="form-section-title" style="margin-top:20px;">PERINCIAN ELAUN</div>
+                    <div class="detail-row"><span>Imbuhan Tetap Khidmat Awam (ITKA)</span><span id="d-itka">-</span></div>
+                    <div class="detail-row"><span>Imbuhan Tetap Keraian (ITK)</span><span id="d-itk">-</span></div>
+                    <div class="detail-row"><span>Imbuhan Tetap Perumahan (ITP)</span><span id="d-itp">-</span></div>
+                    <div class="detail-row"><span>Bantuan Sara Hidup (BISH)</span><span id="d-bish">-</span></div>
+                    <div class="detail-row"><span>Bayaran Insentif Wilayah (BIW)</span><span id="d-biw">-</span></div>
+                    <div class="detail-row"><span>Bayaran Insentif Kritikal (BIPK)</span><span id="d-bipk">-</span></div>
+                    <div class="detail-row"><span>Bayaran Insentif Pos (BIP)</span><span id="d-bip">-</span></div>
+                    
+                    <div class="form-section-title" style="margin-top:20px;">LAIN-LAIN</div>
+                    <div class="detail-row"><span>KGT Tahun Ini</span><span id="d-kgt">-</span></div>
+                    <div class="detail-row"><span>KGT Tambahan</span><span id="d-kgt-add">-</span></div>
 
-        <div class="warning-box">
-            <i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem; color:#f97316;"></i>
-            <div style="text-align: justify;">
-                <strong>PERHATIAN PENTING:</strong><br>
-                Dokumen ini adalah cetakan komputer daripada Sistem Dashboard HASA. Segala nilai yang dipaparkan adalah <strong>SIMULASI ANGGARAN</strong> berdasarkan input pengguna dan data pekeliling semasa. Ia <strong>TIDAK SAH</strong> digunakan sebagai dokumen rasmi untuk tujuan pinjaman bank, urusan undang-undang, atau tuntutan rasmi. Sila rujuk Bahagian Sumber Manusia (BSM) atau Unit Gaji untuk penyata gaji yang sah.
+                    <div class="total-box">
+                        <div class="total-label">JUMLAH PENDAPATAN KASAR</div>
+                        <div class="total-amount" id="d-grand-total">RM 0.00</div>
+                    </div>
+
+                    <div class="warning-box">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem; color:#f97316;"></i>
+                        <div style="text-align: justify;">
+                            <strong>PERHATIAN PENTING:</strong><br>
+                            Dokumen ini adalah cetakan komputer daripada Sistem Dashboard HASA. Segala nilai yang dipaparkan adalah <strong>SIMULASI ANGGARAN</strong> berdasarkan input pengguna dan data pekeliling semasa. Ia <strong>TIDAK SAH</strong> digunakan sebagai dokumen rasmi untuk tujuan pinjaman bank, urusan undang-undang, atau tuntutan rasmi. Sila rujuk Bahagian Sumber Manusia (BSM) atau Unit Gaji untuk penyata gaji yang sah.
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn-secondary" onclick="resetForm()">Kira Semula</button>
+                        <button class="btn-print" id="printBtn" onclick="printResult()">Cetak PDF</button>
+                    </div>
+                </div>
             </div>
-            </div>
-        </div>
-
-        <div class="action-buttons">
-            <button class="btn-secondary" onclick="resetForm()">Kira Semula</button>
-            <button class="btn-print" id="printBtn" onclick="printResult()">Cetak PDF</button>
-        </div>
-    </div>
-</div>
         </div>
     </div>
 
@@ -473,9 +464,8 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
 
 <script>
     // ===========================================
-    // 1. FIREBASE CONFIG (MEMASTIKAN DATA KELUAR)
+    // 1. FIREBASE CONFIG
     // ===========================================
-    // Masukkan Config Asal Anda Di Sini Supaya Data Terjamin
     const firebaseConfig = {
         apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8",
         authDomain: "data-staff-6hha55.firebaseapp.com",
@@ -501,17 +491,15 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
 
     const navbar = document.getElementById('mainNavbar');
     const goTop = document.getElementById('goTopBtn');
-    let lastScrollTop = 0;
-
+    
     window.addEventListener('scroll', function() {
-        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        if (scrollTop > lastScrollTop && scrollTop > 50) navbar.classList.add('nav-hidden');
-        else navbar.classList.remove('nav-hidden');
-        lastScrollTop = scrollTop;
-
-        // Go Top Button Visibility
-        if (scrollTop > 300) goTop.style.display = 'flex';
-        else goTop.style.display = 'none';
+        let st = window.scrollY;
+        if(st > 100) {
+            navbar.classList.add('nav-hidden');
+        } else {
+            navbar.classList.remove('nav-hidden');
+        }
+        goTop.style.display = st > 300 ? 'flex' : 'none';
     });
 
     goTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -526,23 +514,39 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
             }
         });
     }
-        // 3. Logout
+        
+    const logoutBtn = document.getElementById('logoutBtn');
+    if(logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             if(confirm("Log keluar dari sistem?")) {
                 await firebase.auth().signOut();
                 location.href='login.html';
             }
         });
-    // Auth Change to Update Name
+    }
+    
+    // Auth Change to Update Name & Picture from Firestore
     firebase.auth().onAuthStateChanged(async user => {
         if(!user) { location.href='login.html'; return; }
-        // Update Navbar Name
-        const nameEl = document.getElementById('navName')
+        
+        const nameEl = document.getElementById('navName');
         const avatarEl = document.getElementById('navAvatar');
-        if(nameEl && user.email) {
-            let firstName= user.email.split('@')[0];
-            nameEl.innerText = firstName;
-            avatarEl.innerText = firstName.charAt(0).toUpperCase();    
+
+        try {
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (nameEl && data.fullname) {
+                    nameEl.innerText = data.fullname.split(' ')[0]; 
+                }
+                if (avatarEl && data.photoURL) {
+                    avatarEl.innerHTML = `<img src="${data.photoURL}" alt="Profile" style="width:100%; height:100%; object-fit:cover;">`;
+                    avatarEl.style.backgroundColor = 'transparent';
+                    avatarEl.style.border = '2px solid white';
+                }
+            }
+        } catch (error) {
+            console.log("Error loading user profile:", error);
         }
     });
 
@@ -625,20 +629,24 @@ input[readonly], select:disabled { background: #f1f5f9; color: #94a3b8; cursor: 
         }
     });
 
- // 1. UPDATE FUNGSI KIRA (Supaya semua data elaun masuk ke HTML baru)
 window.computeAwam = function() {
     var elGaji = document.getElementById('awamGajiPokok');
-    if (!elGaji || !elGaji.value) { alert("Sila masukkan Gaji Pokok!"); return; }
+    var pgtSelect = document.getElementById('awamTelah');
+    var bulanSelect = document.getElementById('awamPGT');
+    
+    // --- VALIDATION CHECK ---
+    if (!els.jawatan.value || !els.wilayah.value || !elGaji.value || !pgtSelect.value || !bulanSelect.value) { 
+        alert("Harap Maaf. Sila lengkapkan semua butiran (Jawatan, Wilayah, Gaji Pokok, Status PGT & Bulan) sebelum membuat kiraan."); 
+        return; 
+    }
 
-    // Logic Kiraan (Sama macam asal)
     var kgtVal = 0;
     if (selectedJawatanData) {
-        var status = document.getElementById('awamTelah').value; 
+        var status = pgtSelect.value; 
         if (status === 'TIDAK') kgtVal = parseFloat(selectedJawatanData.nilai_kgt || selectedJawatanData.Nilai_KGT || 0);
     }
     document.getElementById('kgt_tahun_ini').value = kgtVal.toFixed(2);
 
-    // Ambil semua value
     var gaji = parseFloat(elGaji.value) || 0;
     var kgtAdd = parseFloat(els.kgtAdd.value) || 0; 
     var itka = parseFloat(els.itka.value) || 0;
@@ -652,12 +660,18 @@ window.computeAwam = function() {
     var totalElaun = itka + itk + itp + bish + biw + bipk + bip;
     var grandTotal = gaji + kgtVal + kgtAdd + totalElaun;
 
-    // --- BAHAGIAN INI PENTING: MASUKKAN DATA KE HTML BARU ---
+    // --- GET PGT INFO ---
+    var pgtStatus = pgtSelect.value;
+    var pgtMonth = bulanSelect.options[bulanSelect.selectedIndex].text;
+
     document.getElementById('d-jawatan').innerText = els.jawatanText.value;
     document.getElementById('d-wilayah').innerText = els.wilayah.value;
+    document.getElementById('d-kategori').innerText = els.kategori.value; // ADDED KATEGORI
     document.getElementById('d-gaji').innerText = "RM " + gaji.toFixed(2);
     
-    // Papar semua elaun satu per satu
+    document.getElementById('d-pgt-status').innerText = pgtStatus;
+    document.getElementById('d-pgt-month').innerText = pgtMonth;
+
     document.getElementById('d-itka').innerText = "RM " + itka.toFixed(2);
     document.getElementById('d-itk').innerText = "RM " + itk.toFixed(2);
     document.getElementById('d-itp').innerText = "RM " + itp.toFixed(2);
@@ -670,23 +684,30 @@ window.computeAwam = function() {
     document.getElementById('d-kgt-add').innerText = "RM " + kgtAdd.toFixed(2);
     document.getElementById('d-grand-total').innerText = "RM " + grandTotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 
-    // Simpan data untuk print
     lastCalculationData = {
         jawatan: els.jawatanText.value,
         wilayah: els.wilayah.value,
+        kategori: els.kategori.value, // STORE KATEGORI
         gajiPokok: gaji,
         elaunList: { itka, itk, itp, bish, biw, bipk, bip },
         kgt: kgtVal, kgtTambahan: kgtAdd, jumlahKasar: grandTotal,
-        date: new Date().toLocaleDateString('ms-MY')
+        pgtStatus: pgtStatus,
+        pgtMonth: pgtMonth,
+        date: new Date().toLocaleString('ms-MY', { 
+            day: '2-digit', month: '2-digit', year: 'numeric', 
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
+        })
     };
 
     els.resultArea.style.display = 'block'; 
     els.resultArea.scrollIntoView({ behavior: 'smooth' });
 };
 
-window.resetForm = function() { window.scrollTo(0, 0); setTimeout(() => location.reload(), 200); };
+window.resetForm = function() { 
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+    setTimeout(() => location.reload(), 800); 
+};
 
-// 2. UPDATE FUNGSI PRINT (Design Pro + Watermark + Logo)
 window.printResult = function() {
     if(!lastCalculationData) return;
     const d = lastCalculationData;
@@ -699,33 +720,21 @@ window.printResult = function() {
             <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
             <style>
                 body { font-family: 'Roboto', sans-serif; padding: 40px; color: #333; -webkit-print-color-adjust: exact; }
-                
-                /* Header Styles */
                 .header { display: flex; align-items: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
                 .logo { height: 80px; margin-right: 20px; }
                 .org-name { font-size: 24px; font-weight: 700; color: #1e3a8a; text-transform: uppercase; }
                 .doc-title { font-size: 14px; color: #555; margin-top: 5px; font-weight: 500; }
-
-                /* Watermark Besar */
                 .watermark {
                     position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg);
                     font-size: 100px; color: rgba(0,0,0,0.05); font-weight: 900;
                     white-space: nowrap; z-index: -1; pointer-events: none; border: 10px solid rgba(0,0,0,0.05); padding: 20px;
                 }
-
-                /* Info Grid */
                 .info-box { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; background: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; }
-                .info-row label { font-size: 11px; text-transform: uppercase; color: #666; font-weight: 700; letter-spacing: 0.5px; }
-                .info-row div { font-size: 16px; font-weight: 600; color: #000; }
-
-                /* Table Styles */
                 table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
                 th { text-align: left; padding: 12px; background-color: #1e3a8a; color: white; font-size: 12px; text-transform: uppercase; }
                 td { padding: 10px 12px; border-bottom: 1px solid #ddd; font-size: 14px; }
                 td:last-child, th:last-child { text-align: right; }
                 .total-row td { background-color: #f3f4f6; font-weight: 700; font-size: 18px; border-top: 2px solid #000; color: #1e3a8a; }
-
-                /* Warning & Footer */
                 .warning { margin-top: 30px; padding: 15px; border: 1px dashed #f97316; background-color: #fff7ed; color: #c2410c; font-size: 11px; line-height: 1.5; text-align: justify; }
                 .footer { margin-top: 50px; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 10px; }
             </style>
@@ -734,55 +743,54 @@ window.printResult = function() {
             <div class="watermark">SIMULASI / RUJUKAN SAHAJA</div>
 
             <div class="header">
-                <img src="image/HASA.png" class="logo" alt="HASA Logo">
+                <img src="image/HASA.png" class="logo" alt="HASA Logo" onerror="this.style.display='none'">
                 <div>
                     <div class="org-name">HASA UiTM</div>
                     <div class="doc-title">HOSPITAL AL-SULTAN ABDULLAH, UiTM<br>SIMULASI GAJI SEKTOR AWAM</div>
                 </div>
             </div>
 
-<div class="info-box" style="margin-bottom: 20px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px;">
-                <table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 0.95rem;">
-                    
+            <div class="info-box">
+                <table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 0.95rem; margin-bottom:0;">
                     <tr style="border-bottom: 1px dashed #f1f5f9;">
-                        <td style="width: 130px; padding: 8px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">
-                            Jawatan
-                        </td>
-                        <td style="width: 20px; padding: 8px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
-                        <td style="padding: 8px 0; color: #0f172a; font-weight: 700; vertical-align: top; text-align: left;">
-                            ${d.jawatan}
-                        </td>
+                        <td style="width: 130px; padding: 5px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Jawatan</td>
+                        <td style="width: 20px; padding: 5px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
+                        <td style="padding: 5px 0; color: #0f172a; font-weight: 700; vertical-align: top; text-align: left;">${d.jawatan}</td>
                     </tr>
-
                     <tr style="border-bottom: 1px dashed #f1f5f9;">
-                        <td style="padding: 8px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">
-                            Wilayah
-                        </td>
-                        <td style="padding: 8px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
-                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600; vertical-align: top; text-align: left;">
-                            ${d.wilayah}
-                        </td>
+                        <td style="padding: 5px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Wilayah</td>
+                        <td style="padding: 5px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
+                        <td style="padding: 5px 0; color: #0f172a; font-weight: 600; vertical-align: top; text-align: left;">${d.wilayah}</td>
                     </tr>
-
+                    <tr style="border-bottom: 1px dashed #f1f5f9;">
+                        <td style="padding: 5px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Kategori</td>
+                        <td style="padding: 5px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
+                        <td style="padding: 5px 0; color: #0f172a; font-weight: 600; vertical-align: top; text-align: left;">${d.kategori}</td>
+                    </tr>
                     <tr>
-                        <td style="padding: 8px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">
-                            Tarikh Cetak
-                        </td>
-                        <td style="padding: 8px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
-                        <td style="padding: 8px 0; color: #0f172a; font-weight: 500; vertical-align: top; text-align: left;">
-                            ${d.date}
-                        </td>
+                        <td style="padding: 5px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Tarikh & Masa</td>
+                        <td style="padding: 5px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
+                        <td style="padding: 5px 0; color: #0f172a; font-weight: 500; vertical-align: top; text-align: left;">${d.date}</td>
                     </tr>
+                </table>
 
+                <table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 0.95rem; margin-bottom:0;">
+                    <tr style="border-bottom: 1px dashed #f1f5f9;">
+                        <td style="width: 130px; padding: 5px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Status PGT</td>
+                        <td style="width: 20px; padding: 5px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
+                        <td style="padding: 5px 0; color: #0f172a; font-weight: 700; vertical-align: top; text-align: left;">${d.pgtStatus}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px dashed #f1f5f9;">
+                        <td style="padding: 5px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Bulan TPG</td>
+                        <td style="padding: 5px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
+                        <td style="padding: 5px 0; color: #0f172a; font-weight: 600; vertical-align: top; text-align: left;">${d.pgtMonth}</td>
+                    </tr>
                 </table>
             </div>
 
             <table>
                 <thead>
-                    <tr>
-                        <th>Butiran Pendapatan</th>
-                        <th>Amaun (RM)</th>
-                    </tr>
+                    <tr><th>Butiran Pendapatan</th><th>Amaun (RM)</th></tr>
                 </thead>
                 <tbody>
                     <tr><td>Gaji Pokok</td><td>${d.gajiPokok.toFixed(2)}</td></tr>
@@ -824,6 +832,7 @@ if (history.scrollRestoration) {
     history.scrollRestoration = 'manual';
 }
 window.scrollTo(0, 0);
+
 </script>
 </body>
 </html>
