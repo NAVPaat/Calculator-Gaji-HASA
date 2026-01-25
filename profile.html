@@ -13,7 +13,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script> <script src="firebase-config.js"></script>
+<script src="firebase-config.js"></script>
 <script src="auth.js"></script>
 
 <style>
@@ -54,50 +54,63 @@
     .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #beafff; }
     @keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
 
-    /* =========================================
-       2. NAVBAR
-       ========================================= */
-    .navbar {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 10px 5%; margin: 15px 20px 0 20px;
-        background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
-        border-radius: 50px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        position: relative; z-index: 1000; flex-shrink: 0;
-    }
-     
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; color: var(--primary); }
-    .brand img { height: 28px; }
+/* NAVBAR STYLES */
+.navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 5%; margin: 20px;
+    background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px);
+    border-radius: 50px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    position: sticky; top: 20px; z-index: 1000;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+.navbar.nav-hidden { transform: translateY(-150%); opacity: 0; }
 
-    .nav-center { display: flex; gap: 20px; }
-    .nav-link { color: var(--text-light); font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: 0.3s; position: relative; }
-    .nav-link:hover, .nav-link.active { color: var(--primary); }
-    .nav-link.active::after { content:''; position: absolute; bottom:-5px; left:50%; transform:translateX(-50%); width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.4rem; color: var(--primary); }
+.brand img { height: 32px; }
 
-    .user-pill {
-        display: flex; align-items: center; gap: 10px;
-        background: white; padding: 4px 4px 4px 15px;
-        border-radius: 50px; cursor: pointer; transition: all 0.3s ease;
-        border: 1px solid transparent;
-    }
-    .text-container { display: flex; flex-direction: column; align-items: flex-end; overflow: hidden; height: 18px; justify-content: center; position: relative; width: 90px; }
-    .user-name { font-weight: 600; font-size: 0.8rem; color: var(--text-main); position: absolute; right: 0; transition: 0.3s; text-transform: uppercase; }
-    .logout-text { font-weight: 700; font-size: 0.8rem; color: #ef4444; position: absolute; right: 0; transform: translateY(20px); opacity: 0; transition: 0.3s; }
-    
-    /* Small Avatar in Navbar */
-    .avatar { 
-        width: 32px; height: 32px; background: var(--primary); color: white; 
-        border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-        font-weight: 700; font-size: 0.9rem; transition: 0.3s; 
-        overflow: hidden; /* Ensure image fits */
-    }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.nav-center { display: flex; gap: 30px; }
+.nav-link { color: var(--text-light); font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: 0.3s; position: relative; }
+.nav-link:hover, .nav-link.active { color: var(--primary); }
+.nav-link.active::after { content:''; position: absolute; bottom:-5px; left:50%; transform:translateX(-50%); width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
 
-    .user-pill:hover { background: #fee2e2; border-color: #ef4444; }
-    .user-pill:hover .user-name { transform: translateY(-20px); opacity: 0; }
-    .user-pill:hover .logout-text { transform: translateY(0); opacity: 1; }
-    .user-pill:hover .avatar { filter: brightness(0.9); }
+/* USER PILL (PROFILE) */
+.user-pill {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--bg-body); padding: 5px 5px 5px 20px;
+    border-radius: 50px; cursor: pointer; transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+.text-container { display: flex; flex-direction: column; align-items: flex-end; overflow: hidden; height: 20px; justify-content: center; position: relative; width: 100px; }
+.user-name { font-weight: 600; font-size: 0.9rem; color: var(--text-main); position: absolute; right: 0; transition: 0.3s; text-transform: uppercase; white-space: nowrap; }
+.logout-text { font-weight: 700; font-size: 0.9rem; color: #ef4444; position: absolute; right: 0; transform: translateY(20px); opacity: 0; transition: 0.3s; }
 
-    .hamburger { display: none; font-size: 1.3rem; color: var(--text-main); cursor: pointer; padding: 5px; }
+/* AVATAR STYLES (UPDATED) */
+.avatar { 
+    width: 38px; 
+    height: 38px; 
+    background: var(--primary); 
+    color: white; 
+    border-radius: 50%; /* Bulat */
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: 700; 
+    transition: 0.3s; 
+    overflow: hidden; /* PENTING: Potong gambar yg lebih */
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Pastikan gambar tak gepeng */
+}
+
+.user-pill:hover { background: #fee2e2; border-color: #ef4444; }
+.user-pill:hover .user-name { transform: translateY(-20px); opacity: 0; }
+.user-pill:hover .logout-text { transform: translateY(0); opacity: 1; }
+
+.hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
 
     /* =========================================
        3. PROFILE CARD LAYOUT
@@ -232,6 +245,13 @@
     .msg-success { background: #F3E8FF; color: #6B21A8; border: 1px solid #D8B4FE; }
     .msg-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
 
+
+    
+            footer {
+            text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500;
+            margin-top: auto; border-top: 1px solid #e2e8f0;
+            background: rgba(255,255,255,0.5); backdrop-filter: blur(5px);
+        }
     /* =========================================
        7. RESPONSIVE MOBILE (UPDATED)
        ========================================= */
@@ -406,65 +426,41 @@
             </div>
         </div>
     </div>
+    <footer class="fade-up d-5">
+        <p>Built with ❤️ for UiTM. © 2025 HASA UiTM.</p>
+    </footer>
 
-  <script>
+    <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.add("loaded");
             
+            // Mobile Menu Logout Link Logic
             const mobileLogout = document.getElementById('mobileLogout');
             if(mobileLogout) {
                 mobileLogout.addEventListener('click', () => {
-                    if(document.getElementById('logoutBtn')) document.getElementById('logoutBtn').click();
+                    if(document.getElementById('logoutBtn')) {
+                        document.getElementById('logoutBtn').click();
+                    }
                 });
             }
         });
 
+        // ===================================
+        // SMOOTH HAMBURGER TOGGLE
+        // ===================================
         function toggleMenu() {
             const navMenu = document.getElementById('navMenu');
             const mobileLogout = document.getElementById('mobileLogout');
+            
             navMenu.classList.toggle('active');
+            
             if (navMenu.classList.contains('active')) {
                 if(window.innerWidth <= 900) mobileLogout.style.display = 'block';
             }
         }
 
         // ===================================
-        // HELPERS: IMAGE COMPRESSION
-        // ===================================
-        function compressImage(file, maxWidth, quality) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.src = event.target.result;
-                    img.onload = () => {
-                        const elem = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
-
-                        if (width > maxWidth) {
-                            height = height * (maxWidth / width);
-                            width = maxWidth;
-                        }
-
-                        elem.width = width;
-                        elem.height = height;
-                        const ctx = elem.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        ctx.canvas.toBlob((blob) => {
-                            resolve(blob); // Return file yang dah compress
-                        }, 'image/jpeg', quality);
-                    };
-                    img.onerror = (err) => reject(err);
-                };
-                reader.onerror = (err) => reject(err);
-            });
-        }
-
-        // ===================================
-        // LOGIC PROFILE
+        // LOGIC PROFILE (FIREBASE)
         // ===================================
         const logoutBtn = document.getElementById('logoutBtn');
         const profileForm = document.getElementById('profileForm');
@@ -475,7 +471,7 @@
         const initialsText = document.getElementById('initialsText');
         
         let currentUserUid = null;
-        let selectedFile = null; 
+        let base64ImageString = null; // Ini variable baru untuk simpan gambar as text
 
         // 1. Load Data
         onAuthChange(async user => {
@@ -486,27 +482,41 @@
             saveBtn.disabled = true;
 
             try {
-                if(user.photoURL) {
-                    profileImagePreview.src = user.photoURL;
-                    profileImagePreview.style.display = 'block';
-                    initialsText.style.display = 'none';
-                    document.getElementById('navAvatar').innerHTML = `<img src="${user.photoURL}" style="width:100%; height:100%; object-fit:cover;">`;
-                }
-
+                // Load Data dari Firestore
                 const { data } = await getCurrentUserDoc();
                 
+                // Set Inputs
                 document.getElementById('fullname').value = data?.fullname || '';
                 document.getElementById('phone').value = data?.phone || '';
                 document.getElementById('email').value = user.email;
                 
+                // Update Side Panel Info
                 let displayName = data?.fullname || user.email.split('@')[0];
                 document.getElementById('displayFullname').innerText = displayName;
                 
-                if(!user.photoURL) initialsText.innerText = displayName.charAt(0).toUpperCase();
+                // === LOGIC GAMBAR BARU (LOAD DARI FIRESTORE DULU) ===
+                // Kita check kalau ada 'photoURL' dalam database Firestore users collection
+                let photoURL = data?.photoURL || user.photoURL;
 
+                if(photoURL) {
+                    profileImagePreview.src = photoURL;
+                    profileImagePreview.style.display = 'block';
+                    initialsText.style.display = 'none';
+                    
+                    // Update juga dekat navbar kecil
+                    const navAvatar = document.getElementById('navAvatar');
+                    navAvatar.innerHTML = `<img src="${photoURL}" style="width:100%; height:100%; object-fit:cover;">`;
+                } else {
+                     initialsText.innerText = displayName.charAt(0).toUpperCase();
+                     initialsText.style.display = 'block';
+                     profileImagePreview.style.display = 'none';
+                }
+
+                // Role Logic
                 const role = user.email.endsWith('@uitm.edu.my') ? 'Staf UiTM' : 'Pengguna Awam';
                 document.getElementById('role').value = role;
 
+                // Format Date
                 let joined = '-';
                 if(data?.createdAt && data.createdAt.seconds) {
                     joined = new Date(data.createdAt.seconds * 1000).toLocaleDateString('en-GB');
@@ -516,35 +526,45 @@
 
             } catch (e) {
                 console.error("Error loading profile", e);
+                showMsg('Gagal memuatkan data profil.', 'error');
             } finally {
                 saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> SIMPAN PERUBAHAN';
                 saveBtn.disabled = false;
             }
         });
 
+        // 2. Auth State Changed (Navbar Logic - Fallback)
         firebase.auth().onAuthStateChanged(async user => {
             const nameEl = document.getElementById('navName');
             const avatarEl = document.getElementById('navAvatar');
+
             if(nameEl && user) {
+                // Kita akan update navbar selepas load data Firestore di atas,
+                // tapi ini backup basic info dari Auth
                 let finalName = user.displayName || user.email.split('@')[0];
-                try {
-                    const doc = await firebase.firestore().collection('users').doc(user.uid).get();
-                    if(doc.exists && doc.data().fullname) finalName = doc.data().fullname;
-                } catch(e) {}
                 const firstName = finalName.split(' ')[0];
                 nameEl.innerText = firstName;
-                if(!user.photoURL) avatarEl.innerText = firstName.charAt(0).toUpperCase();
             }
         });
 
-        // 2. Preview Logic
+        // 3. Logic Convert Gambar ke Base64 (Text)
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                selectedFile = file; 
+                // Limit saiz file (Firestore document limit 1MB, so kita hadkan 0.7MB)
+                if(file.size > 700 * 1024) { 
+                    alert("Saiz gambar terlalu besar. Sila pilih gambar bawah 700KB.");
+                    fileInput.value = ""; // Reset input
+                    return;
+                }
+                
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    profileImagePreview.src = e.target.result;
+                    // Result ini adalah text yang sangat panjang (Base64)
+                    base64ImageString = e.target.result;
+                    
+                    // Update preview
+                    profileImagePreview.src = base64ImageString;
                     profileImagePreview.style.display = 'block';
                     initialsText.style.display = 'none';
                 }
@@ -552,11 +572,11 @@
             }
         });
 
-        // 3. Save Logic (WITH COMPRESSION)
+        // 4. Update Data Logic (SIMPAN TERUS KE FIRESTORE USERS COLLECTION)
         profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             msgBox.style.display = 'none';
-            saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...';
+            saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan...';
             saveBtn.disabled = true;
 
             const fullname = document.getElementById('fullname').value.trim();
@@ -564,58 +584,80 @@
             const newPass = document.getElementById('newPassword').value;
             const confirmPass = document.getElementById('confirmPassword').value;
 
+            if(!fullname || !phone){
+                showMsg('Sila lengkapkan nama dan nombor telefon.', 'error');
+                resetBtn();
+                return;
+            }
+
             try {
                 const user = firebase.auth().currentUser;
-                let photoURL = user.photoURL;
+                
+                // Object update untuk Firestore
+                let updateData = {
+                    fullname: fullname,
+                    phone: phone,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                };
 
-                // A. COMPRESS & UPLOAD IMAGE
-                if(selectedFile) {
-                    saveBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-bounce"></i> Mengupload...';
-                    
-                    // Compress: Max lebar 500px, Quality 0.7 (70%)
-                    const compressedBlob = await compressImage(selectedFile, 500, 0.7);
-                    
-                    const storageRef = firebase.storage().ref();
-                    const fileRef = storageRef.child(`users/${currentUserUid}/profile.jpg`);
-                    
-                    await fileRef.put(compressedBlob);
-                    photoURL = await fileRef.getDownloadURL();
-                    
-                    await user.updateProfile({ photoURL: photoURL });
-                    // Cache buster trick untuk refresh gambar serta merta
-                    document.getElementById('navAvatar').innerHTML = `<img src="${photoURL}" style="width:100%; height:100%; object-fit:cover;">`;
+                // Jika ada gambar baru (base64 string), masukkan dalam object update
+                if(base64ImageString) {
+                    updateData.photoURL = base64ImageString;
                 }
 
-                // B. Update Firestore
-                saveBtn.innerHTML = '<i class="fa-solid fa-pen-to-square fa-bounce"></i> Mengemaskini...';
-                await firebase.firestore().collection('users').doc(currentUserUid).update({
-                    fullname,
-                    phone,
-                    photoURL: photoURL, 
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                // A. Simpan Data & Gambar ke dalam users collection (Document User)
+                await firebase.firestore().collection('users').doc(currentUserUid).update(updateData);
                 
-                await user.updateProfile({ displayName: fullname });
+                // B. Update Auth Profile (Supaya navbar sync)
+                // Nota: Kalau string terlalu panjang, Auth profile mungkin reject, 
+                // tapi Firestore confirm simpan.
+                let authUpdate = { displayName: fullname };
+                if(base64ImageString) {
+                    authUpdate.photoURL = base64ImageString;
+                }
+                await user.updateProfile(authUpdate).catch(err => console.log("Auth profile pic skip"));
 
-                // C. Update Password
+                // C. Update Kata Laluan (Optional)
                 if (newPass) {
                     if (newPass.length < 6) throw new Error("Kata laluan minima 6 aksara.");
-                    if (newPass !== confirmPass) throw new Error("Kata laluan tidak sepadan.");
+                    if (newPass !== confirmPass) throw new Error("Pengesahan kata laluan tidak sepadan.");
                     await user.updatePassword(newPass);
+                    
                     document.getElementById('newPassword').value = '';
                     document.getElementById('confirmPassword').value = '';
                 }
 
+                // D. Update UI
                 document.getElementById('displayFullname').innerText = fullname;
-                showMsg('Berjaya disimpan!', 'success');
+                
+                // Update nav avatar live
+                if(base64ImageString) {
+                     const navAvatar = document.getElementById('navAvatar');
+                     navAvatar.innerHTML = `<img src="${base64ImageString}" style="width:100%; height:100%; object-fit:cover;">`;
+                }
+
+                showMsg('Profil berjaya dikemaskini!', 'success');
+                setTimeout(() => msgBox.style.display = 'none', 3000);
 
             } catch(err){
                 console.error(err);
-                showMsg(err.message || 'Ralat sistem.', 'error');
+                if (err.code === 'auth/requires-recent-login') {
+                    showMsg('Sila log masuk semula untuk tukar kata laluan.', 'error');
+                } else if (err.code === 'invalid-argument') {
+                    showMsg('Gambar terlalu besar untuk database. Sila pilih gambar lebih kecil.', 'error');
+                } else {
+                    showMsg(err.message || 'Ralat sistem.', 'error');
+                }
             } finally {
-                saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> SIMPAN PERUBAHAN';
-                saveBtn.disabled = false;
-                setTimeout(() => msgBox.style.display = 'none', 3000);
+                resetBtn();
+            }
+        });
+
+        // 5. Logout Logic
+        logoutBtn.addEventListener('click', async () => {
+            if(confirm("Log keluar dari sistem?")) {
+                await firebase.auth().signOut();
+                location.href='login.html';
             }
         });
 
@@ -624,7 +666,48 @@
             msgBox.className = `msg-box msg-${type}`;
             msgBox.style.display = 'block';
         }
+
+        function resetBtn() {
+            saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> SIMPAN PERUBAHAN';
+            saveBtn.disabled = false;
+        }
+
+firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            // 1. Dapatkan data user dari Firestore collection 'users'
+            var docRef = firebase.firestore().collection("users").doc(user.uid);
+
+            docRef.get().then((doc) => {
+                if (doc.exists) {
+                    var data = doc.data();
+                    
+                    // 2. Update Nama di Navbar
+                    if(data.display_name) {
+                         document.getElementById("navName").innerText = data.display_name;
+                    }
+
+                    // 3. Update Gambar di Navbar (PENTING)
+                    // Pastikan field dalam database anda ialah 'photo_url'
+                    var photoUrl = data.photo_url; 
+
+                    if (photoUrl) {
+                        // Kita inject tag <img> ke dalam div class="avatar" tadi
+                        var avatarDiv = document.getElementById("navAvatar");
+                        avatarDiv.innerHTML = `<img src="${photoUrl}" alt="Profile">`;
+                        
+                        // Optional: Reset background jadi transparent bila dah ada gambar
+                        avatarDiv.style.backgroundColor = "transparent";
+                    }
+                }
+            }).catch((error) => {
+                console.log("Error getting document:", error);
+            });
+        } else {
+            // Kalau user tak login, tunjuk default
+            document.getElementById("navName").innerText = "Pelawat";
+        }
+    });
+
     </script>
 </body>
 </html>
-
