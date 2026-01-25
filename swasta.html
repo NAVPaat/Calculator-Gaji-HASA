@@ -19,18 +19,15 @@
    1. CORE THEME: SWASTA (HIJAU / EMERALD)
    ========================================= */
 :root {
-    /* PALET WARNA BARU (HIJAU) */
-    --primary: #10b981;       /* Emerald 500 - Warna Utama */
-    --primary-dark: #047857;  /* Emerald 700 - Hover */
-    --secondary: #34d399;     /* Emerald 400 - Aksen */
-    --bg-body: #F0FDF4;       /* Mint Cream - Latar Belakang */
+    --primary: #10b981;       
+    --primary-dark: #047857;  
+    --secondary: #34d399;     
+    --bg-body: #F0FDF4;       
     --surface: #ffffff;
     --text-main: #334155;
     --text-light: #64748b;
     --border: #e2e8f0;
     --radius: 20px;
-    
-    /* SHADOW DENGAN TINT HIJAU */
     --shadow-card: 0 10px 30px -10px rgba(16, 185, 129, 0.15);
 }
 
@@ -46,14 +43,11 @@ body {
     padding-bottom: 80px;
 }
 
-/* BACKGROUND BLOBS (HIJAU) */
+/* BACKGROUND BLOBS */
 .bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: #f0fdf4; overflow: hidden; }
 .blob { position: absolute; filter: blur(80px); opacity: 0.6; z-index: -1; animation: floatBlob 10s infinite alternate; }
-
-/* Blob Warna Hijau Muda & Pekat */
 .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #99f0c3; } 
 .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #a1f5ce; }
-
 @keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
 
 /* NAVBAR STYLES */
@@ -75,7 +69,7 @@ body {
 .nav-link:hover, .nav-link.active { color: var(--primary); }
 .nav-link.active::after { content:''; position: absolute; bottom:-5px; left:50%; transform:translateX(-50%); width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
 
-/* USER PILL (PROFILE) */
+/* USER PILL */
 .user-pill {
     display: flex; align-items: center; gap: 12px;
     background: var(--bg-body); padding: 5px 5px 5px 20px;
@@ -83,14 +77,30 @@ body {
     border: 1px solid transparent;
 }
 .text-container { display: flex; flex-direction: column; align-items: flex-end; overflow: hidden; height: 20px; justify-content: center; position: relative; width: 100px; }
-.user-name { font-weight: 600; font-size: 0.9rem; color: var(--text-main); position: absolute; right: 0; transition: 0.3s; text-transform: uppercase; }
+.user-name { font-weight: 600; font-size: 0.9rem; color: var(--text-main); position: absolute; right: 0; transition: 0.3s; text-transform: uppercase; white-space: nowrap; }
 .logout-text { font-weight: 700; font-size: 0.9rem; color: #ef4444; position: absolute; right: 0; transform: translateY(20px); opacity: 0; transition: 0.3s; }
-.avatar { width: 38px; height: 38px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; transition: 0.3s; }
+
+/* AVATAR STYLES */
+.avatar { 
+    width: 38px; 
+    height: 38px; 
+    background: var(--primary); 
+    color: white; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: 700; 
+    transition: 0.3s; 
+    overflow: hidden; 
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 .user-pill:hover { background: #fee2e2; border-color: #ef4444; }
 .user-pill:hover .user-name { transform: translateY(-20px); opacity: 0; }
 .user-pill:hover .logout-text { transform: translateY(0); opacity: 1; }
-.user-pill:hover .avatar { background: #ef4444; }
 
 .hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
 
@@ -102,7 +112,6 @@ body {
 
 .glass-panel {
     background: white; border-radius: var(--radius); padding: 40px;
-    /* Updated Shadow Color (Green Tint) */
     box-shadow: 0 10px 40px rgba(16, 185, 129, 0.1); border: 1px solid white;
 }
 
@@ -118,7 +127,6 @@ select, input[type="text"], input[type="number"], input[type="date"] {
     width: 100%; padding: 14px 18px; border: 1px solid var(--border); border-radius: 12px;
     background: #f8fafc; color: var(--text-main); font-size: 0.95rem; font-family: 'Poppins', sans-serif; transition: 0.3s;
 }
-/* Focus Color Updated to Green */
 select:focus, input:focus { background: white; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
 input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
 
@@ -130,14 +138,13 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
     width: 100%; padding: 16px; border: none; border-radius: 50px;
     font-weight: 700; font-size: 1rem; cursor: pointer;
     background: var(--primary); color: white; margin-top: 30px;
-    /* Updated Shadow to Green */
     box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.4); transition: 0.3s;
     display: flex; justify-content: center; align-items: center; gap: 10px;
 }
 .btn-primary:hover { transform: translateY(-3px); background: var(--primary-dark); }
 
 .btn-add {
-    background: #d1fae5; /* Green Light */
+    background: #d1fae5; 
     color: var(--primary); border: none; padding: 6px 12px; 
     border-radius: 20px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s;
 }
@@ -154,24 +161,24 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
 }
 .btn-trash:hover { background: #ef4444; color: white; }
 
-/* RESULT BOX */
+/* RESULT BOX - MATCHING CONTOHAWAM.HTML STYLE */
 .result-box {
     margin-top: 40px; background: #fff; border-radius: var(--radius); border: 1px solid #e2e8f0; 
     overflow: hidden; display: none; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05);
 }
 .result-header { 
-    background: #ecfdf5; /* Green Light */
-    padding: 20px 30px; border-bottom: 1px solid #e2e8f0; font-weight: 800; color: var(--primary-dark); display: flex; justify-content: space-between; 
+    background: #ecfdf5; 
+    padding: 20px 30px; border-bottom: 1px solid #e2e8f0; font-weight: 800; color: var(--text-main); display: flex; justify-content: space-between; 
 }
 .result-content { padding: 30px; }
 .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #e2e8f0; font-size: 0.95rem; color: var(--text-light); }
 .detail-row span:last-child { font-weight: 700; color: var(--text-main); text-align: right; }
 
 .total-box { 
-    /* Green Gradient */
     background: linear-gradient(135deg, var(--primary), #059669); 
     padding: 25px; border-radius: 16px; text-align: center; margin-top: 25px; color: white; 
 }
+.total-label { font-size: 0.85rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
 .total-amount { font-size: 2.2rem; font-weight: 800; margin-top: 5px; }
 
 .action-buttons { display: flex; gap: 15px; margin-top: 25px; }
@@ -191,7 +198,7 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
     color: #9a3412; font-size: 0.9rem; line-height: 1.5;
 }
 
-/* FLOAT BUTTONS & POPUP */
+/* FLOATING BUTTONS & POPUP */
 .petunjuk-btn {
     position: fixed; bottom: 30px; left: 30px; width: 50px; height: 50px;
     background: var(--text-main); color: white; border: none; border-radius: 50%;
@@ -210,7 +217,6 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
     position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
     background: var(--primary); color: white; border: none; border-radius: 50%;
     cursor: pointer; display: none; z-index: 2000;
-    /* Green Shadow */
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); transition: 0.3s;
     font-size: 1.2rem; align-items: center; justify-content: center;
 }
@@ -226,71 +232,22 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
 .petunjuk-table td { padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; color: #334155; }
 .petunjuk-table strong { color: var(--primary); }
 
-/* =========================================
-       7. RESPONSIVE MOBILE (UPDATED)
-       ========================================= */
-    @media (max-width: 900px) {
-        body { height: auto; overflow-y: auto; }
-        
-        /* 1. NAVBAR: Jadikan Floating Pill di Mobile */
-        .navbar { 
-            margin: 15px;          /* Beri jarak dari tepi skrin */
-            border-radius: 30px;   /* Bucu bulat penuh */
-            padding: 15px 20px; 
-            top: 0; 
-            width: auto;           /* Lebar ikut margin (tak full screen) */
-        }
-        
-        /* 2. DROPDOWN MENU: Kemaskan supaya tak petak */
-        .nav-center { 
-            display: flex; 
-            flex-direction: column; 
-            position: absolute; 
-            top: 100%; 
-            left: 0; 
-            width: 100%; 
-            background: white; 
-            
-            /* Tambah radius & shadow pada menu yang turun */
-            border-radius: 25px;   
-            margin-top: 10px;      /* Ada jarak sikit dari navbar atas */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            
-            gap: 15px; 
-            text-align: center;
-            
-            /* Animation Properties */
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            padding: 0 20px; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Animasi melantun sikit */
-        }
-        
-        /* Mobile Nav Container - Active State */
-        .nav-center.active { 
-            max-height: 400px; 
-            opacity: 1;
-            padding: 25px 20px; /* Padding lebih selesa */
-        }
-        
-        .user-pill { display: none; }
-        .hamburger { display: block; }
-        
-        /* Adjust Greeting Font Size Mobile */
-        .greeting-main { font-size: 1.6rem; } 
-        .arabic-text { font-size: 1.5rem; }
-        
-        .main-wrapper { padding: 20px; }
-        .glass-panel { flex-direction: column; padding: 30px; gap: 30px; }
-        
-        .profile-left { 
-            border-right: none; border-bottom: 1px dashed var(--border); 
-            padding-right: 0; padding-bottom: 30px; width: 100%; 
-        }
-        .row { flex-direction: column; gap: 0; }
-        input { margin-bottom: 15px; }
+@media (max-width: 900px) {
+    body { height: auto; overflow-y: auto; }
+    .navbar { margin: 15px; border-radius: 30px; padding: 15px 20px; top: 0; width: auto; }
+    .nav-center { 
+        display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; 
+        background: white; border-radius: 25px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+        gap: 15px; text-align: center; max-height: 0; overflow: hidden; opacity: 0; padding: 0 20px; 
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
+    .nav-center.active { max-height: 400px; opacity: 1; padding: 25px 20px; }
+    .user-pill { display: none; }
+    .hamburger { display: block; }
+    .main-wrapper { padding: 20px; }
+    .row { flex-direction: column; gap: 0; }
+    input { margin-bottom: 15px; }
+}
 
 @media print {
     .navbar, .bg-blobs, .action-buttons, .petunjuk-btn, #goTopBtn, .btn-add, .btn-trash, .btn-primary { display: none !important; }
@@ -343,22 +300,20 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
 
         <div class="glass-panel">
             
-            <div class="panduan-box" style="background:#EEF2FF; border-left:4px solid var(--primary); padding:15px; border-radius:10px; margin-bottom:25px; display:flex; gap:10px; align-items:flex-start;">
+            <div class="panduan-box" style="background:#e3f7eb; border-left:4px solid var(--primary); padding:15px; border-radius:10px; margin-bottom:25px; display:flex; gap:10px; align-items:flex-start;">
                 <i class="fa-regular fa-lightbulb" style="margin-top:3px; color:var(--primary);"></i>
-                <div style="font-size:0.9rem; line-height:1.5; color:#4338ca;">
+                <div style="font-size:0.9rem; line-height:1.5; color:#10b981;">
                     <strong>PANDUAN:</strong><br>
                     Isi Jawatan dan Wilayah. Masukkan rekod pengalaman kerja untuk pengiraan kenaikan gaji (KGT) automatik.
                 </div>
             </div>
 
             <div class="form-container">
-                <div class="row">
-                    <div class="col">
-                        <label>Pilih Jawatan (Swasta)</label>
-                        <select id="jawatan_swasta">
-                            <option value="">Sedang memuatkan data...</option>
-                        </select>
-                    </div>
+                <div style="margin-bottom:20px;">
+                    <label>Pilih Jawatan (Swasta)</label>
+                    <select id="jawatan_swasta">
+                        <option value="">Sedang memuatkan data...</option>
+                    </select>
                 </div>
 
                 <div class="row">
@@ -372,6 +327,13 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
                             <option value="Labuan">Labuan</option>
                         </select>
                     </div>
+                    <div class="col">
+                        <label>Kategori</label>
+                        <input type="text" id="kategoriSwasta" readonly>
+                    </div>
+                </div>
+
+                <div class="row">
                     <div class="col">
                         <label>Gaji Minimum (RM)</label>
                         <input type="text" id="gajiMinimum" readonly>
@@ -419,6 +381,8 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
                 </div>
                 <div class="result-content">
                     <div class="detail-row"><span>Jawatan</span><span id="res_jawatan">-</span></div>
+                    <div class="detail-row"><span>Wilayah</span><span id="res_wilayah">-</span></div>
+                    <div class="detail-row"><span>Kategori</span><span id="res_kategori" style="font-weight:700;">-</span></div>
                     
                     <div class="form-section-title" style="margin-top:20px;">REKOD PENGALAMAN</div>
                     <div id="experienceResultList" style="margin-bottom:10px;"></div>
@@ -443,7 +407,6 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
                         <div style="text-align: justify;">
                             <strong>PERHATIAN PENTING:</strong><br>
                             Dokumen ini adalah cetakan komputer daripada Sistem Dashboard HASA. Segala nilai yang dipaparkan adalah <strong>SIMULASI ANGGARAN</strong> berdasarkan input pengguna dan data pekeliling semasa. Ia <strong>TIDAK SAH</strong> digunakan sebagai dokumen rasmi untuk tujuan pinjaman bank, urusan undang-undang, atau tuntutan rasmi. Sila rujuk Bahagian Sumber Manusia (BSM) atau Unit Gaji untuk penyata gaji yang sah.
-            </div>
                         </div>
                     </div>
 
@@ -491,43 +454,49 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
     let globalJawatanData = {};
     let calculatedData = {};
 
-// ===========================================
+    // ===========================================
     // 2. PAGE INIT
     // ===========================================
     document.addEventListener("DOMContentLoaded", async () => {
         
-        // --- AUTH CHECKER ---
-        firebase.auth().onAuthStateChanged(user => {
+        // --- AUTH CHECKER & PROFILE FETCH (UPDATED) ---
+        firebase.auth().onAuthStateChanged(async user => {
             if (!user) {
-                // 1. JIKA TIADA USER (BELUM LOGIN)
-                // Guna 'replace' supaya user tak boleh tekan Back button untuk masuk balik
                 window.location.replace("login.html"); 
             } else {
-                // 2. JIKA ADA USER (DAH LOGIN)
                 const nameEl = document.getElementById('navName');
                 const avatarEl = document.getElementById('navAvatar');
-                
-                if(nameEl && avatarEl) {
-                    // Ambil nama dari email (contoh: ali@gmail.com -> ali)
-                    let simpleName = user.email.split('@')[0];
-                    nameEl.innerText = simpleName;
-                    
-                    // Ambil huruf pertama untuk avatar (a -> A)
-                    avatarEl.innerText = simpleName.charAt(0).toUpperCase();
+
+                // 1. Tarik Data Real dari Firestore
+                try {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        const data = doc.data();
+
+                        // Nama Penuh
+                        if (nameEl && data.fullname) {
+                            nameEl.innerText = data.fullname.split(' ')[0]; // Ambil First Name
+                        }
+
+                        // Gambar Profile
+                        if (avatarEl && data.photoURL) {
+                            avatarEl.innerHTML = `<img src="${data.photoURL}" alt="Profile" style="width:100%; height:100%; object-fit:cover;">`;
+                            avatarEl.style.backgroundColor = 'transparent';
+                            avatarEl.style.border = '2px solid white';
+                        }
+                    }
+                } catch (error) {
+                    console.log("Error loading user profile:", error);
                 }
             }
         });
 
         await loadJawatanFromFirebase();
-        // ... kod selebihnya ...
         addExperienceRow(); // Add default row
-        
-        // UI Listeners
         setupUI();
     });
 
     function setupUI() {
-        // Mobile Menu
         window.toggleMenu = () => {
             const menu = document.getElementById('navMenu');
             const logoutMobile = document.getElementById('mobileLogout');
@@ -535,20 +504,22 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
             if(window.innerWidth <= 800) logoutMobile.style.display = 'block';
         };
 
-        // Scroll & GoTop
         const navbar = document.getElementById('mainNavbar');
         const goTop = document.getElementById('goTopBtn');
-        let lastScroll = 0;
-        window.addEventListener('scroll', () => {
+        
+        // NAVBAR SCROLL LOGIC
+        window.addEventListener('scroll', function() {
             let st = window.scrollY;
-            if(st > lastScroll && st > 50) navbar.classList.add('nav-hidden');
-            else navbar.classList.remove('nav-hidden');
-            lastScroll = st;
+            if (st > 100) {
+                navbar.classList.add('nav-hidden');
+            } else {
+                navbar.classList.remove('nav-hidden');
+            }
             goTop.style.display = st > 300 ? 'flex' : 'none';
         });
+        
         goTop.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
 
-        // Petunjuk Popup
         const pBtn = document.getElementById('petunjukBtn');
         const pPop = document.getElementById('petunjukPopup');
         pBtn.onclick = (e) => { e.stopPropagation(); pPop.classList.toggle('active'); };
@@ -557,28 +528,34 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
                 pPop.classList.remove('active');
         });
 
-        // Logout
-        document.getElementById('logoutBtn').onclick = () => firebase.auth().signOut().then(() => location.href = 'login.html');
+        const logoutBtn = document.getElementById('logoutBtn');
+        if(logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                if(confirm("Log keluar dari sistem?")) {
+                    await firebase.auth().signOut();
+                    location.href='login.html';
+                }
+            });
+        }
+        
+        const mobileLogout = document.getElementById('mobileLogout');
+        if(mobileLogout) {
+            mobileLogout.addEventListener('click', async () => {
+                if(confirm("Log keluar dari sistem?")) {
+                    await firebase.auth().signOut();
+                    location.href='login.html';
+                }
+            });
+        }
     }
-        // 3. Logout
-        logoutBtn.addEventListener('click', async () => {
-            if(confirm("Log keluar dari sistem?")) {
-                await firebase.auth().signOut();
-                location.href='login.html';
-            }
-        });
-// ===========================================
-    // 3. DATA FETCHING (UPDATED - WITH SORTING)
-    // ===========================================
+
     async function loadJawatanFromFirebase() {
         const selectEl = document.getElementById('jawatan_swasta');
         selectEl.innerHTML = '<option>Sedang memuatkan data...</option>';
         selectEl.disabled = true;
 
         try {
-            // Collection: senarai_jawatan
             const snapshot = await db.collection('senarai_jawatan').get();
-            
             selectEl.innerHTML = '<option value="" disabled selected>-- Sila Pilih --</option>';
             globalJawatanData = {}; 
 
@@ -587,24 +564,16 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
                 return;
             }
 
-            // 1. Masukkan semua data ke dalam Array dahulu
             let list = [];
             snapshot.forEach(doc => {
-                // Simpan data doc ke dalam list
                 list.push(doc.data());
             });
 
-            // 2. Susun (Sort) Array mengikut 'id_susunan' (Sama macam script Awam)
             list.sort((a, b) => (a.id_susunan || 0) - (b.id_susunan || 0));
 
-            // 3. Loop Array yang dah tersusun untuk buat Option
             list.forEach(data => {
-                // Gunakan Nama Jawatan sebagai Key (Logic asal dikekalkan)
                 const id = data.nama_jawatan || data.Nama_Jawatan || "Tiada Nama"; 
-                
-                // Simpan dalam global object untuk kegunaan pengiraan nanti
                 globalJawatanData[id] = data; 
-                
                 const opt = document.createElement('option');
                 opt.value = id;
                 opt.textContent = id;
@@ -619,11 +588,12 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
         }
     }
 
-    // Update Info bila Jawatan/Wilayah berubah
     const els = {
         jawatan: document.getElementById('jawatan_swasta'),
         wilayah: document.getElementById('wilayahPemohon'),
         gajiMin: document.getElementById('gajiMinimum'),
+        // KATEGORI ELEMENT
+        kategori: document.getElementById('kategoriSwasta'),
         itka: document.getElementById('elaun_itka_sw'),
         itk: document.getElementById('elaun_itk_sw'),
         itp: document.getElementById('elaun_itp_sw'),
@@ -639,17 +609,17 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
     function updateSwastaInfo() {
         const j = els.jawatan.value;
         const w = els.wilayah.value;
-        if(!j || !w) return;
+        if(!j) return;
 
         const data = globalJawatanData[j];
         if (!data) return;
 
-        // Mapping Data Firebase (Sokong pelbagai format key)
+        // Auto-fill Kategori
+        els.kategori.value = data.kategori || data.Kategori || "-";
+
         const gaji = parseFloat(data.gaji_pokok || data.Gaji_Pokok || data.gajiMin || 0);
-        
         els.gajiMin.value = gaji.toFixed(2);
 
-        // Logic Elaun 
         els.itka.value = parseFloat(data.itka || data.ITKA || 0);
         els.itk.value = parseFloat(data.itk || data.ITK || 0);
         els.itp.value = parseFloat(data.itp || data.ITP || 0);
@@ -659,15 +629,12 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
         if (w === 'Semenanjung') {
             els.bish.value = parseFloat(data.bish || data.BISH || 0);
             els.biw.value = 0;
-        } else {
+        } else if (w) {
             els.bish.value = 0;
             els.biw.value = parseFloat(data.biw || data.BIW || 0);
         }
     }
 
-    // ===========================================
-    // 4. EXPERIENCE LOGIC
-    // ===========================================
     window.addExperienceRow = function() {
         const container = document.getElementById('experienceContainer');
         const index = container.querySelectorAll('.exp-card').length + 1;
@@ -708,9 +675,6 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
         }
     }
 
-    // ===========================================
-    // 5. CALCULATION & PRINT
-    // ===========================================
     window.computeSwasta = function() {
         if(!els.jawatan.value || !els.wilayah.value) { alert("Sila lengkapkan jawatan dan wilayah."); return; }
 
@@ -718,7 +682,6 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
         let totalYears = 0;
         let expList = [];
 
-        // Kira Pengalaman
         document.querySelectorAll('.exp-card').forEach(row => {
             const s = row.querySelector('.exp-start').value;
             const e = row.querySelector('.exp-end').value;
@@ -735,14 +698,11 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
             }
         });
 
-        // Kira Gaji
         const gajiMin = parseFloat(els.gajiMin.value) || 0;
         const kgtVal = parseFloat(data.nilai_kgt || data.Nilai_KGT || data.KGT || 0); 
         const totalKGT = totalYears * kgtVal;
         const gajiBaru = gajiMin + totalKGT;
 
-        // Kira Elaun Terperinci
-        // Kita simpan dalam object untuk mudah display nanti
         const allowances = [
             { name: "IMBUHAN TETAP KHIDMAT AWAM (ITKA)", val: parseFloat(els.itka.value)||0 },
             { name: "IMBUHAN TETAP KERAIAN (ITK)", val: parseFloat(els.itk.value)||0 },
@@ -754,141 +714,74 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
         ];
 
         let totalElaun = 0;
-        let elaunHtml = ""; // Untuk paparan web
-        let elaunPrintRows = ""; // Untuk paparan print (table rows)
+        let elaunPrintRows = ""; 
 
         allowances.forEach(item => {
             if(item.val > 0) {
                 totalElaun += item.val;
-                
-                // HTML untuk Result Box Web
-                elaunHtml += `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem; color:#64748b;">
-                        <span>${item.name}</span>
-                        <span style="font-weight:600; color:#333;">RM ${item.val.toFixed(2)}</span>
-                    </div>`;
-
-                // HTML untuk Table Print
-                elaunPrintRows += `
-                    <tr>
-                        <td>${item.name}</td>
-                        <td align="right">${item.val.toFixed(2)}</td>
-                    </tr>`;
+                elaunPrintRows += `<tr><td>${item.name}</td><td align="right">${item.val.toFixed(2)}</td></tr>`;
             }
         });
 
         const grandTotal = gajiBaru + totalElaun;
 
- // --- UPDATE PAPARAN RESULT (WEB) ---
-        
-        // 1. Jawatan & Wilayah
-        const jawatanEl = document.getElementById('res_jawatan');
-        if(jawatanEl) {
-            jawatanEl.innerHTML = `
-                ${els.jawatan.value} <br>
-                <span style="font-size:0.9rem; color:#64748b; font-weight:400;">Wilayah: ${els.wilayah.value}</span>
-            `;
-        }
+        // DISPLAY IN RESULT BOX
+        document.getElementById('res_jawatan').innerHTML = els.jawatan.value;
+        document.getElementById('res_wilayah').innerText = els.wilayah.value;
+        document.getElementById('res_kategori').innerText = els.kategori.value; // Display Kategori
 
         document.getElementById('res_total_year').innerText = totalYears + " Tahun";
         document.getElementById('res_gaji_min').innerText = "RM " + gajiMin.toFixed(2);
         document.getElementById('res_kgt').innerText = "RM " + totalKGT.toFixed(2);
         document.getElementById('res_gaji_baru').innerText = "RM " + gajiBaru.toFixed(2);
         
-// ==========================================
-        // 2. PAPARAN ELAUN (FULL WIDTH & CANTIK)
-        // ==========================================
         const resElaunEl = document.getElementById('res_elaun');
-        
         if(resElaunEl) {
             let detailRows = "";
             let hasAllowance = false;
 
-            // Loop array 'allowances'
             allowances.forEach((item, index) => {
                 if (item.val > 0) {
                     hasAllowance = true;
-                    // Check item terakhir untuk buang border
                     const isLast = index === allowances.length - 1; 
                     const borderStyle = isLast ? "" : "border-bottom: 1px dashed #e2e8f0;";
-                    
                     detailRows += `
-                    <div style="
-                        display: flex; 
-                        justify-content: space-between; 
-                        align-items: center; 
-                        padding: 10px 0; 
-                        ${borderStyle}
-                    ">
-                        <span style="
-                            font-size: 0.8rem; 
-                            font-weight: 600; 
-                            color: #64748b; 
-                            text-transform: uppercase; 
-                            letter-spacing: 0.5px;
-                        ">${item.name}</span>
-                        
-                        <span style="
-                            font-size: 0.95rem; 
-                            font-weight: 700; 
-                            color: #334155;
-                        ">RM ${item.val.toFixed(2)}</span>
-                    </div>
-                    `;
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; ${borderStyle}">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">${item.name}</span>
+                        <span style="font-size: 0.95rem; font-weight: 700; color: #334155;">RM ${item.val.toFixed(2)}</span>
+                    </div>`;
                 }
             });
 
-            // Jika tiada elaun
             if (!hasAllowance) {
-                detailRows = `
-                    <div style="text-align:center; color:#94a3b8; font-style:italic; padding:15px; font-size:0.85rem;">
-                        Tiada elaun tambahan
-                    </div>`;
+                detailRows = `<div style="text-align:center; color:#94a3b8; font-style:italic; padding:15px; font-size:0.85rem;">Tiada elaun tambahan</div>`;
             }
 
-            // Render HTML (Tajuk + Kotak)
             resElaunEl.innerHTML = `
-                <div style="
-                    display: flex; 
-                    justify-content: space-between; 
-                    align-items: center; 
-                    font-size: 0.95rem; 
-                    color: #64748b;
-                    margin-bottom: 12px;
-                ">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; color: #64748b; margin-bottom: 12px;">
                     <span>Jumlah Elaun</span>
-                    <span style="
-                        font-weight: 700; 
-                        color: #10b981; /* Warna Hijau Tema */
-                        font-size: 1rem;
-                    ">RM ${totalElaun.toFixed(2)}</span>
+                    <span style="font-weight: 700; color: #10b981; font-size: 1rem;">RM ${totalElaun.toFixed(2)}</span>
                 </div>
-
-                <div style="
-                    background-color: #F0FDF4; /* Hijau Pudar Sangat */
-                    border-radius: 12px; 
-                    padding: 5px 20px; 
-                    border: 1px solid #bbf7d0;
-                    width: 100%;
-                ">
+                <div style="background-color: #F0FDF4; border-radius: 12px; padding: 5px 20px; border: 1px solid #bbf7d0; width: 100%;">
                     ${detailRows}
-                </div>
-            `;
+                </div>`;
         }
 
         document.getElementById('res_grand_total').innerText = "RM " + grandTotal.toFixed(2);
-
-        // List Exp di Result
+        
         const listDiv = document.getElementById('experienceResultList');
         listDiv.innerHTML = expList.map(e => `<div style="font-size:0.85rem; padding:4px 0; border-bottom:1px dashed #eee;">${e.org}: ${e.years} Tahun</div>`).join('');
 
-        // Simpan Data
         calculatedData = {
             jawatan: els.jawatan.value,
             wilayah: els.wilayah.value,
+            kategori: els.kategori.value, // Save Kategori
             gajiMin, totalKGT, gajiBaru, totalElaun, grandTotal, expList, 
-            elaunPrintRows, // Pass string table rows ke print function
-            date: new Date().toLocaleDateString('ms-MY')
+            elaunPrintRows, 
+            date: new Date().toLocaleString('ms-MY', { 
+                day: '2-digit', month: '2-digit', year: 'numeric', 
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
+            })
         };
 
         const box = document.getElementById('resultContentSwasta');
@@ -897,16 +790,14 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
     }
 
     window.resetSwastaForm = function() {
-        window.scrollTo(0,0);
-        setTimeout(()=>location.reload(), 200);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => { location.reload(); }, 800);
     }
 
- window.printSwastaResult = function() {
+    window.printSwastaResult = function() {
         if(!calculatedData.jawatan) return;
         const d = calculatedData;
         const w = window.open('','','width=900,height=900');
-        
-        // Generate Exp Rows
         let expRows = d.expList.map(e => `<tr><td>${e.org}</td><td>${e.start} - ${e.end}</td><td align="center">${e.years}</td></tr>`).join('');
 
         w.document.write(`
@@ -914,125 +805,69 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
             <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
             <style>
                 body { font-family: 'Roboto', sans-serif; padding: 40px; color: #333; position: relative; }
-                
-                /* WATERMARK CSS */
-                .watermark { 
-                    position: fixed; top: 50%; left: 50%; 
-                    transform: translate(-50%, -50%) rotate(-45deg); 
-                    font-size: 80px; color: rgba(0,0,0,0.05); 
-                    font-weight: 900; z-index: -1; pointer-events: none; 
-                    border: 10px solid rgba(0,0,0,0.05); padding: 20px; 
-                    white-space: nowrap; text-transform: uppercase;
-                }
-
+                .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; color: rgba(0,0,0,0.05); font-weight: 900; z-index: -1; pointer-events: none; border: 10px solid rgba(0,0,0,0.05); padding: 20px; white-space: nowrap; text-transform: uppercase; }
                 .header { display: flex; align-items: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
                 .logo { height: 80px; margin-right: 20px; }
                 .org-name { font-size: 24px; font-weight: 700; color: #1e3a8a; }
-                
-                /* TABLE STYLES GLOBAL (Untuk table pengalaman & gaji bawah) */
                 table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
                 th { text-align: left; padding: 10px; background: #1e3a8a; color: white; font-size: 12px; border: 1px solid #1e3a8a; }
                 td { padding: 10px; border: 1px solid #ddd; font-size: 14px; }
-                
-                /* OVERRIDE KHAS UNTUK INFO BOX (Supaya tiada kotak) */
                 .info-box { margin-bottom: 20px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; }
                 .info-box table { margin: 0; }
-                .info-box td { border: none; padding: 5px 0; } /* Ini yang buang garisan table */
-
+                .info-box td { border: none; padding: 5px 0; }
                 .total-row td { background: #f3f4f6; font-weight: 700; color: #1e3a8a; font-size: 16px; border-top: 2px solid #1e3a8a; }
                 .section-title { margin-top: 30px; margin-bottom: 10px; font-size: 14px; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
-
                 .footer { margin-top: 50px; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 10px; }
             </style>
             </head><body>
-            
             <div class="watermark">SIMULASI SAHAJA</div>
-
             <div class="header">
                 <img src="image/HASA.png" class="logo" alt="HASA Logo" onerror="this.style.display='none'">
-                <div>
-                    <div class="org-name">HASA UiTM</div>
-                    <div>SIMULASI GAJI SEKTOR SWASTA</div>
-                </div>
+                <div><div class="org-name">HASA UiTM</div><div>SIMULASI GAJI SEKTOR SWASTA</div></div>
             </div>
-
             <div class="info-box">
                 <table style="width: 100%; border-collapse: collapse; font-family: sans-serif; font-size: 0.95rem;">
                     <tr style="border-bottom: 1px dashed #f1f5f9;">
-                        <td style="width: 130px; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">
-                            Jawatan
-                        </td>
+                        <td style="width: 130px; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Jawatan</td>
                         <td style="width: 20px; color: #64748b; vertical-align: top; text-align: center;">:</td>
-                        <td style="color: #0f172a; font-weight: 700; vertical-align: top; text-align: left;">
-                            ${d.jawatan}
-                        </td>
+                        <td style="color: #0f172a; font-weight: 700; vertical-align: top; text-align: left;">${d.jawatan}</td>
                     </tr>
                     <tr style="border-bottom: 1px dashed #f1f5f9;">
-                        <td style="color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">
-                            Wilayah
-                        </td>
+                        <td style="color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Wilayah</td>
                         <td style="color: #64748b; vertical-align: top; text-align: center;">:</td>
-                        <td style="color: #0f172a; font-weight: 600; vertical-align: top; text-align: left;">
-                            ${d.wilayah}
-                        </td>
+                        <td style="color: #0f172a; font-weight: 600; vertical-align: top; text-align: left;">${d.wilayah}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px dashed #f1f5f9;">
+                        <td style="color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Kategori</td>
+                        <td style="color: #64748b; vertical-align: top; text-align: center;">:</td>
+                        <td style="color: #0f172a; font-weight: 600; vertical-align: top; text-align: left;">${d.kategori}</td>
                     </tr>
                     <tr>
-                        <td style="color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">
-                            Tarikh Cetak
-                        </td>
+                        <td style="color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Tarikh & Masa</td>
                         <td style="color: #64748b; vertical-align: top; text-align: center;">:</td>
-                        <td style="color: #0f172a; font-weight: 500; vertical-align: top; text-align: left;">
-                            ${d.date}
-                        </td>
+                        <td style="color: #0f172a; font-weight: 500; vertical-align: top; text-align: left;">${d.date}</td>
                     </tr>
                 </table>
             </div>
-
             <div class="section-title">1. REKOD PENGALAMAN</div>
-            <table>
-                <tr>
-                    <th width="50%">Organisasi</th>
-                    <th width="30%">Tempoh Perkhidmatan</th>
-                    <th width="20%" style="text-align:center">Layak (Tahun)</th>
-                </tr>
-                ${expRows}
-            </table>
-
+            <table><tr><th width="50%">Organisasi</th><th width="30%">Tempoh Perkhidmatan</th><th width="20%" style="text-align:center">Layak (Tahun)</th></tr>${expRows}</table>
             <div class="section-title">2. PERINCIAN GAJI & ELAUN</div>
             <table>
-                <tr>
-                    <td>Gaji Permulaan</td>
-                    <td align="right">${d.gajiMin.toFixed(2)}</td>
-                </tr>
-                <tr>
-                    <td>Kenaikan Gaji (KGT) Pengalaman</td>
-                    <td align="right">${d.totalKGT.toFixed(2)}</td>
-                </tr>
-                <tr style="background-color:#eef2ff;">
-                    <td><strong>Gaji Pokok Baru</strong></td>
-                    <td align="right"><strong>${d.gajiBaru.toFixed(2)}</strong></td>
-                </tr>
-                
+                <tr><td>Gaji Permulaan</td><td align="right">${d.gajiMin.toFixed(2)}</td></tr>
+                <tr><td>Kenaikan Gaji (KGT) Pengalaman</td><td align="right">${d.totalKGT.toFixed(2)}</td></tr>
+                <tr style="background-color:#eef2ff;"><td><strong>Gaji Pokok Baru</strong></td><td align="right"><strong>${d.gajiBaru.toFixed(2)}</strong></td></tr>
                 ${d.elaunPrintRows}
-                
-                <tr class="total-row">
-                    <td>JUMLAH PENDAPATAN KASAR</td>
-                    <td align="right">RM ${d.grandTotal.toFixed(2)}</td>
-                </tr>
+                <tr class="total-row"><td>JUMLAH PENDAPATAN KASAR</td><td align="right">RM ${d.grandTotal.toFixed(2)}</td></tr>
             </table>
-
             <div style="margin-top:20px; padding:10px; border:1px dashed #f59e0b; background:#fffbeb; color:#92400e; font-size:12px; border-radius:5px;">
-                <strong>PERHATIAN PENTING:</strong><br>
-                Dokumen ini adalah cetakan komputer daripada Sistem Dashboard HASA. Segala nilai yang dipaparkan adalah <strong>SIMULASI ANGGARAN</strong> berdasarkan input pengguna dan data pekeliling semasa. Ia <strong>TIDAK SAH</strong> digunakan sebagai dokumen rasmi untuk tujuan pinjaman bank, urusan undang-undang, atau tuntutan rasmi. Sila rujuk Bahagian Sumber Manusia (BSM) atau Unit Gaji untuk penyata gaji yang sah.
+                <strong>PERHATIAN PENTING:</strong><br>Dokumen ini adalah cetakan komputer daripada Sistem Dashboard HASA. Segala nilai yang dipaparkan adalah <strong>SIMULASI ANGGARAN</strong> berdasarkan input pengguna dan data pekeliling semasa. Ia <strong>TIDAK SAH</strong> digunakan sebagai dokumen rasmi untuk tujuan pinjaman bank, urusan undang-undang, atau tuntutan rasmi. Sila rujuk Bahagian Sumber Manusia (BSM) atau Unit Gaji untuk penyata gaji yang sah.
             </div>
-
             <div class="footer">Dicetak secara automatik melalui Sistem Dashboard HASA.</div>
             <script>setTimeout(() => window.print(), 800);<\/script>
             </body></html>
         `);
         w.document.close();
         
-        // Save to Firebase
         if(firebase.auth().currentUser) {
             db.collection('printedSlips').add({
                 userId: firebase.auth().currentUser.uid,
@@ -1040,19 +875,10 @@ input[readonly] { background: #f1f5f9; color: #94a3b8; cursor: default; }
             });
         }
     }
-// ===========================================
-    // AUTO SCROLL TO TOP ON REFRESH
-    // ===========================================
-    
-    // 1. Beritahu browser supaya JANGAN ingat position scroll lama
-    if ('scrollRestoration' in history) {
-        history.scrollRestoration = 'manual';
-    }
 
-    // 2. Paksa window naik ke atas (0,0) apabila page selesai loading
-    window.onload = function() {
-        window.scrollTo(0, 0);
-    };
+    if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+    window.onload = function() { window.scrollTo(0, 0); };
+
 </script>
 </body>
 </html>
