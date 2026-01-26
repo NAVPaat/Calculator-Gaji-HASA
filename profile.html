@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>Profil Pengguna — HASA UiTM</title>
+<title>Profile Pengguna — HASA UiTM</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,55 +13,74 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 <script src="firebase-config.js"></script>
 <script src="auth.js"></script>
 
 <style>
     /* =========================================
-       1. CORE THEME
+       1. VARIABLES & THEME
        ========================================= */
     :root {
-        --primary: #7C3AED;        
-        --primary-dark: #5B21B6;   
-        --secondary: #A78BFA;      
-        --bg-body: #F5F3FF;        
+        --primary: #7C3AED;       
+        --primary-dark: #5B21B6;  
+        --secondary: #A78BFA;     
+        
+        --bg-body: #F5F3FF;       
         --surface: #ffffff;
-        --text-main: #334155;
+        --surface-glass: rgba(255, 255, 255, 0.9);
+        
+        --text-main: #1e293b;
         --text-light: #64748b;
         --border: #e2e8f0;
-        --shadow-card: 0 20px 40px -10px rgba(124, 58, 237, 0.15);
-        --radius: 24px;
+        --input-bg: #f8fafc;
+        
+        --shadow-nav: 0 4px 20px rgba(0,0,0,0.05);
+        --shadow-card: 0 20px 40px -10px rgba(0,0,0,0.1); 
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+    body.dark-mode {
+        --bg-body: #0f172a;       
+        --surface: #1e293b;
+        --surface-glass: rgba(30, 41, 59, 0.95);
+        
+        --text-main: #f8fafc;     
+        --text-light: #94a3b8;    
+        --border: #334155;
+        --input-bg: #0f172a;
+        
+        --shadow-nav: 0 4px 20px rgba(0,0,0,0.4);
+        --shadow-card: 0 20px 40px -10px rgba(0,0,0,0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
     body {
         font-family: 'Poppins', sans-serif;
         background-color: var(--bg-body);
         color: var(--text-main);
-        min-height: 100vh; 
-        overflow-x: hidden; 
-        overflow-y: auto;   
+        height: 100vh; /* 1 Page Fixed on Desktop */
         display: flex; flex-direction: column;
+        overflow: hidden; 
+        transition: 0.3s;
     }
 
-    body.loaded { opacity: 1; }
+    /* DECORATION BLOBS */
+    .bg-blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.4; z-index: -1; pointer-events: none; }
+    .b1 { top: -10%; left: -10%; width: 500px; height: 500px; background: var(--primary); }
+    .b2 { bottom: -10%; right: -10%; width: 500px; height: 500px; background: var(--secondary); }
 
-    /* BACKGROUND BLOBS */
-    .bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: var(--bg-body); overflow: hidden; }
-    .blob { position: absolute; filter: blur(80px); opacity: 0.6; z-index: -1; animation: floatBlob 10s infinite alternate; }
-    .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #b2a4ef; }
-    .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #beafff; }
-    @keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
-
-/* NAVBAR STYLES */
+    /* =========================================
+       2. NAVBAR (DASHBOARD STANDARD STYLE)
+       ========================================= */
 .navbar {
     display: flex; justify-content: space-between; align-items: center;
     padding: 15px 5%; margin: 20px;
-    background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px);
+    background: var(--surface); backdrop-filter: blur(12px);
     border-radius: 50px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     position: sticky; top: 20px; z-index: 1000;
-    transition: transform 0.4s ease, opacity 0.4s ease;
+    transition: transform 0.4s ease, opacity 0.4s ease, background-color 0.3s;
+    border: 1px solid var(--border);
 }
 .navbar.nav-hidden { transform: translateY(-150%); opacity: 0; }
 
@@ -73,7 +92,6 @@
 .nav-link:hover, .nav-link.active { color: var(--primary); }
 .nav-link.active::after { content:''; position: absolute; bottom:-5px; left:50%; transform:translateX(-50%); width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
 
-/* USER PILL (PROFILE) */
 .user-pill {
     display: flex; align-items: center; gap: 12px;
     background: var(--bg-body); padding: 5px 5px 5px 20px;
@@ -81,30 +99,16 @@
     border: 1px solid transparent;
 }
 .text-container { display: flex; flex-direction: column; align-items: flex-end; overflow: hidden; height: 20px; justify-content: center; position: relative; width: 100px; }
-.user-name { font-weight: 600; font-size: 0.9rem; color: var(--text-main); position: absolute; right: 0; transition: 0.3s; text-transform: uppercase; white-space: nowrap; }
+.user-name { font-weight: 600; font-size: 0.9rem; color: var(--text-main); position: absolute; right: 0; transition: 0.3s; text-transform: uppercase; }
 .logout-text { font-weight: 700; font-size: 0.9rem; color: #ef4444; position: absolute; right: 0; transform: translateY(20px); opacity: 0; transition: 0.3s; }
 
-/* AVATAR STYLES (UPDATED) */
 .avatar { 
-    width: 38px; 
-    height: 38px; 
-    background: var(--primary); 
-    color: white; 
-    border-radius: 50%; /* Bulat */
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-weight: 700; 
-    transition: 0.3s; 
-    overflow: hidden; /* PENTING: Potong gambar yg lebih */
-    border: 2px solid #fff;
+    width: 38px; height: 38px; background: var(--primary); color: white; 
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+    font-weight: 700; transition: 0.3s; overflow: hidden; border: 2px solid var(--surface);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-.avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Pastikan gambar tak gepeng */
-}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 .user-pill:hover { background: #fee2e2; border-color: #ef4444; }
 .user-pill:hover .user-name { transform: translateY(-20px); opacity: 0; }
@@ -115,223 +119,199 @@
     /* =========================================
        3. PROFILE CARD LAYOUT
        ========================================= */
-    .main-wrapper {
+    .content-wrapper {
         flex: 1; 
-        display: flex; 
-        align-items: flex-start;
-        justify-content: center;
-        padding: 30px 20px; 
-        position: relative; 
-        z-index: 10;
-        height: auto; 
+        display: flex; align-items: center; justify-content: center;
+        padding: 20px 4%;
     }
 
-    .container { width: 100%; max-width: 950px; }
-
-    .glass-panel {
-        background: white; 
-        border-radius: var(--radius); 
-        padding: 40px; 
-        box-shadow: var(--shadow-card); 
-        border: 1px solid white;
-        display: flex; gap: 40px; 
-        align-items: stretch; /* Pastikan tinggi sama */
-        min-height: 450px; /* Tinggi minimum supaya nampak balance */
+    .profile-card {
+        width: 100%; max-width: 1100px;
+        height: 80vh; max-height: 650px;
+        background: var(--surface);
+        border-radius: 24px;
+        box-shadow: var(--shadow-card);
+        border: 1px solid var(--border);
+        display: flex; overflow: hidden;
     }
 
-    /* LEFT SIDE: INFO (UPDATED CENTER) */
-    .profile-left { 
-        flex: 1; 
-        text-align: center; 
-        border-right: 1px dashed var(--border); 
-        padding-right: 40px; 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center; /* PENTING: Center Vertically */
+    /* LEFT SIDEBAR */
+    .card-left {
+        width: 320px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 40px; text-align: center; color: white;
+        position: relative;
     }
-     
-    /* PROFILE PIC WRAPPER (NEW) */
+    
+    /* AVATAR CONTAINER & CAMERA BUTTON FIX */
     .avatar-wrapper {
         position: relative;
         width: 140px; height: 140px;
         margin-bottom: 20px;
-        cursor: pointer;
-        group: hover;
     }
-
     .big-avatar {
-        width: 100%; height: 100%; 
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white; border-radius: 50%; 
+        width: 100%; height: 100%; border-radius: 50%;
+        border: 5px solid rgba(255,255,255,0.4);
+        background: rgba(255,255,255,0.2);
         display: flex; align-items: center; justify-content: center;
-        font-size: 3.5rem; font-weight: 700; 
-        box-shadow: 0 15px 30px rgba(124, 58, 237, 0.3); 
-        border: 4px solid white;
-        overflow: hidden; /* Crop gambar jadi bulat */
-        transition: transform 0.3s ease;
+        font-size: 4rem; color: white; overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .big-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .cam-btn {
+        position: absolute; 
+        bottom: 5px; right: 5px; /* Stick to bottom right of circle */
+        width: 38px; height: 38px; 
+        background: white; color: var(--primary);
+        border-radius: 50%; 
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; cursor: pointer; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        transition: transform 0.2s; border: 2px solid var(--primary);
+        z-index: 10;
+    }
+    .cam-btn:hover { transform: scale(1.1); }
+
+    .left-name { font-size: 1.4rem; font-weight: 700; line-height: 1.2; margin-bottom: 5px; word-break: break-word;}
+    .left-role { 
+        background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 20px; 
+        font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; 
+    }
+    .left-email { margin-top: 10px; font-size: 0.8rem; opacity: 0.8; font-weight: 300; }
+
+    /* RIGHT SIDE FORM */
+    .card-right {
+        flex: 1; padding: 40px 50px;
+        display: flex; flex-direction: column; 
+        overflow-y: auto;
+    }
+
+    .section-header { 
+        font-size: 1.05rem; font-weight: 700; color: var(--primary); 
+        margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 8px;
+        display: flex; align-items: center; gap: 10px;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+    
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
+    
+    .input-box {
+        width: 100%; padding: 10px 15px; border-radius: 8px;
+        border: 1px solid var(--border); background: var(--input-bg);
+        color: var(--text-main); font-size: 0.9rem; font-family: 'Poppins', sans-serif;
+        transition: 0.3s;
     }
     
-    .big-avatar img {
-        width: 100%; height: 100%; object-fit: cover;
-    }
-
-    /* CAMERA OVERLAY (NEW) */
-    .camera-overlay {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5); border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        color: white; font-size: 1.5rem; opacity: 0;
-        transition: 0.3s ease;
-        border: 4px solid white; /* Ikut border avatar */
-    }
-
-    .avatar-wrapper:hover .camera-overlay { opacity: 1; }
-    .avatar-wrapper:hover .big-avatar { transform: scale(0.98); }
-     
-    .profile-title { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.5px; line-height: 1.2; }
+    /* Style untuk Editable vs Readonly */
+    .input-box:focus { border-color: var(--primary); outline: none; }
+    .input-box[readonly] { opacity: 0.7; cursor: not-allowed; background: rgba(0,0,0,0.03); border-style: dashed; }
     
-    .profile-subtitle { 
-        font-size: 0.85rem; color: var(--text-light); 
-        background: #F5F3FF; padding: 6px 15px; border-radius: 20px; 
-        display: inline-block; margin-top: 5px; font-weight: 500;
-    }
-
-    /* RIGHT SIDE: FORM */
-    .profile-right { flex: 2; display: flex; flex-direction: column; justify-content: center; }
-
-    .form-section-title {
-        font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.2px;
-        color: var(--primary); font-weight: 800; margin-bottom: 20px;
-        border-bottom: 2px dashed #e2e8f0; padding-bottom: 10px;
-    }
-
-    label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: var(--text-main); }
-     
-    input[type="text"], input[type="email"], input[type="password"] {
-        width: 100%; padding: 12px 15px; 
-        border: 1px solid var(--border); border-radius: 12px; 
-        background: #f8fafc; color: var(--text-main); 
-        font-size: 0.9rem; font-family: 'Poppins', sans-serif; 
-        transition: 0.3s; margin-bottom: 15px;
-    }
-     
-    input:focus { 
-        background: white; border-color: var(--primary); 
-        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1); 
-    }
-     
-    input[readonly] { 
-        background: #f1f5f9; color: #94a3b8; cursor: not-allowed; 
-        border-color: #f1f5f9;
-    }
-
-    .row { display: flex; gap: 20px; }
-    .col { flex: 1; }
+    /* PASSWORD SECTION */
+    .password-row { display: flex; gap: 10px; align-items: flex-end; }
+    .password-row .input-box { flex: 1; }
 
     /* BUTTONS */
-    .btn-primary { 
-        width: 100%; padding: 14px; border: none; border-radius: 50px;
-        font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.3s;
-        background: var(--primary); color: white; margin-top: 10px;
-        box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.4); 
-        display: flex; align-items: center; justify-content: center; gap: 10px;
+    .btn-row { display: flex; gap: 15px; margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); }
+    .btn {
+        flex: 1; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; 
+        cursor: pointer; border: none; transition: 0.2s;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .btn-primary:hover { transform: translateY(-3px); background: var(--primary-dark); box-shadow: 0 15px 30px -5px rgba(124, 58, 237, 0.5); }
-    .btn-primary:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
-
-    /* MESSAGES */
-    .msg-box { margin-top: 15px; padding: 15px; border-radius: 12px; font-size: 0.9rem; text-align: center; display: none; }
-    .msg-success { background: #F3E8FF; color: #6B21A8; border: 1px solid #D8B4FE; }
-    .msg-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
-
-
     
-            footer {
-            text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500;
-            margin-top: auto; border-top: 1px solid #e2e8f0;
-            background: rgba(255,255,255,0.5); backdrop-filter: blur(5px);
-        }
+    /* Update Info Button */
+    .btn-update { background: var(--primary); color: white; }
+    .btn-update:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    
+    /* Logout Button */
+    .btn-logout { background: #fee2e2; color: #ef4444; }
+    .btn-logout:hover { background: #ef4444; color: white; transform: translateY(-2px); }
+
     /* =========================================
-       7. RESPONSIVE MOBILE (UPDATED)
+       4. DARK MODE BUTTON (MOBILE HALF-HIDDEN)
+       ========================================= */
+    .theme-btn {
+        position: fixed; 
+        bottom: 30px; left: 30px; 
+        width: 50px; height: 50px;
+        background: var(--surface); color: var(--text-main); 
+        border: 2px solid var(--border); border-radius: 50%;
+        font-size: 1.2rem; cursor: pointer; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        z-index: 2000; 
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+    .theme-btn:hover { transform: scale(1.1); border-color: var(--primary); color: var(--primary); }
+
+ /* =========================================
+       7. RESPONSIVE MOBILE (UPDATED BUTTONS)
        ========================================= */
     @media (max-width: 900px) {
         body { height: auto; overflow-y: auto; }
         
-        .navbar { 
-            margin: 15px;          
-            border-radius: 30px;   
-            padding: 15px 20px; 
-            top: 0; 
-            width: auto;           
-        }
+        .navbar { margin: 15px; border-radius: 30px; padding: 15px 20px; top: 0; width: auto; }
         
         .nav-center { 
-            display: flex; 
-            flex-direction: column; 
-            position: absolute; 
-            top: 100%; 
-            left: 0; 
-            width: 100%; 
-            background: white; 
-            border-radius: 25px;   
-            margin-top: 10px;      
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            gap: 15px; 
-            text-align: center;
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            padding: 0 20px; 
+            display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; 
+            background: var(--surface); border-radius: 25px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            gap: 15px; text-align: center; max-height: 0; overflow: hidden; opacity: 0; padding: 0 20px; 
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid var(--border);
         }
         
-        .nav-center.active { 
-            max-height: 500px; 
-            opacity: 1;
-            padding: 25px 20px; 
-        }
-        
+        .nav-center.active { max-height: 400px; opacity: 1; padding: 25px 20px; }
         .user-pill { display: none; }
         .hamburger { display: block; }
-        
         .main-wrapper { padding: 20px; }
         .glass-panel { flex-direction: column; padding: 30px; gap: 30px; }
-        
-        .profile-left { 
-            border-right: none; 
-            border-bottom: 1px dashed var(--border); 
-            padding-right: 0; 
-            padding-bottom: 30px; 
-            width: 100%; 
-            /* Kekal center di mobile */
-            justify-content: center; 
-        }
+        .profile-left { border-right: none; border-bottom: 1px dashed var(--border); padding-right: 0; padding-bottom: 30px; width: 100%; }
         .row { flex-direction: column; gap: 0; }
         input { margin-bottom: 15px; }
+
+        
+        /* Card Mobile */
+        .profile-card { flex-direction: column; height: auto; max-height: none; margin-top: 10px; }
+        .card-left { width: 100%; padding: 30px 20px; border-bottom: 5px solid var(--surface); }
+        .card-right { padding: 25px 20px; }
+        .form-grid { grid-template-columns: 1fr; gap: 15px; }
+        .btn-row { flex-direction: column; }
+        .password-row { flex-direction: column; width: 100%; }
+        .password-row .btn { width: 100%; margin-top: 5px; }
+
+        /* DARK MODE BUTTON: SEPARUH TERSEMBUNYI (Style Dashboard) */
+        .theme-btn {
+            left: -25px; /* Sorok separuh */
+            border-radius: 0 50% 50% 0; /* Bentuk separuh bulat kanan */
+            width: 60px; 
+            padding-left: 15px; 
+            opacity: 0.7;
+        }
+        .theme-btn:hover, .theme-btn:active, .theme-btn:focus {
+            left: 0; opacity: 1; padding-left: 0; width: 50px; border-radius: 50%;
+        }
     }
 </style>
 </head>
-
 <body>
 
-    <div class="bg-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-    </div>
+    <div class="bg-blob b1"></div>
+    <div class="bg-blob b2"></div>
 
-  <nav class="navbar" id="mainNavbar">
+    <nav class="navbar" id="mainNavbar">
         <div class="brand">
             <img src="image/HASA.png" alt="Logo" onerror="this.style.display='none'">
             <span>HASA UiTM</span>
         </div>
 
         <div class="nav-center" id="navMenu">
-            <a href="dashboard.html" class="nav-link" title="Halaman Utama">Dashboard</a>
-            <a href="contohawam.html" class="nav-link" title="Kiraan Sektor Awam">Kiraan Awam</a>
-            <a href="swasta.html" class="nav-link" title="Kiraan Sektor Swasta">Kiraan Swasta</a>
-            <a href="profile.html" class="nav-link active" title="Profil Pengguna">Profile</a>
-            <a href="#" id="mobileLogout" class="nav-link" style="color:#ef4444; display:none;">Log Keluar</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="contohawam.html" class="nav-link">Kiraan Awam</a>
+            <a href="swasta.html" class="nav-link">Kiraan Swasta</a>
+            <a href="profile.html" class="nav-link active">Profile</a>
+            <a href="#" class="nav-link" id="mobileLogout" style="display:none; color:#ef4444;">LOG KELUAR</a>
         </div>
 
         <div style="display:flex; align-items:center; gap:15px;">
@@ -346,368 +326,260 @@
                 <i class="fa-solid fa-bars"></i>
             </div>
         </div>
-    </nav>
+    </nav>>
 
-    <div class="main-wrapper">
-        <div class="container">
+    <div class="content-wrapper">
+        <div class="profile-card">
             
-            <div class="glass-panel">
-                
-                <div class="profile-left">
-                    
-                    <div class="avatar-wrapper" onclick="document.getElementById('fileInput').click()">
-                        <div class="big-avatar" id="bigAvatar">
-                            <span id="initialsText">U</span>
-                            <img id="profileImagePreview" src="" alt="Profile" style="display:none;">
-                        </div>
-                        <div class="camera-overlay">
-                            <i class="fa-solid fa-camera"></i>
-                        </div>
-                    </div>
-                    <input type="file" id="fileInput" accept="image/*" hidden>
-
-                    <div class="profile-title" id="displayFullname">Pengguna</div>
-                    <div class="profile-subtitle">Ahli sejak: <span id="displayDate">-</span></div>
+            <div class="card-left">
+                <div class="avatar-wrapper">
+                    <div class="big-avatar" id="mainAvatar">?</div>
+                    <label for="uploadPhoto" class="cam-btn" title="Tukar Gambar">
+                        <i class="fa-solid fa-camera"></i>
+                    </label>
+                    <input type="file" id="uploadPhoto" accept="image/*" style="display:none;" onchange="uploadImage(this)">
                 </div>
 
-                <div class="profile-right">
-                    <div class="form-section-title">KEMASKINI MAKLUMAT</div>
-                    
-                    <form id="profileForm">
-                        <div class="row">
-                            <div class="col">
-                                <label>Nama Penuh</label>
-                                <input type="text" id="fullname" placeholder="Masukkan nama penuh..." required>
-                            </div>
-                        </div>
+                <h2 class="left-name" id="mainName">Loading...</h2>
+                <div class="left-role" id="displayRole">Pengguna</div>
+                <div class="left-email" id="displayEmail">...</div>
+            </div>
 
-                        <div class="row">
-                            <div class="col">
-                                <label>Nombor Telefon</label>
-                                <input type="text" id="phone" placeholder="Contoh: 012-3456789" required>
-                            </div>
-                            <div class="col">
-                                <label>Alamat Emel</label>
-                                <input type="email" id="email" readonly>
-                            </div>
-                        </div>
+            <div class="card-right">
+                
+                <div class="section-header">
+                    <i class="fa-regular fa-id-card"></i> Butiran Peribadi
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nama Penuh (Boleh Edit)</label>
+                        <input type="text" id="inpFullname" class="input-box">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombor Telefon (Boleh Edit)</label>
+                        <input type="text" id="inpPhone" class="input-box" placeholder="Contoh: 012-3456789">
+                    </div>
 
-                        <div class="row">
-                            <div class="col">
-                                <label>Peranan</label>
-                                <input type="text" id="role" readonly style="text-transform: capitalize;">
-                            </div>
-                            <div class="col">
-                                <label>Tarikh Daftar</label>
-                                <input type="text" id="joinedDate" readonly>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label>Peranan (Read-Only)</label>
+                        <input type="text" id="inpRole" class="input-box" value="Pengguna" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Tarikh Daftar (Read-Only)</label>
+                        <input type="text" id="inpDate" class="input-box" readonly>
+                    </div>
+                </div>
 
-                        <div class="form-section-title" style="margin-top: 20px; color: #ef4444; border-color: #fecaca;">TUKAR KATA LALUAN (OPTIONAL)</div>
-                        <div class="row">
-                            <div class="col">
-                                <label>Kata Laluan Baru</label>
-                                <input type="password" id="newPassword" placeholder="Biarkan kosong jika tidak mahu tukar">
-                            </div>
-                            <div class="col">
-                                <label>Sahkan Kata Laluan</label>
-                                <input type="password" id="confirmPassword" placeholder="Ulang kata laluan baru">
-                            </div>
-                        </div>
-
-                        <div id="profileMsg" class="msg-box"></div>
-
-                        <button type="submit" id="saveBtn" class="btn-primary">
-                            <i class="fa-solid fa-save"></i> SIMPAN PERUBAHAN
+                <div class="section-header">
+                    <i class="fa-solid fa-lock"></i> Keselamatan
+                </div>
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label>Tukar Kata Laluan</label>
+                    <div class="password-row">
+                        <input type="password" id="inpNewPass" class="input-box" placeholder="Masukkan password baru">
+                        <button class="btn btn-save" style="background:var(--secondary); color:white; width:auto; flex:0.4;" onclick="updatePassword()">
+                            Tukar
                         </button>
-                    </form>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-update" onclick="updateProfileData()">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan Maklumat
+                    </button>
+                    <button class="btn btn-logout" onclick="handleLogout()">
+                        <i class="fa-solid fa-power-off"></i> Log Keluar
+                    </button>
                 </div>
 
             </div>
         </div>
     </div>
-    <footer class="fade-up d-5">
-        <p>Built with ❤️ for UiTM. © 2025 HASA UiTM.</p>
-    </footer>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            document.body.classList.add("loaded");
+    <button id="themeToggle" class="theme-btn" title="Tukar Tema">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+
+<script>
+    // =====================================
+    // 1. THEME & UI LOGIC
+    // =====================================
+    const themeBtn = document.getElementById('themeToggle');
+    const body = document.body;
+
+    if(localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+        themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+    }
+
+    themeBtn.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        themeBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    });
+
+    function toggleMenu() {
+        const menu = document.getElementById('navMenu');
+        const logoutMobile = document.getElementById('mobileLogout');
+        menu.classList.toggle('active');
+        if(window.innerWidth <= 800) logoutMobile.style.display = 'block';
+    }
+
+    // =====================================
+    // 2. FIREBASE LOAD DATA
+    // =====================================
+    firebase.auth().onAuthStateChanged(async user => {
+        if(!user){ window.location.href='login.html'; return; }
+
+        // Element Refs
+        const els = {
+            navName: document.getElementById('navName'),
+            navAvatar: document.getElementById('navAvatar'),
+            mainName: document.getElementById('mainName'),
+            mainAvatar: document.getElementById('mainAvatar'),
+            displayRole: document.getElementById('displayRole'),
+            displayEmail: document.getElementById('displayEmail'),
             
-            // Mobile Menu Logout Link Logic
-            const mobileLogout = document.getElementById('mobileLogout');
-            if(mobileLogout) {
-                mobileLogout.addEventListener('click', () => {
-                    if(document.getElementById('logoutBtn')) {
-                        document.getElementById('logoutBtn').click();
-                    }
-                });
+            inpFullname: document.getElementById('inpFullname'),
+            inpPhone: document.getElementById('inpPhone'),
+            inpRole: document.getElementById('inpRole'),
+            inpDate: document.getElementById('inpDate')
+        };
+
+        // Basic Info
+        let name = user.displayName || user.email.split('@')[0];
+        let photo = user.photoURL;
+        let joined = user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('ms-MY') : '-';
+
+        els.displayEmail.innerText = user.email;
+        els.inpDate.value = joined;
+
+        // Fetch Firestore Data
+        try {
+            const doc = await firebase.firestore().collection('users').doc(user.uid).get();
+            if(doc.exists) {
+                const d = doc.data();
+                if(d.fullname) name = d.fullname;
+                if(d.phone) els.inpPhone.value = d.phone;
+                if(d.photoURL) photo = d.photoURL;
+                if(d.role) {
+                    els.inpRole.value = d.role;
+                    els.displayRole.innerText = d.role;
+                }
             }
-        });
+        } catch(e) { console.error("Error loading data:", e); }
 
-        // ===================================
-        // SMOOTH HAMBURGER TOGGLE
-        // ===================================
-        function toggleMenu() {
-            const navMenu = document.getElementById('navMenu');
-            const mobileLogout = document.getElementById('mobileLogout');
-            
-            navMenu.classList.toggle('active');
-            
-            if (navMenu.classList.contains('active')) {
-                if(window.innerWidth <= 900) mobileLogout.style.display = 'block';
+        // Populate UI
+        els.navName.innerText = name.split(' ')[0];
+        els.mainName.innerText = name;
+        els.inpFullname.value = name;
+
+        // Handle Avatar
+        if (photo) {
+            const imgHTML = `<img src="${photo}" alt="User">`;
+            els.navAvatar.innerHTML = imgHTML;
+            els.navAvatar.style.background = 'transparent';
+            els.mainAvatar.innerHTML = imgHTML;
+            els.mainAvatar.style.background = 'transparent';
+        } else {
+            const initial = name.charAt(0).toUpperCase();
+            els.navAvatar.innerText = initial;
+            els.mainAvatar.innerText = initial;
+        }
+    });
+
+    // =====================================
+    // 3. UPDATE FUNCTIONS
+    // =====================================
+
+    // A. Update Info (Nama & Phone sahaja)
+    async function updateProfileData() {
+        const user = firebase.auth().currentUser;
+        if(!user) return;
+
+        const newName = document.getElementById('inpFullname').value.trim();
+        const newPhone = document.getElementById('inpPhone').value.trim();
+
+        if(!newName) return alert("Nama tidak boleh kosong.");
+
+        try {
+            // 1. Update Auth Profile (Display Name)
+            await user.updateProfile({ displayName: newName });
+
+            // 2. Update Firestore
+            await firebase.firestore().collection('users').doc(user.uid).set({
+                fullname: newName,
+                phone: newPhone
+            }, { merge: true });
+
+            alert("Maklumat berjaya dikemaskini!");
+            location.reload(); // Refresh untuk nampak perubahan di navbar
+
+        } catch(e) {
+            alert("Ralat kemaskini: " + e.message);
+        }
+    }
+
+    // B. Update Password
+    async function updatePassword() {
+        const newPass = document.getElementById('inpNewPass').value;
+        if(!newPass || newPass.length < 6) return alert("Kata laluan mesti sekurang-kurangnya 6 aksara.");
+
+        if(confirm("Anda pasti ingin menukar kata laluan?")) {
+            try {
+                await firebase.auth().currentUser.updatePassword(newPass);
+                alert("Kata laluan berjaya ditukar! Sila log masuk semula.");
+                await firebase.auth().signOut();
+                window.location.href = 'login.html';
+            } catch(e) {
+                alert("Ralat: " + e.message + "\n(Untuk keselamatan, sila Log Keluar dan Log Masuk semula sebelum tukar password)");
             }
         }
+    }
 
-        // ===================================
-        // LOGIC PROFILE (FIREBASE)
-        // ===================================
-        const logoutBtn = document.getElementById('logoutBtn');
-        const profileForm = document.getElementById('profileForm');
-        const msgBox = document.getElementById('profileMsg');
-        const saveBtn = document.getElementById('saveBtn');
-        const fileInput = document.getElementById('fileInput');
-        const profileImagePreview = document.getElementById('profileImagePreview');
-        const initialsText = document.getElementById('initialsText');
-        
-        let currentUserUid = null;
-        let base64ImageString = null; // Ini variable baru untuk simpan gambar as text
+    // C. Upload Gambar
+    async function uploadImage(input) {
+        if(!input.files[0]) return;
+        const file = input.files[0];
+        const user = firebase.auth().currentUser;
 
-        // 1. Load Data
-        onAuthChange(async user => {
-            if(!user){ location.href='login.html'; return; }
-            currentUserUid = user.uid;
-            
-            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memuatkan...';
-            saveBtn.disabled = true;
+        try {
+            alert("Sedang memuat naik gambar...");
+            const ref = firebase.storage().ref(`profile_photos/${user.uid}`);
+            await ref.put(file);
+            const url = await ref.getDownloadURL();
 
-            try {
-                // Load Data dari Firestore
-                const { data } = await getCurrentUserDoc();
-                
-                // Set Inputs
-                document.getElementById('fullname').value = data?.fullname || '';
-                document.getElementById('phone').value = data?.phone || '';
-                document.getElementById('email').value = user.email;
-                
-                // Update Side Panel Info
-                let displayName = data?.fullname || user.email.split('@')[0];
-                document.getElementById('displayFullname').innerText = displayName;
-                
-                // === LOGIC GAMBAR BARU (LOAD DARI FIRESTORE DULU) ===
-                // Kita check kalau ada 'photoURL' dalam database Firestore users collection
-                let photoURL = data?.photoURL || user.photoURL;
+            await user.updateProfile({ photoURL: url });
+            await firebase.firestore().collection('users').doc(user.uid).set({ photoURL: url }, { merge: true });
 
-                if(photoURL) {
-                    profileImagePreview.src = photoURL;
-                    profileImagePreview.style.display = 'block';
-                    initialsText.style.display = 'none';
-                    
-                    // Update juga dekat navbar kecil
-                    const navAvatar = document.getElementById('navAvatar');
-                    navAvatar.innerHTML = `<img src="${photoURL}" style="width:100%; height:100%; object-fit:cover;">`;
-                } else {
-                     initialsText.innerText = displayName.charAt(0).toUpperCase();
-                     initialsText.style.display = 'block';
-                     profileImagePreview.style.display = 'none';
-                }
+            alert("Gambar profil berjaya ditukar!");
+            location.reload();
+        } catch(e) {
+            alert("Gagal upload: " + e.message);
+        }
+    }
 
-                // Role Logic
-                const role = user.email.endsWith('@uitm.edu.my') ? 'Staf UiTM' : 'Pengguna Awam';
-                document.getElementById('role').value = role;
-
-                // Format Date
-                let joined = '-';
-                if(data?.createdAt && data.createdAt.seconds) {
-                    joined = new Date(data.createdAt.seconds * 1000).toLocaleDateString('en-GB');
-                }
-                document.getElementById('joinedDate').value = joined;
-                document.getElementById('displayDate').innerText = joined;
-
-            } catch (e) {
-                console.error("Error loading profile", e);
-                showMsg('Gagal memuatkan data profil.', 'error');
-            } finally {
-                saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> SIMPAN PERUBAHAN';
-                saveBtn.disabled = false;
-            }
-        });
-
-        // 2. Auth State Changed (Navbar Logic - Fallback)
-        firebase.auth().onAuthStateChanged(async user => {
-            const nameEl = document.getElementById('navName');
-            const avatarEl = document.getElementById('navAvatar');
-
-            if(nameEl && user) {
-                // Kita akan update navbar selepas load data Firestore di atas,
-                // tapi ini backup basic info dari Auth
-                let finalName = user.displayName || user.email.split('@')[0];
-                const firstName = finalName.split(' ')[0];
-                nameEl.innerText = firstName;
-            }
-        });
-
-        // 3. Logic Convert Gambar ke Base64 (Text)
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                // Limit saiz file (Firestore document limit 1MB, so kita hadkan 0.7MB)
-                if(file.size > 700 * 1024) { 
-                    alert("Saiz gambar terlalu besar. Sila pilih gambar bawah 700KB.");
-                    fileInput.value = ""; // Reset input
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    // Result ini adalah text yang sangat panjang (Base64)
-                    base64ImageString = e.target.result;
-                    
-                    // Update preview
-                    profileImagePreview.src = base64ImageString;
-                    profileImagePreview.style.display = 'block';
-                    initialsText.style.display = 'none';
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // 4. Update Data Logic (SIMPAN TERUS KE FIRESTORE USERS COLLECTION)
-        profileForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            msgBox.style.display = 'none';
-            saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Menyimpan...';
-            saveBtn.disabled = true;
-
-            const fullname = document.getElementById('fullname').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const newPass = document.getElementById('newPassword').value;
-            const confirmPass = document.getElementById('confirmPassword').value;
-
-            if(!fullname || !phone){
-                showMsg('Sila lengkapkan nama dan nombor telefon.', 'error');
-                resetBtn();
-                return;
-            }
-
-            try {
-                const user = firebase.auth().currentUser;
-                
-                // Object update untuk Firestore
-                let updateData = {
-                    fullname: fullname,
-                    phone: phone,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                };
-
-                // Jika ada gambar baru (base64 string), masukkan dalam object update
-                if(base64ImageString) {
-                    updateData.photoURL = base64ImageString;
-                }
-
-                // A. Simpan Data & Gambar ke dalam users collection (Document User)
-                await firebase.firestore().collection('users').doc(currentUserUid).update(updateData);
-                
-                // B. Update Auth Profile (Supaya navbar sync)
-                // Nota: Kalau string terlalu panjang, Auth profile mungkin reject, 
-                // tapi Firestore confirm simpan.
-                let authUpdate = { displayName: fullname };
-                if(base64ImageString) {
-                    authUpdate.photoURL = base64ImageString;
-                }
-                await user.updateProfile(authUpdate).catch(err => console.log("Auth profile pic skip"));
-
-                // C. Update Kata Laluan (Optional)
-                if (newPass) {
-                    if (newPass.length < 6) throw new Error("Kata laluan minima 6 aksara.");
-                    if (newPass !== confirmPass) throw new Error("Pengesahan kata laluan tidak sepadan.");
-                    await user.updatePassword(newPass);
-                    
-                    document.getElementById('newPassword').value = '';
-                    document.getElementById('confirmPassword').value = '';
-                }
-
-                // D. Update UI
-                document.getElementById('displayFullname').innerText = fullname;
-                
-                // Update nav avatar live
-                if(base64ImageString) {
-                     const navAvatar = document.getElementById('navAvatar');
-                     navAvatar.innerHTML = `<img src="${base64ImageString}" style="width:100%; height:100%; object-fit:cover;">`;
-                }
-
-                showMsg('Profil berjaya dikemaskini!', 'success');
-                setTimeout(() => msgBox.style.display = 'none', 3000);
-
-            } catch(err){
-                console.error(err);
-                if (err.code === 'auth/requires-recent-login') {
-                    showMsg('Sila log masuk semula untuk tukar kata laluan.', 'error');
-                } else if (err.code === 'invalid-argument') {
-                    showMsg('Gambar terlalu besar untuk database. Sila pilih gambar lebih kecil.', 'error');
-                } else {
-                    showMsg(err.message || 'Ralat sistem.', 'error');
-                }
-            } finally {
-                resetBtn();
-            }
-        });
-
-        // 5. Logout Logic
+    const logoutBtn = document.getElementById('logoutBtn');
+    if(logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             if(confirm("Log keluar dari sistem?")) {
                 await firebase.auth().signOut();
                 location.href='login.html';
             }
         });
+    }
 
-        function showMsg(text, type) {
-            msgBox.textContent = text;
-            msgBox.className = `msg-box msg-${type}`;
-            msgBox.style.display = 'block';
+    // D. Logout
+    window.handleLogout = async () => {
+        if(confirm("Log keluar dari sistem?")) {
+            await firebase.auth().signOut();
+            window.location.href = 'login.html';
         }
+    };
+    document.getElementById('mobileLogout').addEventListener('click', handleLogout);
 
-        function resetBtn() {
-            saveBtn.innerHTML = '<i class="fa-solid fa-save"></i> SIMPAN PERUBAHAN';
-            saveBtn.disabled = false;
-        }
-
-firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            // 1. Dapatkan data user dari Firestore collection 'users'
-            var docRef = firebase.firestore().collection("users").doc(user.uid);
-
-            docRef.get().then((doc) => {
-                if (doc.exists) {
-                    var data = doc.data();
-                    
-                    // 2. Update Nama di Navbar
-                    if(data.display_name) {
-                         document.getElementById("navName").innerText = data.display_name;
-                    }
-
-                    // 3. Update Gambar di Navbar (PENTING)
-                    // Pastikan field dalam database anda ialah 'photo_url'
-                    var photoUrl = data.photo_url; 
-
-                    if (photoUrl) {
-                        // Kita inject tag <img> ke dalam div class="avatar" tadi
-                        var avatarDiv = document.getElementById("navAvatar");
-                        avatarDiv.innerHTML = `<img src="${photoUrl}" alt="Profile">`;
-                        
-                        // Optional: Reset background jadi transparent bila dah ada gambar
-                        avatarDiv.style.backgroundColor = "transparent";
-                    }
-                }
-            }).catch((error) => {
-                console.log("Error getting document:", error);
-            });
-        } else {
-            // Kalau user tak login, tunjuk default
-            document.getElementById("navName").innerText = "Pelawat";
-        }
-    });
-
-    </script>
+</script>
 </body>
 </html>
