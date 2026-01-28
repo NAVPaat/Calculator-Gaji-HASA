@@ -18,38 +18,29 @@
 <script src="auth.js"></script>
 
 <style>
-    /* =========================================
-       1. VARIABLES & THEME
-       ========================================= */
+    /* ================= VARIABLES ================= */
     :root {
         --primary: #7C3AED;       
         --primary-dark: #5B21B6;  
         --secondary: #A78BFA;     
-        
         --bg-body: #F5F3FF;       
         --surface: #ffffff;
-        --surface-glass: rgba(255, 255, 255, 0.9);
-        
         --text-main: #1e293b;
         --text-light: #64748b;
         --border: #e2e8f0;
         --input-bg: #f8fafc;
-        
-        --shadow-nav: 0 4px 20px rgba(0,0,0,0.05);
-        --shadow-card: 0 20px 40px -10px rgba(0,0,0,0.1); 
+        --shadow-card: 0 20px 40px -10px rgba(0,0,0,0.1);
+        --success: #10b981; /* Warna untuk notification berjaya */
+        --danger: #ef4444;  /* Warna untuk notification logout/error */
     }
 
     body.dark-mode {
         --bg-body: #0f172a;       
         --surface: #1e293b;
-        --surface-glass: rgba(30, 41, 59, 0.95);
-        
         --text-main: #f8fafc;     
         --text-light: #94a3b8;    
         --border: #334155;
         --input-bg: #0f172a;
-        
-        --shadow-nav: 0 4px 20px rgba(0,0,0,0.4);
         --shadow-card: 0 20px 40px -10px rgba(0,0,0,0.5);
     }
 
@@ -59,182 +50,128 @@
         font-family: 'Poppins', sans-serif;
         background-color: var(--bg-body);
         color: var(--text-main);
-        height: 100vh; /* 1 Page Fixed on Desktop */
+        height: 100vh;
         display: flex; flex-direction: column;
         overflow: hidden; 
         transition: 0.3s;
     }
 
-    /* DECORATION BLOBS */
+    /* DECORATION */
     .bg-blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.4; z-index: -1; pointer-events: none; }
     .b1 { top: -10%; left: -10%; width: 500px; height: 500px; background: var(--primary); }
     .b2 { bottom: -10%; right: -10%; width: 500px; height: 500px; background: var(--secondary); }
 
-    /* =========================================
-       2. NAVBAR (DASHBOARD STANDARD STYLE)
-       ========================================= */
-.navbar {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 15px 5%; margin: 20px;
-    background: var(--surface); backdrop-filter: blur(12px);
-    border-radius: 50px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    position: sticky; top: 20px; z-index: 1000;
-    transition: transform 0.4s ease, opacity 0.4s ease, background-color 0.3s;
-    border: 1px solid var(--border);
-}
-.navbar.nav-hidden { transform: translateY(-150%); opacity: 0; }
-
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.4rem; color: var(--primary); }
-.brand img { height: 32px; }
-
-.nav-center { display: flex; gap: 30px; }
-.nav-link { color: var(--text-light); font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: 0.3s; position: relative; }
-.nav-link:hover, .nav-link.active { color: var(--primary); }
-.nav-link.active::after { content:''; position: absolute; bottom:-5px; left:50%; transform:translateX(-50%); width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
-
-.user-pill {
-    display: flex; align-items: center; gap: 12px;
-    background: var(--bg-body); padding: 5px 5px 5px 20px;
-    border-radius: 50px; cursor: pointer; transition: all 0.3s ease;
-    border: 1px solid transparent;
-}
-.text-container { display: flex; flex-direction: column; align-items: flex-end; overflow: hidden; height: 20px; justify-content: center; position: relative; width: 100px; }
-.user-name { font-weight: 600; font-size: 0.9rem; color: var(--text-main); position: absolute; right: 0; transition: 0.3s; text-transform: uppercase; }
-.logout-text { font-weight: 700; font-size: 0.9rem; color: #ef4444; position: absolute; right: 0; transform: translateY(20px); opacity: 0; transition: 0.3s; }
-
-.avatar { 
-    width: 38px; height: 38px; background: var(--primary); color: white; 
-    border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-    font-weight: 700; transition: 0.3s; overflow: hidden; border: 2px solid var(--surface);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-.avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-.user-pill:hover { background: #fee2e2; border-color: #ef4444; }
-.user-pill:hover .user-name { transform: translateY(-20px); opacity: 0; }
-.user-pill:hover .logout-text { transform: translateY(0); opacity: 1; }
-
-.hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
-
-    /* =========================================
-       3. PROFILE CARD LAYOUT
-       ========================================= */
-    .content-wrapper {
-        flex: 1; 
-        display: flex; align-items: center; justify-content: center;
-        padding: 20px 4%;
+    /* ================= TOAST NOTIFICATION (BARU) ================= */
+    .toast-container {
+        position: fixed; top: 30px; left: 50%;
+        transform: translateX(-50%); z-index: 9999;
+        display: flex; flex-direction: column; gap: 10px;
+        pointer-events: none;
     }
+
+    .toast {
+        background: var(--surface); color: var(--text-main);
+        padding: 12px 25px; border-radius: 50px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        display: flex; align-items: center; gap: 12px;
+        font-size: 0.9rem; font-weight: 600;
+        min-width: 280px; justify-content: center;
+        border: 1px solid var(--border);
+        animation: slideInDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transition: all 0.3s ease;
+    }
+    
+    .toast i { font-size: 1.1rem; }
+    
+    @keyframes slideInDown {
+        from { opacity: 0; transform: translateY(-50px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ================= NAVBAR ================= */
+    .navbar {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 15px 5%; margin: 20px;
+        background: var(--surface); backdrop-filter: blur(12px);
+        border-radius: 50px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        position: sticky; top: 20px; z-index: 1000;
+        transition: transform 0.5s ease, opacity 0.5s ease;
+        border: 1px solid var(--border);
+    }
+    
+    .navbar.nav-hidden { transform: translateY(-200%); opacity: 0; pointer-events: none; }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.4rem; color: var(--primary); }
+    .brand img { height: 32px; }
+
+    .nav-center { display: flex; gap: 30px; }
+    .nav-link { color: var(--text-light); font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: 0.3s; position: relative; }
+    .nav-link.active, .nav-link:hover { color: var(--primary); }
+    .nav-link.active::after { content:''; position: absolute; bottom:-5px; left:50%; transform:translateX(-50%); width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
+
+    .user-pill {
+        display: flex; align-items: center; gap: 12px;
+        background: var(--bg-body); padding: 5px 5px 5px 20px;
+        border-radius: 50px; cursor: pointer; transition: 0.3s; border: 1px solid transparent;
+    }
+    .text-container { display: flex; flex-direction: column; align-items: flex-end; width: 100px; justify-content: center; position: relative; height: 20px; overflow: hidden;}
+    .user-name { font-weight: 600; font-size: 0.9rem; color: var(--text-main); position: absolute; right: 0; transition: 0.3s; }
+    .logout-text { font-weight: 700; font-size: 0.9rem; color: var(--danger); position: absolute; right: 0; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+    .user-pill:hover .user-name { transform: translateY(-20px); opacity: 0; }
+    .user-pill:hover .logout-text { transform: translateY(0); opacity: 1; }
+
+    .avatar { width: 38px; height: 38px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid var(--surface); overflow: hidden; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+
+    /* ================= PROFILE CARD ================= */
+    .content-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px 4%; }
 
     .profile-card {
-        width: 100%; max-width: 1100px;
-        height: 80vh; max-height: 650px;
-        background: var(--surface);
-        border-radius: 24px;
-        box-shadow: var(--shadow-card);
-        border: 1px solid var(--border);
-        display: flex; overflow: hidden;
+        width: 100%; max-width: 1100px; height: 80vh; max-height: 650px;
+        background: var(--surface); border-radius: 24px; box-shadow: var(--shadow-card);
+        border: 1px solid var(--border); display: flex; overflow: hidden;
     }
 
-    /* LEFT SIDEBAR */
     .card-left {
-        width: 320px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        width: 320px; background: linear-gradient(135deg, var(--primary), var(--secondary));
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         padding: 40px; text-align: center; color: white;
-        position: relative;
     }
     
-    /* AVATAR CONTAINER & CAMERA BUTTON FIX */
-    .avatar-wrapper {
-        position: relative;
-        width: 140px; height: 140px;
-        margin-bottom: 20px;
-    }
-    .big-avatar {
-        width: 100%; height: 100%; border-radius: 50%;
-        border: 5px solid rgba(255,255,255,0.4);
-        background: rgba(255,255,255,0.2);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 4rem; color: white; overflow: hidden;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
+    .avatar-wrapper { position: relative; width: 140px; height: 140px; margin-bottom: 20px; }
+    .big-avatar { width: 100%; height: 100%; border-radius: 50%; border: 5px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 4rem; overflow: hidden; }
     .big-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-    .cam-btn {
-        position: absolute; 
-        bottom: 5px; right: 5px; /* Stick to bottom right of circle */
-        width: 38px; height: 38px; 
-        background: white; color: var(--primary);
-        border-radius: 50%; 
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1rem; cursor: pointer; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        transition: transform 0.2s; border: 2px solid var(--primary);
-        z-index: 10;
-    }
+    .cam-btn { position: absolute; bottom: 5px; right: 5px; width: 38px; height: 38px; background: white; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--primary); transition: 0.2s; }
     .cam-btn:hover { transform: scale(1.1); }
 
-    .left-name { font-size: 1.4rem; font-weight: 700; line-height: 1.2; margin-bottom: 5px; word-break: break-word;}
-    .left-role { 
-        background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 20px; 
-        font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; 
-    }
-    .left-email { margin-top: 10px; font-size: 0.8rem; opacity: 0.8; font-weight: 300; }
+    .left-name { font-size: 1.4rem; font-weight: 700; margin-bottom: 5px; }
+    .left-role { background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+    .left-email { margin-top: 10px; font-size: 0.8rem; opacity: 0.8; }
 
-    /* RIGHT SIDE FORM */
-    .card-right {
-        flex: 1; padding: 40px 50px;
-        display: flex; flex-direction: column; 
-        overflow-y: auto;
-    }
-
-    .section-header { 
-        font-size: 1.05rem; font-weight: 700; color: var(--primary); 
-        margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 8px;
-        display: flex; align-items: center; gap: 10px;
-    }
+    .card-right { flex: 1; padding: 40px 50px; display: flex; flex-direction: column; overflow-y: auto; }
+    .section-header { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 8px; display: flex; align-items: center; gap: 10px; }
 
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
-    
     .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
+    .input-box { width: 100%; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 0.9rem; font-family: 'Poppins', sans-serif; transition: 0.3s; }
+    .input-box:focus { border-color: var(--primary); }
+    .input-box[readonly] { opacity: 0.7; cursor: not-allowed; border-style: dashed; }
     
-    .input-box {
-        width: 100%; padding: 10px 15px; border-radius: 8px;
-        border: 1px solid var(--border); background: var(--input-bg);
-        color: var(--text-main); font-size: 0.9rem; font-family: 'Poppins', sans-serif;
-        transition: 0.3s;
-    }
-    
-    /* Style untuk Editable vs Readonly */
-    .input-box:focus { border-color: var(--primary); outline: none; }
-    .input-box[readonly] { opacity: 0.7; cursor: not-allowed; background: rgba(0,0,0,0.03); border-style: dashed; }
-    
-    /* PASSWORD SECTION */
-    .password-row { display: flex; gap: 10px; align-items: flex-end; }
+    .password-row { display: flex; gap: 10px; }
     .password-row .input-box { flex: 1; }
 
-    /* BUTTONS */
     .btn-row { display: flex; gap: 15px; margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); }
-    .btn {
-        flex: 1; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; 
-        cursor: pointer; border: none; transition: 0.2s;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    
-    /* Update Info Button */
+    .btn { flex: 1; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
     .btn-update { background: var(--primary); color: white; }
-    .btn-update:hover { background: var(--primary-dark); transform: translateY(-2px); }
-    
-    /* Logout Button */
-    .btn-logout { background: #fee2e2; color: #ef4444; }
-    .btn-logout:hover { background: #ef4444; color: white; transform: translateY(-2px); }
+    .btn-update:hover { background: var(--primary-dark); }
+    .btn-logout { background: #fee2e2; color: var(--danger); }
+    .btn-logout:hover { background: var(--danger); color: white; }
 
-    /* =========================================
-       4. DARK MODE BUTTON (MOBILE HALF-HIDDEN)
-       ========================================= */
+    /* ================= THEME BUTTON ================= */
     .theme-btn {
-        position: fixed; 
-        bottom: 30px; left: 30px; 
+        position: fixed; bottom: 30px; left: 30px; 
         width: 50px; height: 50px;
         background: var(--surface); color: var(--text-main); 
         border: 2px solid var(--border); border-radius: 50%;
@@ -246,51 +183,36 @@
     }
     .theme-btn:hover { transform: scale(1.1); border-color: var(--primary); color: var(--primary); }
 
- /* =========================================
-       7. RESPONSIVE MOBILE (UPDATED BUTTONS)
-       ========================================= */
+    /* ================= MOBILE RESPONSIVE ================= */
     @media (max-width: 900px) {
         body { height: auto; overflow-y: auto; }
-        
-        .navbar { margin: 15px; border-radius: 30px; padding: 15px 20px; top: 0; width: auto; }
+        .navbar { margin: 15px; padding: 15px 20px; top: 0; width: auto; border-radius: 30px; }
         
         .nav-center { 
             display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; 
             background: var(--surface); border-radius: 25px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
             gap: 15px; text-align: center; max-height: 0; overflow: hidden; opacity: 0; padding: 0 20px; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid var(--border);
+            transition: 0.4s; border: 1px solid var(--border);
         }
-        
         .nav-center.active { max-height: 400px; opacity: 1; padding: 25px 20px; }
         .user-pill { display: none; }
         .hamburger { display: block; }
-        .main-wrapper { padding: 20px; }
-        .glass-panel { flex-direction: column; padding: 30px; gap: 30px; }
-        .profile-left { border-right: none; border-bottom: 1px dashed var(--border); padding-right: 0; padding-bottom: 30px; width: 100%; }
-        .row { flex-direction: column; gap: 0; }
-        input { margin-bottom: 15px; }
-
         
-        /* Card Mobile */
         .profile-card { flex-direction: column; height: auto; max-height: none; margin-top: 10px; }
-        .card-left { width: 100%; padding: 30px 20px; border-bottom: 5px solid var(--surface); }
+        .card-left { width: 100%; padding: 30px 20px; }
         .card-right { padding: 25px 20px; }
         .form-grid { grid-template-columns: 1fr; gap: 15px; }
-        .btn-row { flex-direction: column; }
-        .password-row { flex-direction: column; width: 100%; }
-        .password-row .btn { width: 100%; margin-top: 5px; }
+        .btn-row, .password-row { flex-direction: column; }
+        .password-row .btn { margin-top: 5px; }
 
-        /* DARK MODE BUTTON: SEPARUH TERSEMBUNYI (Style Dashboard) */
+        /* LOGIC BUTANG DARK MODE MOBILE */
         .theme-btn {
-            left: -25px; /* Sorok separuh */
-            border-radius: 0 50% 50% 0; /* Bentuk separuh bulat kanan */
-            width: 60px; 
-            padding-left: 15px; 
-            opacity: 0.7;
+            left: -25px; 
+            border-radius: 0 50% 50% 0; 
+            width: 60px; padding-left: 15px; opacity: 0.8;
         }
-        .theme-btn:hover, .theme-btn:active, .theme-btn:focus {
-            left: 0; opacity: 1; padding-left: 0; width: 50px; border-radius: 50%;
+        .theme-btn:focus, .theme-btn:hover {
+            left: 0; opacity: 1; padding-left: 0; width: 50px; border-radius: 50%; outline: none;
         }
     }
 </style>
@@ -299,6 +221,8 @@
 
     <div class="bg-blob b1"></div>
     <div class="bg-blob b2"></div>
+
+    <div id="toastContainer" class="toast-container"></div>
 
     <nav class="navbar" id="mainNavbar">
         <div class="brand">
@@ -315,7 +239,7 @@
         </div>
 
         <div style="display:flex; align-items:center; gap:15px;">
-            <div class="user-pill" id="logoutBtn" title="Tekan untuk Log Keluar">
+            <div class="user-pill" id="logoutBtn">
                 <div class="text-container">
                     <span class="user-name" id="navName">Loading...</span>
                     <span class="logout-text">Log Keluar</span>
@@ -326,93 +250,78 @@
                 <i class="fa-solid fa-bars"></i>
             </div>
         </div>
-    </nav>>
+    </nav>
 
     <div class="content-wrapper">
         <div class="profile-card">
-            
             <div class="card-left">
                 <div class="avatar-wrapper">
                     <div class="big-avatar" id="mainAvatar">?</div>
-                    <label for="uploadPhoto" class="cam-btn" title="Tukar Gambar">
-                        <i class="fa-solid fa-camera"></i>
-                    </label>
+                    <label for="uploadPhoto" class="cam-btn"><i class="fa-solid fa-camera"></i></label>
                     <input type="file" id="uploadPhoto" accept="image/*" style="display:none;" onchange="uploadImage(this)">
                 </div>
-
                 <h2 class="left-name" id="mainName">Loading...</h2>
                 <div class="left-role" id="displayRole">Pengguna</div>
                 <div class="left-email" id="displayEmail">...</div>
             </div>
 
             <div class="card-right">
-                
-                <div class="section-header">
-                    <i class="fa-regular fa-id-card"></i> Butiran Peribadi
-                </div>
-                
+                <div class="section-header"><i class="fa-regular fa-id-card"></i> Butiran Peribadi</div>
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label>Nama Penuh (Boleh Edit)</label>
-                        <input type="text" id="inpFullname" class="input-box">
-                    </div>
-                    <div class="form-group">
-                        <label>Nombor Telefon (Boleh Edit)</label>
-                        <input type="text" id="inpPhone" class="input-box" placeholder="Contoh: 012-3456789">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Peranan (Read-Only)</label>
-                        <input type="text" id="inpRole" class="input-box" value="Pengguna" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>Tarikh Daftar (Read-Only)</label>
-                        <input type="text" id="inpDate" class="input-box" readonly>
-                    </div>
+                    <div class="form-group"><label>Nama Penuh</label><input type="text" id="inpFullname" class="input-box"></div>
+                    <div class="form-group"><label>Telefon</label><input type="text" id="inpPhone" class="input-box"></div>
+                    <div class="form-group"><label>Peranan</label><input type="text" id="inpRole" class="input-box" readonly></div>
+                    <div class="form-group"><label>Tarikh Daftar</label><input type="text" id="inpDate" class="input-box" readonly></div>
                 </div>
 
-                <div class="section-header">
-                    <i class="fa-solid fa-lock"></i> Keselamatan
-                </div>
+                <div class="section-header"><i class="fa-solid fa-lock"></i> Keselamatan</div>
                 <div class="form-group" style="margin-bottom:10px;">
                     <label>Tukar Kata Laluan</label>
                     <div class="password-row">
-                        <input type="password" id="inpNewPass" class="input-box" placeholder="Masukkan password baru">
-                        <button class="btn btn-save" style="background:var(--secondary); color:white; width:auto; flex:0.4;" onclick="updatePassword()">
-                            Tukar
-                        </button>
+                        <input type="password" id="inpNewPass" class="input-box" placeholder="Password baru">
+                        <button class="btn btn-save" style="background:var(--secondary); color:white; width:auto; flex:0.4;" onclick="updatePassword()">Tukar</button>
                     </div>
                 </div>
 
                 <div class="btn-row">
-                    <button class="btn btn-update" onclick="updateProfileData()">
-                        <i class="fa-solid fa-floppy-disk"></i> Simpan Maklumat
-                    </button>
-                    <button class="btn btn-logout" onclick="handleLogout()">
-                        <i class="fa-solid fa-power-off"></i> Log Keluar
-                    </button>
+                    <button class="btn btn-update" onclick="updateProfileData()"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
+                    <button class="btn btn-logout" onclick="handleLogout()"><i class="fa-solid fa-power-off"></i> Keluar</button>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <button id="themeToggle" class="theme-btn" title="Tukar Tema">
-        <i class="fa-solid fa-moon"></i>
-    </button>
+    <button id="themeToggle" class="theme-btn"><i class="fa-solid fa-moon"></i></button>
 
 <script>
-    // =====================================
-    // 1. THEME & UI LOGIC
-    // =====================================
+    // 1. TOAST NOTIFICATION FUNCTION (BARU)
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        
+        let icon = '<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>';
+        if (type === 'error') icon = '<i class="fa-solid fa-circle-xmark" style="color:var(--danger)"></i>';
+        if (type === 'logout') icon = '<i class="fa-solid fa-right-from-bracket" style="color:var(--danger)"></i>';
+
+        toast.innerHTML = `${icon} <span>${message}</span>`;
+        container.appendChild(toast);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-20px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // 2. THEME LOGIC
     const themeBtn = document.getElementById('themeToggle');
     const body = document.body;
-
     if(localStorage.getItem('theme') === 'dark') {
         body.classList.add('dark-mode');
         themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
     }
-
     themeBtn.addEventListener('click', () => {
         body.classList.toggle('dark-mode');
         const isDark = body.classList.contains('dark-mode');
@@ -420,43 +329,45 @@
         themeBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
     });
 
+    // 3. NAVBAR SCROLL & BUTTON HIDE LOGIC
+    const navbar = document.getElementById('mainNavbar');
+    function blurThemeBtn() { themeBtn.blur(); }
+
+    window.addEventListener('scroll', function() {
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollTop > 80) navbar.classList.add('nav-hidden');
+        if (scrollTop < 50) navbar.classList.remove('nav-hidden');
+        
+        if(window.innerWidth <= 900) blurThemeBtn();
+    });
+
+    document.addEventListener('touchstart', (e) => {
+        if (!e.target.closest('#themeToggle')) blurThemeBtn();
+    });
+
     function toggleMenu() {
-        const menu = document.getElementById('navMenu');
-        const logoutMobile = document.getElementById('mobileLogout');
-        menu.classList.toggle('active');
-        if(window.innerWidth <= 800) logoutMobile.style.display = 'block';
+        document.getElementById('navMenu').classList.toggle('active');
+        if(window.innerWidth<=800) document.getElementById('mobileLogout').style.display='block';
     }
 
-    // =====================================
-    // 2. FIREBASE LOAD DATA
-    // =====================================
+    // 4. FIREBASE LOGIC
     firebase.auth().onAuthStateChanged(async user => {
         if(!user){ window.location.href='login.html'; return; }
-
-        // Element Refs
+        
         const els = {
-            navName: document.getElementById('navName'),
-            navAvatar: document.getElementById('navAvatar'),
-            mainName: document.getElementById('mainName'),
-            mainAvatar: document.getElementById('mainAvatar'),
-            displayRole: document.getElementById('displayRole'),
-            displayEmail: document.getElementById('displayEmail'),
-            
-            inpFullname: document.getElementById('inpFullname'),
-            inpPhone: document.getElementById('inpPhone'),
-            inpRole: document.getElementById('inpRole'),
-            inpDate: document.getElementById('inpDate')
+            navName: document.getElementById('navName'), navAvatar: document.getElementById('navAvatar'),
+            mainName: document.getElementById('mainName'), mainAvatar: document.getElementById('mainAvatar'),
+            displayRole: document.getElementById('displayRole'), displayEmail: document.getElementById('displayEmail'),
+            inpFullname: document.getElementById('inpFullname'), inpPhone: document.getElementById('inpPhone'),
+            inpRole: document.getElementById('inpRole'), inpDate: document.getElementById('inpDate')
         };
 
-        // Basic Info
         let name = user.displayName || user.email.split('@')[0];
         let photo = user.photoURL;
         let joined = user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('ms-MY') : '-';
 
-        els.displayEmail.innerText = user.email;
-        els.inpDate.value = joined;
+        els.displayEmail.innerText = user.email; els.inpDate.value = joined;
 
-        // Fetch Firestore Data
         try {
             const doc = await firebase.firestore().collection('users').doc(user.uid).get();
             if(doc.exists) {
@@ -464,121 +375,92 @@
                 if(d.fullname) name = d.fullname;
                 if(d.phone) els.inpPhone.value = d.phone;
                 if(d.photoURL) photo = d.photoURL;
-                if(d.role) {
-                    els.inpRole.value = d.role;
-                    els.displayRole.innerText = d.role;
-                }
+                if(d.role) { els.inpRole.value = d.role; els.displayRole.innerText = d.role; }
             }
-        } catch(e) { console.error("Error loading data:", e); }
+        } catch(e) {}
 
-        // Populate UI
-        els.navName.innerText = name.split(' ')[0];
-        els.mainName.innerText = name;
-        els.inpFullname.value = name;
+        els.navName.innerText = name.split(' ')[0]; els.mainName.innerText = name; els.inpFullname.value = name;
 
-        // Handle Avatar
         if (photo) {
-            const imgHTML = `<img src="${photo}" alt="User">`;
-            els.navAvatar.innerHTML = imgHTML;
-            els.navAvatar.style.background = 'transparent';
-            els.mainAvatar.innerHTML = imgHTML;
-            els.mainAvatar.style.background = 'transparent';
+            const imgHTML = `<img src="${photo}">`;
+            els.navAvatar.innerHTML = imgHTML; els.navAvatar.style.background='transparent';
+            els.mainAvatar.innerHTML = imgHTML; els.mainAvatar.style.background='transparent';
         } else {
             const initial = name.charAt(0).toUpperCase();
-            els.navAvatar.innerText = initial;
-            els.mainAvatar.innerText = initial;
+            els.navAvatar.innerText = initial; els.mainAvatar.innerText = initial;
         }
     });
 
-    // =====================================
-    // 3. UPDATE FUNCTIONS
-    // =====================================
+    // --- UPDATED ACTIONS WITH NOTIFICATIONS ---
 
-    // A. Update Info (Nama & Phone sahaja)
     async function updateProfileData() {
         const user = firebase.auth().currentUser;
-        if(!user) return;
-
         const newName = document.getElementById('inpFullname').value.trim();
         const newPhone = document.getElementById('inpPhone').value.trim();
-
-        if(!newName) return alert("Nama tidak boleh kosong.");
+        if(!newName) return showToast("Sila masukkan nama.", 'error');
 
         try {
-            // 1. Update Auth Profile (Display Name)
             await user.updateProfile({ displayName: newName });
-
-            // 2. Update Firestore
-            await firebase.firestore().collection('users').doc(user.uid).set({
-                fullname: newName,
-                phone: newPhone
-            }, { merge: true });
-
-            alert("Maklumat berjaya dikemaskini!");
-            location.reload(); // Refresh untuk nampak perubahan di navbar
-
-        } catch(e) {
-            alert("Ralat kemaskini: " + e.message);
-        }
+            await firebase.firestore().collection('users').doc(user.uid).set({ fullname: newName, phone: newPhone }, { merge: true });
+            
+            showToast("Profil berjaya dikemaskini!", 'success');
+            
+            // Update UI instant tanpa reload
+            document.getElementById('navName').innerText = newName.split(' ')[0];
+            document.getElementById('mainName').innerText = newName;
+            
+        } catch(e) { showToast("Ralat: " + e.message, 'error'); }
     }
 
-    // B. Update Password
     async function updatePassword() {
         const newPass = document.getElementById('inpNewPass').value;
-        if(!newPass || newPass.length < 6) return alert("Kata laluan mesti sekurang-kurangnya 6 aksara.");
-
-        if(confirm("Anda pasti ingin menukar kata laluan?")) {
+        if(!newPass || newPass.length < 6) return showToast("Kata laluan perlu minima 6 aksara.", 'error');
+        
+        if(confirm("Pasti mahu tukar kata laluan?")) {
             try {
                 await firebase.auth().currentUser.updatePassword(newPass);
-                alert("Kata laluan berjaya ditukar! Sila log masuk semula.");
-                await firebase.auth().signOut();
-                window.location.href = 'login.html';
-            } catch(e) {
-                alert("Ralat: " + e.message + "\n(Untuk keselamatan, sila Log Keluar dan Log Masuk semula sebelum tukar password)");
-            }
+                showToast("Kata laluan berjaya ditukar! Sila login semula.", 'success');
+                document.getElementById('inpNewPass').value = ''; // Kosongkan input
+                
+                // Logout selepas 2 saat
+                setTimeout(async () => {
+                    await firebase.auth().signOut();
+                    window.location.href = 'login.html';
+                }, 2000);
+            } catch(e) { showToast("Ralat: " + e.message, 'error'); }
         }
     }
 
-    // C. Upload Gambar
     async function uploadImage(input) {
         if(!input.files[0]) return;
         const file = input.files[0];
         const user = firebase.auth().currentUser;
+        
+        showToast("Sedang memuat naik gambar...", 'success'); // Noti sedang upload
 
         try {
-            alert("Sedang memuat naik gambar...");
             const ref = firebase.storage().ref(`profile_photos/${user.uid}`);
             await ref.put(file);
             const url = await ref.getDownloadURL();
-
             await user.updateProfile({ photoURL: url });
             await firebase.firestore().collection('users').doc(user.uid).set({ photoURL: url }, { merge: true });
-
-            alert("Gambar profil berjaya ditukar!");
-            location.reload();
-        } catch(e) {
-            alert("Gagal upload: " + e.message);
-        }
+            
+            showToast("Gambar profil berjaya ditukar!", 'success');
+            setTimeout(()=> location.reload(), 1500); // Reload sekejap untuk refresh avatar semua tempat
+        } catch(e) { showToast("Gagal upload: " + e.message, 'error'); }
     }
 
-    const logoutBtn = document.getElementById('logoutBtn');
-    if(logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            if(confirm("Log keluar dari sistem?")) {
-                await firebase.auth().signOut();
-                location.href='login.html';
-            }
-        });
-    }
-
-    // D. Logout
     window.handleLogout = async () => {
-        if(confirm("Log keluar dari sistem?")) {
-            await firebase.auth().signOut();
-            window.location.href = 'login.html';
+        if(confirm("Adakah anda pasti mahu log keluar?")) { 
+            showToast("Sedang log keluar...", 'logout');
+            setTimeout(async () => {
+                await firebase.auth().signOut(); 
+                location.href='login.html'; 
+            }, 1500); // Delay 1.5 saat supaya noti nampak
         }
     };
     document.getElementById('mobileLogout').addEventListener('click', handleLogout);
+    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
 
 </script>
 </body>
