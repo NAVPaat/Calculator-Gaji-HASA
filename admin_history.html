@@ -21,11 +21,13 @@
     --bg-body: #F3F4F6; --surface: rgba(255, 255, 255, 0.95);
     --text-main: #334155; --text-light: #64748b; --border: rgba(255,255,255,0.6);
     --glass: blur(12px); --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+    --btn-bg: #e2e8f0; --btn-text: #475569; /* Default button colors */
 }
 
 body.dark-mode {
     --bg-body: #0f172a; --surface: rgba(30, 41, 59, 0.95);
     --text-main: #f1f5f9; --text-light: #94a3b8; --border: rgba(255,255,255,0.08);
+    --btn-bg: #1e293b; --btn-text: #e2e8f0; /* Dark mode button colors */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
@@ -118,12 +120,26 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 .money { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
 .date { font-size: 0.75rem; color: var(--text-light); }
 
-.btn-trash {
-    background: #fee2e2; color: #ef4444; border: none; width: 35px; height: 35px;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; margin-top: 5px; transition: 0.2s;
+/* ACTION BUTTONS (UPDATED FOR DARK MODE) */
+.btn-group { display: flex; gap: 10px; margin-top: 5px; }
+
+.btn-icon {
+    width: 35px; height: 35px; border-radius: 50%; border: 1px solid transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.2s; font-size: 0.9rem;
 }
+
+/* Delete Button */
+.btn-trash { background: #fee2e2; color: #ef4444; border: none; }
 .btn-trash:hover { background: #ef4444; color: white; transform: scale(1.1); }
+
+/* Expand/Arrow Button (FIX DARK MODE) */
+.btn-expand {
+    background: var(--btn-bg); color: var(--btn-text); 
+    border: 1px solid var(--border);
+}
+.btn-expand:hover { background: var(--primary); color: white; border-color: var(--primary); }
+.btn-expand i { transition: transform 0.3s; }
 
 /* EXPANDED DETAILS */
 .record-details { display: none; padding: 25px; background: rgba(0,0,0,0.02); animation: slideDown 0.3s ease; }
@@ -250,269 +266,283 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 
 <script>
 // --- ADMIN SECURITY CHECK ---
-// Letak ini betul-betul lepas firebase config
 if (!sessionStorage.getItem('admin_verified')) {
     alert("Akses tidak dibenarkan. Sila sahkan No. Staf.");
     window.location.href = 'admin_gate.html';
 }
-    const firebaseConfig = { apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8", authDomain: "data-staff-6hha55.firebaseapp.com", projectId: "data-staff-6hha55", storageBucket: "data-staff-6hha55.firebasestorage.app", messagingSenderId: "834544418876", appId: "1:834544418876:web:71b355bd0f3faf73244339" };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore(); const auth = firebase.auth();
 
-    // UI Helpers
-    let lastScrollTop = 0;
-    const navbar = document.getElementById('mainNav');
-    const topBtn = document.getElementById('topBtn');
-    window.addEventListener('scroll', () => {
-        let st = window.pageYOffset || document.documentElement.scrollTop;
-        if (st > lastScrollTop && st > 100) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
-        lastScrollTop = st;
-        if (st > 300) topBtn.classList.add('show'); else topBtn.classList.remove('show');
-    });
+const firebaseConfig = { apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8", authDomain: "data-staff-6hha55.firebaseapp.com", projectId: "data-staff-6hha55", storageBucket: "data-staff-6hha55.firebasestorage.app", messagingSenderId: "834544418876", appId: "1:834544418876:web:71b355bd0f3faf73244339" };
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore(); const auth = firebase.auth();
 
-    const themeBtn = document.getElementById('themeBtn');
-    if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
-    themeBtn.onclick = () => {
-        document.body.classList.toggle('dark-mode');
-        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-        themeBtn.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-    };
+// UI Helpers
+let lastScrollTop = 0;
+const navbar = document.getElementById('mainNav');
+const topBtn = document.getElementById('topBtn');
+window.addEventListener('scroll', () => {
+    let st = window.pageYOffset || document.documentElement.scrollTop;
+    if (st > lastScrollTop && st > 100) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
+    lastScrollTop = st;
+    if (st > 300) topBtn.classList.add('show'); else topBtn.classList.remove('show');
+});
 
-    function showToast() {
-        const t = document.getElementById('toast');
-        t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
-    }
+const themeBtn = document.getElementById('themeBtn');
+if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+themeBtn.onclick = () => {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    themeBtn.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+};
 
-    // --- DATA LOGIC ---
-    let allRecords = [];
-    let deleteTargetId = null;
+function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+}
 
-    auth.onAuthStateChanged(user => { if(user) loadHistory(); else location.href='login.html'; });
+// --- DATA LOGIC ---
+let allRecords = [];
+let deleteTargetId = null;
 
-    async function loadHistory() {
-        const container = document.getElementById('recordsList');
-        try {
-            // Get ALL records (no limit) to enable proper frontend sorting
-            const snap = await db.collection('printedSlips').orderBy('timestamp', 'desc').get();
-            if(snap.empty) { 
-                container.innerHTML = '<p style="text-align:center;">Tiada rekod dijumpai.</p>'; 
-                document.getElementById('totalCount').innerText = "0";
-                return; 
-            }
+auth.onAuthStateChanged(user => { if(user) loadHistory(); else location.href='login.html'; });
 
-            allRecords = [];
-            snap.forEach(doc => {
-                let data = doc.data();
-                data.id = doc.id;
-                // Add sorting fallback for missing timestamp
-                if(!data.timestamp) data.timestamp = { seconds: 0 };
-                allRecords.push(data);
-            });
-
-            // Initial render
-            renderList(allRecords);
-
-        } catch(e) { console.error(e); container.innerHTML = "Ralat memuatkan data."; }
-    }
-
-    function renderList(dataArr) {
-        const container = document.getElementById('recordsList');
-        document.getElementById('totalCount').innerText = dataArr.length;
-        container.innerHTML = "";
-
-        if(dataArr.length === 0) {
-            container.innerHTML = '<p style="text-align:center; padding:20px;">Tiada rekod ditemui.</p>';
-            return;
+async function loadHistory() {
+    const container = document.getElementById('recordsList');
+    try {
+        const snap = await db.collection('printedSlips').orderBy('timestamp', 'desc').get();
+        if(snap.empty) { 
+            container.innerHTML = '<p style="text-align:center;">Tiada rekod dijumpai.</p>'; 
+            document.getElementById('totalCount').innerText = "0";
+            return; 
         }
 
-        let html = '';
-        dataArr.forEach(d => {
-            const dateStr = d.timestamp.seconds ? new Date(d.timestamp.seconds * 1000).toLocaleString('ms-MY', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
-            
-            // SEKTOR & COLOR LOGIC
-            let sektor = d.jenis_sektor || d.kategori || 'Sektor Awam';
-            if(sektor.toLowerCase().includes('swasta')) sektor = 'Sektor Swasta';
-            else sektor = 'Sektor Awam';
-            
-            const tagClass = sektor === 'Sektor Swasta' ? 'badge-swasta' : 'badge-awam';
-            const sektorLabel = sektor.toUpperCase();
+        allRecords = [];
+        snap.forEach(doc => {
+            let data = doc.data();
+            data.id = doc.id;
+            if(!data.timestamp) data.timestamp = { seconds: 0 };
+            allRecords.push(data);
+        });
 
-            // Currency
-            const rm = (val) => `RM ${parseFloat(val || 0).toFixed(2)}`;
+        renderList(allRecords);
 
-            // Experience Table (Jika Swasta)
-            let expTable = '';
-            if(d.senarai_pengalaman && d.senarai_pengalaman.length > 0) {
-                let rows = d.senarai_pengalaman.map(e => {
-                    // Logic: Guna format lengkap baru (dari swasta.html) jika ada, jika tidak guna format lama
-                    let durationText = e.tempoh_format_lengkap || `${e.tempoh_bulan || 0} Bulan`;
-                    
-                    // Tarikh format
-                    let dateRange = '';
-                    if(e.tarikh_mula && e.tarikh_tamat) {
-                        // Kalau format string "YYYY-MM-DD"
-                        dateRange = `${new Date(e.tarikh_mula).toLocaleDateString()} - ${new Date(e.tarikh_tamat).toLocaleDateString()}`;
-                    }
+    } catch(e) { console.error(e); container.innerHTML = "Ralat memuatkan data."; }
+}
 
-                    let gajiLast = e.gaji_terakhir ? `RM ${parseFloat(e.gaji_terakhir).toFixed(2)}` : '-';
-                    
-                    return `
-                        <tr>
-                            <td><strong>${e.jawatan}</strong><br><small>${e.organisasi}</small></td>
-                            <td>${gajiLast}</td>
-                            <td>
-                                ${dateRange ? `<span style="font-size:0.8rem">${dateRange}</span><br>` : ''}
-                                <span style="font-weight:600; color:var(--primary); font-size:0.75rem;">${durationText}</span>
-                            </td>
-                        </tr>`;
-                }).join('');
+function renderList(dataArr) {
+    const container = document.getElementById('recordsList');
+    document.getElementById('totalCount').innerText = dataArr.length;
+    container.innerHTML = "";
+
+    if(dataArr.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:20px;">Tiada rekod ditemui.</p>';
+        return;
+    }
+
+    let html = '';
+    dataArr.forEach(d => {
+        const dateStr = d.timestamp.seconds ? new Date(d.timestamp.seconds * 1000).toLocaleString('ms-MY', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
+        
+        // SEKTOR & COLOR LOGIC
+        let sektor = d.jenis_sektor || d.kategori || 'Sektor Awam';
+        if(sektor.toLowerCase().includes('swasta')) sektor = 'Sektor Swasta';
+        else sektor = 'Sektor Awam';
+        
+        const tagClass = sektor === 'Sektor Swasta' ? 'badge-swasta' : 'badge-awam';
+        const sektorLabel = sektor.toUpperCase();
+
+        const rm = (val) => `RM ${parseFloat(val || 0).toFixed(2)}`;
+
+        // Experience Table
+        let expTable = '';
+        if(d.senarai_pengalaman && d.senarai_pengalaman.length > 0) {
+            let rows = d.senarai_pengalaman.map(e => {
+                let durationText = e.tempoh_format_lengkap || `${e.tempoh_bulan || 0} Bulan`;
+                let dateRange = '';
+                if(e.tarikh_mula && e.tarikh_tamat) {
+                    dateRange = `${new Date(e.tarikh_mula).toLocaleDateString()} - ${new Date(e.tarikh_tamat).toLocaleDateString()}`;
+                }
+                let gajiLast = e.gaji_terakhir ? `RM ${parseFloat(e.gaji_terakhir).toFixed(2)}` : '-';
                 
-                expTable = `
-                    <div class="detail-section-title">Rekod Pengalaman Terdahulu</div>
-                    <div style="overflow-x:auto">
-                        <table class="exp-table">
-                            <thead>
-                                <tr>
-                                    <th width="35%">Jawatan / Organisasi</th>
-                                    <th width="20%">Gaji Akhir</th>
-                                    <th width="45%">Tempoh Perkhidmatan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${rows}
-                                <tr style="background:rgba(0,0,0,0.02)">
-                                    <td colspan="2" align="right"><strong>Jumlah Pengalaman Diambil Kira:</strong></td>
-                                    <td><strong>${d.jumlah_tahun_pengalaman || 0} Tahun</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            }
+                return `
+                    <tr>
+                        <td><strong>${e.jawatan}</strong><br><small>${e.organisasi}</small></td>
+                        <td>${gajiLast}</td>
+                        <td>
+                            ${dateRange ? `<span style="font-size:0.8rem">${dateRange}</span><br>` : ''}
+                            <span style="font-weight:600; color:var(--primary); font-size:0.75rem;">${durationText}</span>
+                        </td>
+                    </tr>`;
+            }).join('');
+            
+            expTable = `
+                <div class="detail-section-title">Rekod Pengalaman Terdahulu</div>
+                <div style="overflow-x:auto">
+                    <table class="exp-table">
+                        <thead>
+                            <tr>
+                                <th width="35%">Jawatan / Organisasi</th>
+                                <th width="20%">Gaji Akhir</th>
+                                <th width="45%">Tempoh Perkhidmatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                            <tr style="background:rgba(0,0,0,0.02)">
+                                <td colspan="2" align="right"><strong>Jumlah Pengalaman Diambil Kira:</strong></td>
+                                <td><strong>${d.jumlah_tahun_pengalaman || 0} Tahun</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
 
-            // Info PGT (Jika Awam)
-            let awamInfo = '';
-            if(sektor === 'Sektor Awam' && d.dapat_pgt) {
-                awamInfo = `
-                    <div class="detail-section-title">Maklumat Perkhidmatan</div>
-                    <div class="details-grid">
-                        <div class="detail-item"><label>Status PGT</label><strong>${d.dapat_pgt}</strong></div>
-                        <div class="detail-item"><label>Bulan TPG</label><strong>${d.bulan_pergerakan || '-'}</strong></div>
-                    </div>
-                `;
-            }
+        // Info PGT (Awam)
+        let awamInfo = '';
+        if(sektor === 'Sektor Awam' && d.dapat_pgt) {
+            awamInfo = `
+                <div class="detail-section-title">Maklumat Perkhidmatan</div>
+                <div class="details-grid">
+                    <div class="detail-item"><label>Status PGT</label><strong>${d.dapat_pgt}</strong></div>
+                    <div class="detail-item"><label>Bulan TPG</label><strong>${d.bulan_pergerakan || '-'}</strong></div>
+                </div>
+            `;
+        }
 
-            // Pos Basik Name & Amount
-            let posBasikVal = parseFloat(d.bipb || 0) || (d.nama_sijil_pos_basik ? 100 : 0);
-            let posBasikName = d.nama_sijil_pos_basik ? `<br><small style="color:var(--primary);">${d.nama_sijil_pos_basik}</small>` : '';
+        let posBasikVal = parseFloat(d.bipb || 0) || (d.nama_sijil_pos_basik ? 100 : 0);
+        let posBasikName = d.nama_sijil_pos_basik ? `<br><small style="color:var(--primary);">${d.nama_sijil_pos_basik}</small>` : '';
 
-            // HTML Structure
-            html += `
-            <div class="record-card" id="card-${d.id}">
-                <div class="record-header">
-                    <div class="info-left" onclick="toggleCard('${d.id}')">
-                        <div class="user-name">${d.nama_penuh || 'User'}</div>
-                        <div class="badge-sector ${tagClass}">${sektorLabel}</div>
-                        <div class="user-details">
-                            <i class="fa-solid fa-briefcase" style="width:20px; color:var(--primary);"></i> ${d.jawatan_terpilih || d.jawatan || '-'}<br>
-                            <i class="fa-solid fa-location-dot" style="width:20px; color:var(--primary);"></i> ${d.wilayah_asal || '-'}
-                        </div>
-                    </div>
-                    
-                    <div class="header-right">
-                        <div class="money">${rm(d.gaji_bersih)}</div>
-                        <span class="date">${dateStr}</span>
-                        <div style="display:flex; gap:10px; margin-top:5px;">
-                            <button class="btn-trash" onclick="openDeleteModal('${d.id}')" title="Padam Rekod"><i class="fa-solid fa-trash"></i></button>
-                            <button class="btn-trash" onclick="toggleCard('${d.id}')" style="background:#f1f5f9; color:var(--text-main);"><i class="fa-solid fa-chevron-down"></i></button>
-                        </div>
+        // HTML Structure
+        html += `
+        <div class="record-card" id="card-${d.id}">
+            <div class="record-header">
+                <div class="info-left" onclick="toggleCard(event, '${d.id}')">
+                    <div class="user-name">${d.nama_penuh || 'User'}</div>
+                    <div class="badge-sector ${tagClass}">${sektorLabel}</div>
+                    <div class="user-details">
+                        <i class="fa-solid fa-briefcase" style="width:20px; color:var(--primary);"></i> ${d.jawatan_terpilih || d.jawatan || '-'}<br>
+                        <i class="fa-solid fa-location-dot" style="width:20px; color:var(--primary);"></i> ${d.wilayah_asal || '-'}
                     </div>
                 </div>
                 
-                <div class="record-details">
-                    ${awamInfo}
-
-                    <div class="detail-section-title">Pendapatan Utama</div>
-                    <div class="details-grid">
-                        <div class="detail-item"><label>Gaji Pokok Asal</label><strong>${rm(d.gaji_pokok || d.gaji_pokok_asal)}</strong></div>
-                        <div class="detail-item"><label>Kenaikan KGT</label><strong>${rm(d.kgt_tambahan || d.jumlah_kenaikan_kgt)}</strong></div>
-                        <div class="detail-item" style="border-color:var(--primary); background:rgba(108,99,255,0.05);"><label>Gaji Pokok Baru</label><strong style="color:var(--primary);">${rm(d.gaji_pokok_baru || d.gaji_pokok)}</strong></div>
+                <div class="header-right">
+                    <div class="money">${rm(d.gaji_bersih)}</div>
+                    <span class="date">${dateStr}</span>
+                    <div class="btn-group">
+                        <button class="btn-icon btn-trash" onclick="openDeleteModal('${d.id}')" title="Padam Rekod"><i class="fa-solid fa-trash"></i></button>
+                        <button class="btn-icon btn-expand" onclick="toggleCard(event, '${d.id}')" title="Lihat Perincian"><i class="fa-solid fa-chevron-down"></i></button>
                     </div>
-
-                    <div class="detail-section-title">Perincian Elaun</div>
-                    <div class="details-grid">
-                        <div class="detail-item"><label>ITKA</label><strong>${rm(d.itka)}</strong></div>
-                        <div class="detail-item"><label>ITP / Perumahan</label><strong>${rm(d.itp || d.el_perumahan)}</strong></div>
-                        <div class="detail-item"><label>ITK / Keraian</label><strong>${rm(d.itk)}</strong></div>
-                        <div class="detail-item"><label>BIPK / Kritikal</label><strong>${rm(d.bipk)}</strong></div>
-                        <div class="detail-item"><label>BISH / COLA</label><strong>${rm(d.bish || d.cola)}</strong></div>
-                        <div class="detail-item"><label>BIW / Wilayah</label><strong>${rm(d.biw || d.el_wilayah)}</strong></div>
-                        <div class="detail-item"><label>BIP / Pakar</label><strong>${rm(d.bip || d.el_pakar)}</strong></div>
-                        <div class="detail-item"><label>Insentif Pos Basik</label><strong>${rm(posBasikVal)}</strong>${posBasikName}</div>
-                    </div>
-
-                    ${expTable}
                 </div>
-            </div>`;
-        });
-        container.innerHTML = html;
-    }
+            </div>
+            
+            <div class="record-details">
+                ${awamInfo}
+                <div class="detail-section-title">Pendapatan Utama</div>
+                <div class="details-grid">
+                    <div class="detail-item"><label>Gaji Pokok Asal</label><strong>${rm(d.gaji_pokok || d.gaji_pokok_asal)}</strong></div>
+                    <div class="detail-item"><label>Kenaikan KGT</label><strong>${rm(d.kgt_tambahan || d.jumlah_kenaikan_kgt)}</strong></div>
+                    <div class="detail-item" style="border-color:var(--primary); background:rgba(108,99,255,0.05);"><label>Gaji Pokok Baru</label><strong style="color:var(--primary);">${rm(d.gaji_pokok_baru || d.gaji_pokok)}</strong></div>
+                </div>
+                <div class="detail-section-title">Perincian Elaun</div>
+                <div class="details-grid">
+                    <div class="detail-item"><label>ITKA</label><strong>${rm(d.itka)}</strong></div>
+                    <div class="detail-item"><label>ITP / Perumahan</label><strong>${rm(d.itp || d.el_perumahan)}</strong></div>
+                    <div class="detail-item"><label>ITK / Keraian</label><strong>${rm(d.itk)}</strong></div>
+                    <div class="detail-item"><label>BIPK / Kritikal</label><strong>${rm(d.bipk)}</strong></div>
+                    <div class="detail-item"><label>BISH / COLA</label><strong>${rm(d.bish || d.cola)}</strong></div>
+                    <div class="detail-item"><label>BIW / Wilayah</label><strong>${rm(d.biw || d.el_wilayah)}</strong></div>
+                    <div class="detail-item"><label>BIP / Pakar</label><strong>${rm(d.bip || d.el_pakar)}</strong></div>
+                    <div class="detail-item"><label>Insentif Pos Basik</label><strong>${rm(posBasikVal)}</strong>${posBasikName}</div>
+                </div>
+                ${expTable}
+            </div>
+        </div>`;
+    });
+    container.innerHTML = html;
+}
 
-    // --- SEARCH & FILTER LOGIC ---
-    function filterHistory() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
-        const sortMode = document.getElementById('sortSelect').value;
+// --- SEARCH & FILTER LOGIC ---
+function filterHistory() {
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    const sortMode = document.getElementById('sortSelect').value;
 
-        // 1. Search Filter
-        let filtered = allRecords.filter(d => {
-            const name = (d.nama_penuh || "").toLowerCase();
-            const email = (d.email || "").toLowerCase();
-            return name.includes(input) || email.includes(input);
-        });
+    let filtered = allRecords.filter(d => {
+        const name = (d.nama_penuh || "").toLowerCase();
+        const email = (d.email || "").toLowerCase();
+        return name.includes(input) || email.includes(input);
+    });
 
-        // 2. Sort Logic
-        filtered.sort((a, b) => {
-            const timeA = a.timestamp ? (a.timestamp.seconds || 0) : 0;
-            const timeB = b.timestamp ? (b.timestamp.seconds || 0) : 0;
-            const nameA = (a.nama_penuh || "").toLowerCase();
-            const nameB = (b.nama_penuh || "").toLowerCase();
+    filtered.sort((a, b) => {
+        const timeA = a.timestamp ? (a.timestamp.seconds || 0) : 0;
+        const timeB = b.timestamp ? (b.timestamp.seconds || 0) : 0;
+        const nameA = (a.nama_penuh || "").toLowerCase();
+        const nameB = (b.nama_penuh || "").toLowerCase();
 
-            if (sortMode === 'newest') return timeB - timeA;
-            if (sortMode === 'oldest') return timeA - timeB;
-            if (sortMode === 'az') return nameA.localeCompare(nameB);
-            return 0;
-        });
+        if (sortMode === 'newest') return timeB - timeA;
+        if (sortMode === 'oldest') return timeA - timeB;
+        if (sortMode === 'az') return nameA.localeCompare(nameB);
+        return 0;
+    });
 
-        renderList(filtered);
-    }
+    renderList(filtered);
+}
 
-    window.toggleCard = function(id) {
-        const card = document.getElementById(`card-${id}`);
-        card.classList.toggle('active');
+// --- TOGGLE & AUTO HIDE LOGIC ---
+
+// 1. Toggle function (Buka satu, tutup yang lain)
+window.toggleCard = function(e, id) {
+    if(e) e.stopPropagation(); // Elak trigger click outside
+    
+    const card = document.getElementById(`card-${id}`);
+    const isActive = card.classList.contains('active');
+
+    // Tutup semua kad dahulu
+    closeAllCards();
+
+    // Kalau kad tu belum buka, kita buka dia
+    if(!isActive) {
+        card.classList.add('active');
         const icon = card.querySelector('.fa-chevron-down');
-        if(card.classList.contains('active')) icon.style.transform = 'rotate(180deg)';
-        else icon.style.transform = 'rotate(0deg)';
+        if(icon) icon.style.transform = 'rotate(180deg)';
     }
+}
 
-    // --- MODAL LOGIC ---
-    window.openDeleteModal = function(id) {
-        deleteTargetId = id;
-        document.getElementById('deleteModal').classList.add('show');
+// 2. Helper tutup semua kad
+function closeAllCards() {
+    document.querySelectorAll('.record-card.active').forEach(card => {
+        card.classList.remove('active');
+        const icon = card.querySelector('.fa-chevron-down');
+        if(icon) icon.style.transform = 'rotate(0deg)';
+    });
+}
+
+// 3. Detect Click Outside (Tutup bila klik luar)
+document.addEventListener('click', function(e) {
+    // Kalau yang diklik BUKAN dalam .record-card, tutup semua
+    if (!e.target.closest('.record-card')) {
+        closeAllCards();
     }
-    window.closeModal = function() {
-        document.getElementById('deleteModal').classList.remove('show');
-        deleteTargetId = null;
-    }
-    window.confirmDelete = async function() {
-        if(!deleteTargetId) return;
-        try {
-            await db.collection('printedSlips').doc(deleteTargetId).delete();
-            closeModal();
-            showToast();
-            allRecords = allRecords.filter(r => r.id !== deleteTargetId);
-            filterHistory();
-        } catch(e) { alert("Ralat."); closeModal(); }
-    }
+});
+
+// --- MODAL LOGIC ---
+window.openDeleteModal = function(id) {
+    deleteTargetId = id;
+    document.getElementById('deleteModal').classList.add('show');
+}
+window.closeModal = function() {
+    document.getElementById('deleteModal').classList.remove('show');
+    deleteTargetId = null;
+}
+window.confirmDelete = async function() {
+    if(!deleteTargetId) return;
+    try {
+        await db.collection('printedSlips').doc(deleteTargetId).delete();
+        closeModal();
+        showToast();
+        allRecords = allRecords.filter(r => r.id !== deleteTargetId);
+        filterHistory();
+    } catch(e) { alert("Ralat."); closeModal(); }
+}
 </script>
 </body>
 </html>
