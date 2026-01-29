@@ -176,41 +176,30 @@ input[readonly], select:disabled { opacity: 0.7; cursor: default; }
 .total-label { font-size: 0.85rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; }
 .total-amount { font-size: 2.2rem; font-weight: 800; margin-top: 5px; }
 
-.action-buttons { display: flex; gap: 15px; margin-top: 25px; }
+/* ACTION BUTTONS (HIDDEN INITIALLY) */
+.action-buttons { display: none; gap: 15px; margin-top: 25px; } /* Updated: Display none */
 .btn-secondary { flex: 1; padding: 14px; background: var(--surface); color: var(--text-light); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
 .btn-secondary:hover { background: var(--bg-body); }
 .btn-print { flex: 1; padding: 14px; background: var(--secondary); color: #064e3b; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(45, 212, 191, 0.3); transition: 0.2s; }
 .btn-print:hover { transform: translateY(-2px); }
 
 /* FLOATING BUTTONS & POPUP */
-.petunjuk-btn {
-    position: fixed; bottom: 30px; left: 30px; width: 50px; height: 50px;
-    background: var(--text-main); color: var(--surface); border: none; border-radius: 50%;
-    font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-    z-index: 2000; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); display: flex; align-items: center; justify-content: center;
+.petunjuk-btn, .theme-btn {
+    position: fixed; left: 30px; 
+    width: 50px; height: 50px;
+    background: var(--surface); color: var(--text-main); 
+    border: 2px solid var(--border); border-radius: 50%;
+    font-size: 1.2rem; cursor: pointer; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+    z-index: 2000; 
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
-.petunjuk-btn:hover { transform: scale(1.1); background: var(--primary); }
-.petunjuk-btn::after {
-    content: "Petunjuk"; position: absolute; left: 60px; background: #333; color: #fff;
-    padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; opacity: 0; visibility: hidden;
-    transition: 0.3s; pointer-events: none; white-space: nowrap;
-}
-.petunjuk-btn:hover::after { opacity: 1; visibility: visible; }
+.petunjuk-btn { bottom: 30px; background: var(--text-main); color: var(--surface); border: none; }
+.theme-btn { bottom: 90px; }
 
-/* THEME TOGGLE BUTTON */
-.theme-btn {
-    position: fixed; bottom: 90px; left: 30px; width: 50px; height: 50px;
-    background: var(--surface); color: var(--text-main); border: 2px solid var(--border); border-radius: 50%;
-    font-size: 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-    z-index: 2000; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); display: flex; align-items: center; justify-content: center;
-}
+.petunjuk-btn:hover { transform: scale(1.1); background: var(--primary); }
 .theme-btn:hover { transform: scale(1.1); border-color: var(--primary); color: var(--primary); }
-.theme-btn::after {
-    content: "Tukar Tema"; position: absolute; left: 60px; background: #333; color: #fff;
-    padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; opacity: 0; visibility: hidden;
-    transition: 0.3s; pointer-events: none; white-space: nowrap;
-}
-.theme-btn:hover::after { opacity: 1; visibility: visible; }
 
 #goTopBtn {
     position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
@@ -231,86 +220,74 @@ input[readonly], select:disabled { opacity: 0.7; cursor: default; }
 .petunjuk-table td { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; color: var(--text-main); }
 .petunjuk-table strong { color: var(--primary); }
 
-/* =========================================
-       7. RESPONSIVE MOBILE (UPDATED BUTTONS)
-       ========================================= */
-    @media (max-width: 900px) {
-        body { height: auto; overflow-y: auto; }
-        
-        .navbar { margin: 15px; border-radius: 30px; padding: 15px 20px; top: 0; width: auto; }
-        
-        .nav-center { 
-            display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; 
-            background: var(--surface); border-radius: 25px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            gap: 15px; text-align: center; max-height: 0; overflow: hidden; opacity: 0; padding: 0 20px; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid var(--border);
-        }
-        
-        .nav-center.active { max-height: 400px; opacity: 1; padding: 25px 20px; }
-        .user-pill { display: none; }
-        .hamburger { display: block; }
-        .main-wrapper { padding: 20px; }
-        .glass-panel { flex-direction: column; padding: 30px; gap: 30px; }
-        .profile-left { border-right: none; border-bottom: 1px dashed var(--border); padding-right: 0; padding-bottom: 30px; width: 100%; }
-        .row { flex-direction: column; gap: 0; }
-        input { margin-bottom: 15px; }
-
-        /* --- MOBILE STICKY BUTTONS (HALF-HIDDEN) --- */
-        .petunjuk-btn, .theme-btn {
-            left: -25px !important;  /* Separuh tersembunyi ke kiri */
-            border-radius: 0 50% 50% 0 !important; /* Bentuk Tab */
-            width: 60px !important; 
-            padding-left: 20px !important; /* Tolak icon ke kanan */
-            opacity: 0.8;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-        }
-
-        /* Slide Out Effect on Click/Hover */
-        .petunjuk-btn:hover, .theme-btn:hover,
-        .petunjuk-btn:focus, .theme-btn:focus,
-        .petunjuk-btn:active, .theme-btn:active {
-            left: 10px !important; /* Keluar sepenuhnya */
-            opacity: 1;
-            padding-left: 0 !important; /* Centerkan icon */
-            width: 50px !important;
-            border-radius: 50% !important; /* Bulat semula */
-        }
-
-        /* Tooltip on Mobile (Sebelah Kanan) */
-        .petunjuk-btn::after, .theme-btn::after {
-            left: 60px; /* Tooltip sebelah kanan button */
-            background: rgba(0,0,0,0.9);
-        }
-    }
-
-/* Warning Box */
+/* WARNING BOX */
 .warning-box {
-    margin-top: 20px;
-    background: #fff7ed;
-    border: 1px solid #fdba74;
-    border-left: 5px solid #f97316;
-    padding: 15px;
-    border-radius: 10px;
-    display: flex;
-    gap: 15px;
-    align-items: flex-start;
-    color: #9a3412;
-    font-size: 0.9rem;
-    line-height: 1.5;
+    margin-top: 20px; background: #fff7ed; border: 1px solid #fdba74;
+    border-left: 5px solid #f97316; padding: 15px; border-radius: 10px;
+    display: flex; gap: 15px; align-items: flex-start; color: #9a3412; font-size: 0.9rem; line-height: 1.5;
+}
+.warn-desktop { display: inline; }
+.warn-mobile { display: none; }
+
+/* SURVEY BOX STYLES */
+.survey-box {
+    margin-top: 20px; background: var(--input-bg); border: 1px solid var(--border);
+    padding: 20px; border-radius: 15px; animation: fadeIn 0.5s;
+}
+.survey-item { margin-bottom: 15px; }
+.survey-q { font-weight: 600; margin-bottom: 8px; font-size: 0.95rem; display: block; }
+.radio-group { display: flex; gap: 20px; }
+.radio-label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.radio-input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+
+/* PROMO BOX STYLES */
+.promo-box {
+    display: none; /* Hidden by default */
+    background: #eef2ff; border: 1px solid #c7d2fe;
+    padding: 20px; border-radius: 15px; margin-top: 20px; text-align: center;
+    color: #3730a3; animation: slideDown 0.4s ease;
+}
+.promo-box h3 { margin: 0 0 5px 0; color: var(--primary); }
+.promo-link { font-weight: 700; color: var(--primary-dark); text-decoration: underline; font-size: 1rem; word-break: break-all; }
+
+@keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    body { height: auto; overflow-y: auto; }
+    .navbar { margin: 15px; border-radius: 30px; padding: 15px 20px; top: 0; width: auto; }
+    .nav-center { 
+        display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; 
+        background: var(--surface); border-radius: 25px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+        gap: 15px; text-align: center; max-height: 0; overflow: hidden; opacity: 0; padding: 0 20px; 
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid var(--border);
+    }
+    .nav-center.active { max-height: 400px; opacity: 1; padding: 25px 20px; }
+    .user-pill { display: none; }
+    .hamburger { display: block; }
+    .main-wrapper { padding: 20px; }
+    .glass-panel { flex-direction: column; padding: 30px; gap: 30px; }
+    .profile-left { border-right: none; border-bottom: 1px dashed var(--border); padding-right: 0; padding-bottom: 30px; width: 100%; }
+    .row { flex-direction: column; gap: 0; }
+    input { margin-bottom: 15px; }
+    .warn-desktop { display: none; }
+    .warn-mobile { display: inline; }
+    
+    .petunjuk-btn, .theme-btn {
+        left: -25px !important; border-radius: 0 50% 50% 0 !important; width: 60px !important; 
+        padding-left: 15px !important; opacity: 0.8;
+    }
+    .petunjuk-btn:hover, .theme-btn:hover,
+    .petunjuk-btn:focus, .theme-btn:focus,
+    .petunjuk-btn:active, .theme-btn:active {
+        left: 0 !important; opacity: 1; padding-left: 0 !important; width: 50px !important; border-radius: 50% !important;
+    }
 }
 
-/* Print Styles */
 @media print {
     body.dark-mode { --bg-body: white; --surface: white; --text-main: black; --text-light: #333; --border: #ccc; }
-    .theme-btn, .petunjuk-btn, #goTopBtn { display: none !important; }
-    .watermark {
-        position: fixed; top: 50%; left: 50%; 
-        transform: translate(-50%, -50%) rotate(-45deg);
-        font-size: 100px; font-weight: 900; 
-        color: rgba(0,0,0,0.05); white-space: nowrap; 
-        z-index: -1; border: 10px solid rgba(0,0,0,0.05); padding: 20px;
-    }
+    .theme-btn, .petunjuk-btn, #goTopBtn, .navbar, .action-buttons, .warning-box, .survey-box, .promo-box { display: none !important; }
 }
 </style>
 </head>
@@ -391,7 +368,7 @@ input[readonly], select:disabled { opacity: 0.7; cursor: default; }
             <div class="row">
                 <div class="col">
                     <label>Gaji Pokok (RM)</label>
-                    <input type="number" id="awamGajiPokok" placeholder="0.00">
+                    <input type="number" id="awamGajiPokok" placeholder="0.00" readonly>
                 </div>
                 <div class="col">
                     <label>Jawatan Terpilih</label>
@@ -485,9 +462,9 @@ input[readonly], select:disabled { opacity: 0.7; cursor: default; }
                     <div class="detail-row"><span>Bantuan Sara Hidup (BISH)</span><span id="d-bish">-</span></div>
                     <div class="detail-row"><span>Bayaran Insentif Wilayah (BIW)</span><span id="d-biw">-</span></div>
                     <div class="detail-row"><span>Bayaran Insentif Kritikal (BIPK)</span><span id="d-bipk">-</span></div>
-                    <div class="detail-row"><span>Bayaran Insentif Pos (BIP)</span><span id="d-bip">-</span></div>
+                    <div class="detail-row"><span>Bayaran Insentif Pakar (BIP)</span><span id="d-bip">-</span></div>
                     <div class="detail-row" style="background:var(--secondary); color:#064e3b; border-radius:5px; padding:10px; opacity:0.8;">
-                        <span>Elaun Pos Basik</span><span id="d-pos-basik" style="font-weight:700;">-</span>
+                        <span>BAYARAN INSENTIF POS BASIK (BIPB)</span><span id="d-pos-basik" style="font-weight:700;">-</span>
                     </div>
                     
                     <div class="form-section-title" style="margin-top:20px;">LAIN-LAIN</div>
@@ -503,11 +480,38 @@ input[readonly], select:disabled { opacity: 0.7; cursor: default; }
                         <i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem; color:#f97316;"></i>
                         <div style="text-align: justify;">
                             <strong>PERHATIAN PENTING:</strong><br>
-                            Dokumen ini adalah cetakan komputer daripada Sistem Dashboard HASA. Segala nilai yang dipaparkan adalah <strong>SIMULASI ANGGARAN</strong> berdasarkan input pengguna dan data pekeliling semasa. Ia <strong>TIDAK SAH</strong> digunakan sebagai dokumen rasmi untuk tujuan pinjaman bank, urusan undang-undang, atau tuntutan rasmi. Sila rujuk Bahagian Sumber Manusia (BSM) atau Unit Gaji untuk penyata gaji yang sah.
+                            <span class="warn-mobile">
+                                Simulasi ini adalah <strong>ANGGARAN</strong> sahaja dan <strong>TIDAK SAH</strong> untuk urusan rasmi/bank. Sila rujuk BSM untuk penyata sebenar.
+                            </span>
+                            <span class="warn-desktop">
+                                Dokumen ini adalah cetakan komputer daripada Sistem Dashboard HASA. Segala nilai yang dipaparkan adalah <strong>SIMULASI ANGGARAN</strong> berdasarkan input pengguna dan data pekeliling semasa. Ia <strong>TIDAK SAH</strong> digunakan sebagai dokumen rasmi untuk tujuan pinjaman bank, urusan undang-undang, atau tuntutan rasmi. Sila rujuk Bahagian Sumber Manusia (BSM) atau Unit Gaji untuk penyata gaji yang sah.
+                            </span>
                         </div>
                     </div>
 
-                    <div class="action-buttons">
+                    <div class="survey-box" id="surveyBox">
+                        <div class="survey-item">
+                            <span class="survey-q">1. Adakah gaji yang ditawarkan setimpal?</span>
+                            <div class="radio-group">
+                                <label class="radio-label"><input type="radio" name="q1" value="Ya" class="radio-input" onchange="checkSurvey()"> Ya</label>
+                                <label class="radio-label"><input type="radio" name="q1" value="Tidak" class="radio-input" onchange="checkSurvey()"> Tidak</label>
+                            </div>
+                        </div>
+                        <div class="survey-item">
+                            <span class="survey-q">2. Adakah anda akan mempertimbangkan menyertai HASA UiTM setelah melihat anggaran gaji?</span>
+                            <div class="radio-group">
+                                <label class="radio-label"><input type="radio" name="q2" value="Ya" class="radio-input" onchange="checkSurvey()"> Ya</label>
+                                <label class="radio-label"><input type="radio" name="q2" value="Tidak" class="radio-input" onchange="checkSurvey()"> Tidak</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="promo-box" id="promoMessage">
+                        <h3>Jom sertai pasukan kami! di HASA UiTM</h3>
+                        <a href="https://pengambilanhuitm.uitm.edu.my/login" target="_blank" class="promo-link">https://pengambilanhuitm.uitm.edu.my/login</a>
+                    </div>
+
+                    <div class="action-buttons" id="actionBtns">
                         <button class="btn-secondary" onclick="resetForm()">Kira Semula</button>
                         <button class="btn-print" id="printBtn" onclick="printResult()">Cetak PDF</button>
                     </div>
@@ -530,10 +534,11 @@ input[readonly], select:disabled { opacity: 0.7; cursor: default; }
             <tr><td><strong>BIW:</strong></td><td>BANTUAN INSENTIF WILAYAH</td></tr>
             <tr><td><strong>BIPK:</strong></td><td>BAYARAN INSENTIF PERKHIDMATAN KRITIKAL</td></tr>
             <tr><td><strong>BIP:</strong></td><td>BAYARAN INSENTIF PAKAR</td></tr>
+            <tr><td><strong>BIPB:</strong></td><td>BAYARAN INSENTIF POS BASIK</td></tr>
         </table>
     </div>
 
-<script>
+    <script>
     // ===========================================
     // 1. FIREBASE CONFIG
     // ===========================================
@@ -549,6 +554,7 @@ input[readonly], select:disabled { opacity: 0.7; cursor: default; }
 
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
+    const auth = firebase.auth();
 
     // ===========================================
     // 2. UI LOGIC (NAV, SCROLL, POPUP, DARK MODE)
@@ -584,14 +590,24 @@ input[readonly], select:disabled { opacity: 0.7; cursor: default; }
     const navbar = document.getElementById('mainNavbar');
     const goTop = document.getElementById('goTopBtn');
     
+    // --- BUTTON BLUR/HIDE LOGIC ---
+    function blurButtons() {
+        document.getElementById('themeToggleBtn').blur();
+        document.getElementById('petunjukBtn').blur();
+    }
+
     window.addEventListener('scroll', function() {
         let st = window.scrollY;
-        if(st > 100) {
-            navbar.classList.add('nav-hidden');
-        } else {
-            navbar.classList.remove('nav-hidden');
-        }
+        if(st > 100) { navbar.classList.add('nav-hidden'); } 
+        else { navbar.classList.remove('nav-hidden'); }
         goTop.style.display = st > 300 ? 'flex' : 'none';
+        if(window.innerWidth <= 900) { blurButtons(); }
+    });
+
+    document.addEventListener('touchstart', (e) => {
+        if (!e.target.closest('#themeToggleBtn') && !e.target.closest('#petunjukBtn')) {
+            blurButtons();
+        }
     });
 
     goTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -608,38 +624,33 @@ input[readonly], select:disabled { opacity: 0.7; cursor: default; }
     }
         
     const logoutBtn = document.getElementById('logoutBtn');
-    if(logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            if(confirm("Log keluar dari sistem?")) {
-                await firebase.auth().signOut();
-                location.href='login.html';
-            }
-        });
+    const mobileLogout = document.getElementById('mobileLogout');
+    async function handleLogout() {
+        if(confirm("Log keluar dari sistem?")) {
+            await firebase.auth().signOut();
+            location.href='login.html';
+        }
     }
+    if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    if(mobileLogout) mobileLogout.addEventListener('click', handleLogout);
     
     // Auth Change
     firebase.auth().onAuthStateChanged(async user => {
         if(!user) { location.href='login.html'; return; }
-        
         const nameEl = document.getElementById('navName');
         const avatarEl = document.getElementById('navAvatar');
-
         try {
             const doc = await db.collection('users').doc(user.uid).get();
             if (doc.exists) {
                 const data = doc.data();
-                if (nameEl && data.fullname) {
-                    nameEl.innerText = data.fullname.split(' ')[0]; 
-                }
+                if (nameEl && data.fullname) nameEl.innerText = data.fullname.split(' ')[0]; 
                 if (avatarEl && data.photoURL) {
                     avatarEl.innerHTML = `<img src="${data.photoURL}" alt="Profile" style="width:100%; height:100%; object-fit:cover;">`;
                     avatarEl.style.backgroundColor = 'transparent';
                     avatarEl.style.border = '2px solid white';
                 }
             }
-        } catch (error) {
-            console.log("Error loading user profile:", error);
-        }
+        } catch (error) { console.log("Error loading user profile:", error); }
     });
 
     // ===========================================
@@ -728,7 +739,7 @@ input[readonly], select:disabled { opacity: 0.7; cursor: default; }
         }
     });
 
-window.computeAwam = function() {
+window.computeAwam = async function() {
     var elGaji = document.getElementById('awamGajiPokok');
     var pgtSelect = document.getElementById('awamTelah');
     var bulanSelect = document.getElementById('awamPGT');
@@ -784,7 +795,6 @@ window.computeAwam = function() {
     document.getElementById('d-bipk').innerText = "RM " + bipk.toFixed(2);
     document.getElementById('d-bip').innerText = "RM " + bip.toFixed(2);
     
-    // Display Pos Basik
     document.getElementById('d-pos-basik').innerText = "RM " + valPosBasik.toFixed(2);
 
     document.getElementById('d-kgt').innerText = "RM " + kgtVal.toFixed(2);
@@ -797,7 +807,7 @@ window.computeAwam = function() {
         kategori: els.kategori.value,
         gajiPokok: gaji,
         elaunList: { itka, itk, itp, bish, biw, bipk, bip, posBasik: valPosBasik },
-        sijilPosBasik: sijilPosBasik, // Store certificate name
+        sijilPosBasik: sijilPosBasik, 
         kgt: kgtVal, kgtTambahan: kgtAdd, jumlahKasar: grandTotal,
         pgtStatus: pgtStatus,
         pgtMonth: pgtMonth,
@@ -807,9 +817,67 @@ window.computeAwam = function() {
         })
     };
 
+    // RESET SURVEY VISIBILITY ON NEW CALC
+    document.getElementById('surveyBox').style.display = 'block';
+    document.getElementById('promoMessage').style.display = 'none';
+    document.getElementById('actionBtns').style.display = 'none';
+    // UNCHECK RADIOS
+    document.querySelectorAll('.radio-input').forEach(r => r.checked = false);
+
     els.resultArea.style.display = 'block'; 
     els.resultArea.scrollIntoView({ behavior: 'smooth' });
+
+    // --- SIMPAN KE FIREBASE (SENYAP) ---
+    const user = auth.currentUser;
+    if(user) {
+        try {
+            await db.collection('printedSlips').add({
+                uid: user.uid,
+                nama_penuh: user.displayName || user.email,
+                email: user.email,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                
+                // === DATA ===
+                jenis_kiraan: "Awam", 
+                jenis_sektor: "Sektor Awam", 
+                kategori: els.kategori.value,
+                jawatan_terpilih: els.jawatanText.value,
+                wilayah_asal: els.wilayah.value,
+                gaji_pokok: gaji,
+                itka: itka,
+                itk: itk,
+                itp: itp,
+                bish: bish,
+                biw: biw,
+                bipk: bipk,
+                bip: bip,
+                bipd: 0, 
+                bipb: valPosBasik,
+                nama_sijil_pos_basik: sijilPosBasik, // SAVED HERE
+                nilai_kgt: kgtVal,
+                kgt_tambahan: kgtAdd,
+                dapat_pgt: pgtStatus,
+                bulan_pergerakan: pgtMonth,
+                gaji_bersih: grandTotal
+            });
+            // NO TOAST HERE
+        } catch (e) {
+            console.error("Gagal simpan:", e);
+        }
+    }
 };
+
+window.checkSurvey = function() {
+    const q1 = document.querySelector('input[name="q1"]:checked');
+    const q2 = document.querySelector('input[name="q2"]:checked');
+    
+    if(q1 && q2) {
+        document.getElementById('promoMessage').style.display = 'block';
+        document.getElementById('actionBtns').style.display = 'flex';
+        // Smooth scroll to buttons
+        document.getElementById('promoMessage').scrollIntoView({ behavior: 'smooth' });
+    }
+}
 
 window.resetForm = function() { 
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
@@ -914,8 +982,8 @@ window.printResult = function() {
                     <tr><td>Bantuan Sara Hidup (BISH)</td><td>${d.elaunList.bish.toFixed(2)}</td></tr>
                     <tr><td>Bayaran Insentif Wilayah (BIW)</td><td>${d.elaunList.biw.toFixed(2)}</td></tr>
                     <tr><td>Bayaran Insentif Kritikal (BIPK)</td><td>${d.elaunList.bipk.toFixed(2)}</td></tr>
-                    <tr><td>Bayaran Insentif Pos (BIP)</td><td>${d.elaunList.bip.toFixed(2)}</td></tr>
-                    ${d.elaunList.posBasik > 0 ? `<tr style="background-color:#F0FDFA;"><td>Elaun Pos Basik</td><td>${d.elaunList.posBasik.toFixed(2)}</td></tr>` : ''}
+                    <tr><td>Bayaran Insentif Pakar (BIP)</td><td>${d.elaunList.bip.toFixed(2)}</td></tr>
+                    ${d.elaunList.posBasik > 0 ? `<tr style="background-color:#F0FDFA;"><td>BAYARAN INSENTIF POS BASIK (BIPB)</td><td>${d.elaunList.posBasik.toFixed(2)}</td></tr>` : ''}
                     <tr><td>KGT Tahun Ini</td><td>${d.kgt.toFixed(2)}</td></tr>
                     <tr><td>KGT Tambahan</td><td>${d.kgtTambahan.toFixed(2)}</td></tr>
                     
