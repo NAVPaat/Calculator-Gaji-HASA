@@ -13,105 +13,31 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <style>
-    /* ============================
-       CORE STYLES
-       ============================ */
-    :root {
-        --primary: #6C63FF;
-        --primary-dark: #5a52d5;
-        --text-main: #334155;
-        --text-light: #64748b;
-        --bg: #F3F4F6;
-    }
-
+    :root { --primary: #6C63FF; --primary-dark: #5a52d5; --text-main: #334155; --text-light: #64748b; --bg: #F3F4F6; }
     * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-
-    body {
-        font-family: 'Poppins', sans-serif;
-        background-color: var(--bg);
-        color: var(--text-main);
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        position: relative;
-    }
-
-    /* BACKGROUND BLOBS */
+    body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text-main); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; }
     .blob { position: absolute; filter: blur(80px); opacity: 0.6; z-index: -1; animation: floatBlob 10s infinite alternate; }
     .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #abbdf6; }
     .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #F0FDFA; }
     @keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
-
-    /* GATE CARD */
-    .gate-card {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(20px);
-        padding: 40px 30px;
-        border-radius: 24px;
-        width: 90%;
-        max-width: 400px;
-        text-align: center;
-        box-shadow: 0 20px 50px rgba(108, 99, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
+    .gate-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); padding: 40px 30px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(108, 99, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.5); animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* ICON & TEXT */
-    .lock-icon-container {
-        width: 80px; height: 80px; background: #EEF2FF;
-        border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        margin: 0 auto 20px; box-shadow: 0 10px 20px rgba(108, 99, 255, 0.1);
-    }
+    .lock-icon-container { width: 80px; height: 80px; background: #EEF2FF; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 10px 20px rgba(108, 99, 255, 0.1); }
     .icon-lock { font-size: 2.5rem; color: var(--primary); }
-    
     h2 { margin-bottom: 5px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
     p { font-size: 0.9rem; color: var(--text-light); margin-bottom: 30px; line-height: 1.5; }
-
-    /* INPUT FIELD */
     .input-group { position: relative; margin-bottom: 20px; }
     .input-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: 1.1rem; transition: 0.3s; }
-    
-    input {
-        width: 100%; padding: 15px 15px 15px 45px;
-        border: 2px solid #e2e8f0; border-radius: 12px;
-        font-size: 1rem; color: var(--text-main); background: #f8fafc;
-        font-family: inherit; font-weight: 600; letter-spacing: 1px;
-        transition: all 0.3s;
-    }
+    input { width: 100%; padding: 15px 15px 15px 45px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; color: var(--text-main); background: #f8fafc; font-family: inherit; font-weight: 600; letter-spacing: 1px; transition: all 0.3s; }
     input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.1); }
     input:focus + .input-icon { color: var(--primary); }
-
-    /* BUTTON */
-    .btn-verify {
-        width: 100%; padding: 15px; border: none; border-radius: 12px;
-        background: var(--primary); color: white;
-        font-size: 1rem; font-weight: 700; cursor: pointer;
-        box-shadow: 0 10px 20px -5px rgba(108, 99, 255, 0.4);
-        transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
-    }
+    .btn-verify { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 10px 20px -5px rgba(108, 99, 255, 0.4); transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
     .btn-verify:hover { background: var(--primary-dark); transform: translateY(-2px); }
     .btn-verify:active { transform: scale(0.98); }
-
-    /* ERROR MESSAGE */
-    .error-box {
-        background: #fee2e2; color: #ef4444; padding: 10px;
-        border-radius: 8px; font-size: 0.85rem; margin-top: 15px;
-        display: none; align-items: center; justify-content: center; gap: 8px;
-        animation: shake 0.4s ease-in-out;
-    }
+    .error-box { background: #fee2e2; color: #ef4444; padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-top: 15px; display: none; align-items: center; justify-content: center; gap: 8px; animation: shake 0.4s ease-in-out; }
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
-
-    /* BACK LINK */
-    .back-link {
-        display: inline-block; margin-top: 25px; color: var(--text-light);
-        text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s;
-    }
+    .back-link { display: inline-block; margin-top: 25px; color: var(--text-light); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
     .back-link:hover { color: var(--primary); }
-
 </style>
 </head>
 <body>
@@ -120,9 +46,7 @@
     <div class="blob blob-2"></div>
 
     <div class="gate-card">
-        <div class="lock-icon-container">
-            <i class="fa-solid fa-shield-cat icon-lock"></i>
-        </div>
+        <div class="lock-icon-container"><i class="fa-solid fa-shield-cat icon-lock"></i></div>
         <h2>Akses Admin</h2>
         <p>Sila masukkan <strong>No. Staf</strong> anda untuk pengesahan keselamatan.</p>
         
@@ -131,107 +55,63 @@
             <i class="fa-solid fa-id-card-clip input-icon"></i>
         </div>
 
-        <button class="btn-verify" onclick="verifyAdmin()">
-            SAHKAN AKSES <i class="fa-solid fa-arrow-right"></i>
-        </button>
-
-        <div id="errorBox" class="error-box">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            <span id="errorText">Akses Ditolak</span>
-        </div>
-
-        <a href="dashboard.html" class="back-link">
-            <i class="fa-solid fa-chevron-left"></i> Kembali ke Dashboard
-        </a>
+        <button class="btn-verify" onclick="verifyAdmin()">SAHKAN AKSES <i class="fa-solid fa-arrow-right"></i></button>
+        <div id="errorBox" class="error-box"><i class="fa-solid fa-circle-exclamation"></i> <span id="errorText">Akses Ditolak</span></div>
+        <a href="dashboard.html" class="back-link"><i class="fa-solid fa-chevron-left"></i> Kembali ke Dashboard</a>
     </div>
 
 <script>
-    // 1. CONFIG FIREBASE
-    const firebaseConfig = {
-        apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8",
-        authDomain: "data-staff-6hha55.firebaseapp.com",
-        projectId: "data-staff-6hha55",
-        storageBucket: "data-staff-6hha55.firebasestorage.app",
-        messagingSenderId: "834544418876",
-        appId: "1:834544418876:web:71b355bd0f3faf73244339"
-    };
-
+    const firebaseConfig = { apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8", authDomain: "data-staff-6hha55.firebaseapp.com", projectId: "data-staff-6hha55", storageBucket: "data-staff-6hha55.firebasestorage.app", messagingSenderId: "834544418876", appId: "1:834544418876:web:71b355bd0f3faf73244339" };
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // ===========================================
-    // PENTING: RESET AKSES SETIAP KALI PAGE DIBUKA
-    // ===========================================
-    
-    // Ini memastikan user kena login semula walaupun baru lepas keluar
+    // RESET SESSION BILA MASUK PAGE NI
     sessionStorage.removeItem('admin_verified'); 
+    sessionStorage.removeItem('current_admin_staf'); // Reset juga no staf lama
 
-    // Cek Login Pengguna Biasa (Email)
-    auth.onAuthStateChanged(user => {
-        if(!user) {
-            // Jika belum login email UiTM, tendang ke login page utama
-            window.location.href = 'login.html';
-        }
-        // KITA BUANG AUTO-REDIRECT (supaya user wajib isi form)
-    });
+    auth.onAuthStateChanged(user => { if(!user) window.location.href = 'login.html'; });
 
-    // Enter Key Function
-    function handleEnter(e) {
-        if(e.key === 'Enter') verifyAdmin();
-    }
+    function handleEnter(e) { if(e.key === 'Enter') verifyAdmin(); }
 
-    // Function Verify Admin
     async function verifyAdmin() {
         const inputVal = document.getElementById('staffInput').value.trim();
         const errBox = document.getElementById('errorBox');
         const errText = document.getElementById('errorText');
         const btn = document.querySelector('.btn-verify');
 
-        if(!inputVal) {
-            errText.innerText = "Sila masukkan No. Staf.";
-            errBox.style.display = 'flex';
-            return;
-        }
+        if(!inputVal) { errText.innerText = "Sila masukkan No. Staf."; errBox.style.display = 'flex'; return; }
 
-        // UI Loading
         const originalBtnText = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
         btn.style.opacity = '0.7';
         errBox.style.display = 'none';
 
         try {
-            // Cek Database
-            const snapshot = await db.collection('admin_whitelist')
-                                     .where('no_staf', '==', inputVal)
-                                     .get();
+            const snapshot = await db.collection('admin_whitelist').where('no_staf', '==', inputVal).get();
 
             if (!snapshot.empty) {
                 // BERJAYA!
-                // Baru kita bagi kunci akses
                 sessionStorage.setItem('admin_verified', 'true');
                 
-                // Simpan Log (Optional)
+                // --- INI BARIS PENTING UNTUK DISPLAY NAMA NANTI ---
+                sessionStorage.setItem('current_admin_staf', inputVal); 
+                // --------------------------------------------------
+
+                // Log Masuk
                 const user = auth.currentUser;
                 if(user) {
                     db.collection('admin_logs').add({
-                        uid: user.uid,
-                        email: user.email,
-                        no_staf: inputVal,
-                        action: 'Login Admin Success',
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        uid: user.uid, email: user.email, no_staf: inputVal, action: 'Login Admin Success', timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 }
 
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Berjaya!';
                 btn.style.background = '#10b981';
                 
-                setTimeout(() => {
-                    window.location.href = 'admin_users.html'; // Masuk ke page admin sebenar
-                }, 800);
+                setTimeout(() => { window.location.href = 'admin_users.html'; }, 800);
 
             } else {
-                // GAGAL
                 errText.innerText = "No. Staf tidak sah.";
                 errBox.style.display = 'flex';
                 btn.innerHTML = originalBtnText;
@@ -239,7 +119,6 @@
                 document.getElementById('staffInput').value = '';
                 document.getElementById('staffInput').focus();
             }
-
         } catch (error) {
             console.error(error);
             errText.innerText = "Ralat sistem.";
