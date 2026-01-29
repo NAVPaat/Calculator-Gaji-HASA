@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Admin - Master Gaji</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<style>
+/* =========================================
+   CORE THEME
+   ========================================= */
+:root {
+    --primary: #6C63FF; --primary-dark: #5a52d5;
+    --success: #10b981; --danger: #ef4444;
+    --bg-body: #F3F4F6; --surface: rgba(255, 255, 255, 0.8);
+    --text-main: #334155; --text-light: #64748b; --border: rgba(255,255,255,0.6);
+    --glass: blur(12px); --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+}
+
+body.dark-mode {
+    --bg-body: #0f172a; --surface: rgba(30, 41, 59, 0.7);
+    --text-main: #f1f5f9; --text-light: #94a3b8; --border: rgba(255,255,255,0.05);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+body { font-family: 'Poppins', sans-serif; background: var(--bg-body); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; transition: 0.3s; }
+
+/* BLOBS */
+.bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+.blob { position: absolute; filter: blur(80px); opacity: 0.6; animation: floatBlob 10s infinite alternate; }
+.blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #abbdf6; }
+.blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #F0FDFA; }
+body.dark-mode .blob { opacity: 0.15; }
+@keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
+
+/* NAVBAR */
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.3s; }
+.nav-hidden { transform: translateY(-150%); }
+.brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+.nav-links { display: flex; gap: 20px; }
+.nav-link { text-decoration: none; color: var(--text-light); font-weight: 600; padding: 8px 16px; border-radius: 20px; transition: 0.3s; font-size: 0.9rem; }
+.nav-link:hover, .nav-link.active { background: rgba(108, 99, 255, 0.1); color: var(--primary); }
+
+/* CONTENT */
+.container { max-width: 900px; margin: 0 auto; padding: 20px; padding-top: 40px; display: flex; flex-direction: column; gap: 20px; }
+.glass-panel { background: var(--surface); backdrop-filter: var(--glass); border-radius: 24px; padding: 30px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+
+/* SELECTION ROW */
+.selection-row { display: flex; gap: 15px; align-items: flex-end; }
+.selection-col { flex-grow: 1; }
+
+/* FORMS */
+label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; color: var(--text-light); text-transform: uppercase; }
+input, select {
+    width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 12px;
+    background: var(--bg-body); color: var(--text-main); font-family: inherit; font-size: 0.95rem; transition: 0.3s;
+}
+input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2); }
+
+.grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* BUTTONS */
+.btn-save { 
+    width: 100%; background: var(--primary); color: white; padding: 16px; 
+    border: none; border-radius: 12px; font-weight: 700; cursor: pointer; 
+    transition: 0.3s; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.btn-save:hover { transform: translateY(-3px); background: var(--primary-dark); }
+.btn-save.create-mode { background: var(--success); }
+.btn-save.create-mode:hover { background: #059669; }
+
+.btn-add-new {
+    background: var(--surface); border: 2px dashed var(--primary); color: var(--primary);
+    padding: 13px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s;
+    height: 52px; white-space: nowrap; display: flex; align-items: center; gap: 8px;
+}
+.btn-add-new:hover { background: var(--primary); color: white; border-style: solid; }
+
+/* Updated Delete Button - Same Size as Save Button */
+.btn-delete {
+    width: 100%; /* Full Width */
+    background: #fee2e2; color: #ef4444; border:none; 
+    padding: 16px; /* Sama padding dengan Save */
+    border-radius: 12px; /* Sama radius */
+    font-weight: 700; cursor: pointer; margin-top: 15px; 
+    display: none; /* Hidden by default */
+    align-items: center; justify-content: center; gap: 10px;
+    transition: 0.3s;
+}
+.btn-delete:hover { 
+    background: #ef4444; color: white; 
+    transform: translateY(-3px); /* Sama efek hover */
+}
+
+/* FLOATING & TOAST */
+.float-btn { position: fixed; width: 50px; height: 50px; border-radius: 50%; background: var(--surface); color: var(--text-main); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: 0.3s; }
+#themeBtn { bottom: 30px; left: 30px; }
+#topBtn { bottom: 30px; right: 30px; opacity: 0; visibility: hidden; background: var(--primary); color: white; border: none; }
+#topBtn.show { opacity: 1; visibility: visible; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #10b981; color: white; padding: 10px 20px; border-radius: 30px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; z-index: 1000; transition: 0.4s; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+@media(max-width: 768px) {
+    .navbar { flex-direction: column; gap: 15px; }
+    .selection-row { flex-direction: column; align-items: stretch; }
+    .grid-form { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+
+<nav class="navbar" id="mainNav">
+    <div class="brand"><i class="fa-solid fa-money-check-dollar"></i> MASTER GAJI</div>
+    <div class="nav-links">
+        <a href="dashboard.html" class="nav-link">Home</a>
+        <a href="admin_users.html" class="nav-link">Users</a>
+        <a href="admin_salary.html" class="nav-link active">Gaji</a>
+        <a href="admin_history.html" class="nav-link">Rekod</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="glass-panel">
+        <div class="selection-row">
+            <div class="selection-col">
+                <label>Pilih Jawatan Untuk Edit</label>
+                <select id="selectJawatan">
+                    <option>Sedang memuatkan senarai...</option>
+                </select>
+            </div>
+            <button class="btn-add-new" onclick="setModeAdd()">
+                <i class="fa-solid fa-plus"></i> Jawatan Baru
+            </button>
+        </div>
+    </div>
+
+    <div class="glass-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="margin:0;" id="formTitle">2. Butiran Jawatan</h3>
+            <span style="font-size:0.8rem; color:var(--text-light);" id="statusText">Sila pilih jawatan atau tambah baru</span>
+        </div>
+        
+        <input type="hidden" id="docId"> <label>Nama Jawatan (Skim)</label>
+        <input type="text" id="namaJawatan" placeholder="Contoh: Pegawai Teknologi (F41)">
+
+        <div class="grid-form" style="margin-top:15px;">
+            <div><label>Gaji Pokok Min (RM)</label><input type="number" id="gaji" placeholder="0.00"></div>
+            <div><label>Nilai KGT (RM)</label><input type="number" id="kgt" placeholder="0.00"></div>
+        </div>
+
+        <div style="margin: 25px 0; border-bottom: 2px dashed var(--border);"></div>
+        <h4 style="margin:0 0 15px 0; color:var(--primary);">Tetapan Elaun</h4>
+
+        <div class="grid-form">
+            <div><label>ITKA</label><input type="number" id="itka" placeholder="0"></div>
+            <div><label>ITP (Perumahan)</label><input type="number" id="itp" placeholder="0"></div>
+            <div><label>ITK (Keraian)</label><input type="number" id="itk" placeholder="0"></div>
+            <div><label>BIPK (Kritikal)</label><input type="number" id="bipk" placeholder="0"></div>
+            <div><label>BISH (Sara Hidup)</label><input type="number" id="bish" placeholder="0"></div>
+            <div><label>BIW (Wilayah)</label><input type="number" id="biw" placeholder="0"></div>
+            <div style="grid-column: 1/-1;"><label>BIP (Pakar)</label><input type="number" id="bip" placeholder="0"></div>
+        </div>
+
+        <button class="btn-save" id="btnSave" onclick="saveData()">
+            <i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN
+        </button>
+
+        <button class="btn-delete" id="btnDelete" onclick="deleteJob()">
+            <i class="fa-solid fa-trash"></i> PADAM JAWATAN
+        </button>
+        <div style="clear:both;"></div>
+    </div>
+</div>
+
+<button class="float-btn" id="themeBtn"><i class="fa-solid fa-moon"></i></button>
+<button class="float-btn" id="topBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i></button>
+<div id="toast" class="toast"><i class="fa-solid fa-check-circle"></i> <span id="toastMsg">Berjaya</span></div>
+
+<script>
+// --- ADMIN SECURITY CHECK ---
+// Letak ini betul-betul lepas firebase config
+if (!sessionStorage.getItem('admin_verified')) {
+    alert("Akses tidak dibenarkan. Sila sahkan No. Staf.");
+    window.location.href = 'admin_gate.html';
+}
+    const firebaseConfig = { apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8", authDomain: "data-staff-6hha55.firebaseapp.com", projectId: "data-staff-6hha55", storageBucket: "data-staff-6hha55.firebasestorage.app", messagingSenderId: "834544418876", appId: "1:834544418876:web:71b355bd0f3faf73244339" };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(); const auth = firebase.auth();
+
+    let allJobs = [];
+
+    // --- UI HELPERS ---
+    let lastScrollTop = 0;
+    const navbar = document.getElementById('mainNav');
+    const topBtn = document.getElementById('topBtn');
+    window.addEventListener('scroll', () => {
+        let st = window.pageYOffset || document.documentElement.scrollTop;
+        if (st > lastScrollTop && st > 100) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
+        lastScrollTop = st;
+        if (st > 300) topBtn.classList.add('show'); else topBtn.classList.remove('show');
+    });
+
+    const themeBtn = document.getElementById('themeBtn');
+    if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+    themeBtn.onclick = () => {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        themeBtn.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    };
+
+    function showToast(msg) {
+        const t = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg;
+        t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // --- LOGIC ---
+    auth.onAuthStateChanged(user => { if(user) loadJobs(); else location.href='login.html'; });
+
+    async function loadJobs() {
+        const select = document.getElementById('selectJawatan');
+        // KEKALKAN ORDER BY 'id_susunan'
+        const snap = await db.collection('senarai_jawatan').orderBy('id_susunan').get();
+        allJobs = [];
+        select.innerHTML = '<option value="" selected disabled>-- Sila Pilih Jawatan --</option>';
+        
+        snap.forEach(doc => {
+            let data = doc.data(); data.id = doc.id; allJobs.push(data);
+            let opt = document.createElement('option'); opt.value = data.id; 
+            opt.text = data.nama_jawatan || data.Nama_Jawatan;
+            select.appendChild(opt);
+        });
+    }
+
+    // MODE TAMBAH
+    function setModeAdd() {
+        document.getElementById('docId').value = "";
+        document.getElementById('selectJawatan').value = "";
+        
+        document.getElementById('namaJawatan').value = "";
+        document.getElementById('gaji').value = "";
+        document.getElementById('kgt').value = "";
+        document.getElementById('itka').value = "";
+        document.getElementById('itp').value = "";
+        document.getElementById('itk').value = "";
+        document.getElementById('bipk').value = "";
+        document.getElementById('bish').value = "";
+        document.getElementById('biw').value = "";
+        document.getElementById('bip').value = "";
+
+        // UI Updates
+        document.getElementById('statusText').innerText = "Mode: Menambah Jawatan Baru";
+        document.getElementById('statusText').style.color = "var(--success)";
+        
+        const btnSave = document.getElementById('btnSave');
+        btnSave.innerHTML = '<i class="fa-solid fa-plus-circle"></i> TAMBAH JAWATAN BARU';
+        btnSave.classList.add('create-mode'); 
+        
+        document.getElementById('btnDelete').style.display = "none";
+        document.getElementById('namaJawatan').focus();
+    }
+
+    // MODE EDIT
+    document.getElementById('selectJawatan').addEventListener('change', function() {
+        const selectedId = this.value;
+        const job = allJobs.find(j => j.id === selectedId);
+        if(job) {
+            document.getElementById('docId').value = job.id;
+            
+            document.getElementById('namaJawatan').value = job.nama_jawatan || job.Nama_Jawatan || '';
+            document.getElementById('gaji').value = job.gaji_pokok || job.Gaji_Pokok || 0;
+            document.getElementById('kgt').value = job.nilai_kgt || job.Nilai_KGT || 0;
+            document.getElementById('itka').value = job.itka || job.ITKA || 0;
+            document.getElementById('itp').value = job.itp || job.ITP || 0;
+            document.getElementById('itk').value = job.itk || job.ITK || 0;
+            document.getElementById('bipk').value = job.bipk || job.BIPK || 0;
+            document.getElementById('bish').value = job.bish || job.BISH || 0;
+            document.getElementById('biw').value = job.biw || job.BIW || 0;
+            document.getElementById('bip').value = job.bip || job.BIP || 0;
+            
+            document.getElementById('statusText').innerText = "Mode: Mengedit Data";
+            document.getElementById('statusText').style.color = "var(--primary)";
+            
+            const btnSave = document.getElementById('btnSave');
+            btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN';
+            btnSave.classList.remove('create-mode'); 
+
+            // SHOW DELETE BUTTON (Guna Flex supaya alignment cantik)
+            document.getElementById('btnDelete').style.display = "flex";
+        }
+    });
+
+    // SIMPAN DATA
+    async function saveData() {
+        const id = document.getElementById('docId').value;
+        const nama = document.getElementById('namaJawatan').value;
+
+        if(!nama) return alert("Sila masukkan Nama Jawatan");
+
+        const payload = {
+            nama_jawatan: nama,
+            gaji_pokok: parseFloat(document.getElementById('gaji').value) || 0,
+            nilai_kgt: parseFloat(document.getElementById('kgt').value) || 0,
+            itka: parseFloat(document.getElementById('itka').value) || 0,
+            itp: parseFloat(document.getElementById('itp').value) || 0,
+            itk: parseFloat(document.getElementById('itk').value) || 0,
+            bipk: parseFloat(document.getElementById('bipk').value) || 0,
+            bish: parseFloat(document.getElementById('bish').value) || 0,
+            biw: parseFloat(document.getElementById('biw').value) || 0,
+            bip: parseFloat(document.getElementById('bip').value) || 0
+        };
+
+        try {
+            if(id) {
+                // UPDATE
+                await db.collection('senarai_jawatan').doc(id).update(payload);
+                showToast("Data dikemaskini!");
+            } else {
+                // CREATE NEW
+                payload.id_susunan = Date.now();
+                await db.collection('senarai_jawatan').add(payload);
+                showToast("Jawatan baru ditambah!");
+                setModeAdd();
+            }
+            loadJobs();
+        } catch(e) { alert("Ralat: " + e.message); }
+    }
+
+    // DELETE DATA
+    async function deleteJob() {
+        const id = document.getElementById('docId').value;
+        if(!id) return;
+        if(confirm("AWAS: Adakah anda pasti mahu memadam jawatan ini?")) {
+            try {
+                await db.collection('senarai_jawatan').doc(id).delete();
+                showToast("Jawatan dipadam.");
+                setModeAdd();
+                loadJobs();
+            } catch(e) { alert("Gagal memadam: " + e.message); }
+        }
+    }
+</script>
+</body>
+</html>

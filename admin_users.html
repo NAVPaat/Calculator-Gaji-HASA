@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Admin - Pengguna</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<style>
+/* =========================================
+   CORE THEME
+   ========================================= */
+:root {
+    --primary: #6C63FF; --primary-dark: #5a52d5;
+    --success: #10b981; --danger: #ef4444;
+    --bg-body: #F3F4F6; --surface: rgba(255, 255, 255, 0.65);
+    --surface-card: rgba(255, 255, 255, 0.9);
+    --text-main: #334155; --text-light: #64748b; --border: rgba(255,255,255,0.6);
+    --glass: blur(12px); --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+}
+
+body.dark-mode {
+    --bg-body: #0f172a; --surface: rgba(30, 41, 59, 0.6);
+    --surface-card: rgba(30, 41, 59, 0.9);
+    --text-main: #f1f5f9; --text-light: #94a3b8; --border: rgba(255,255,255,0.08);
+    --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+body { font-family: 'Poppins', sans-serif; background-color: var(--bg-body); color: var(--text-main); min-height: 100vh; overflow-x: hidden; transition: 0.3s; }
+
+/* BACKGROUND BLOBS */
+.bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+.blob { position: absolute; filter: blur(80px); opacity: 0.6; animation: floatBlob 10s infinite alternate; }
+.blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #abbdf6; }
+.blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #F0FDFA; }
+body.dark-mode .blob { opacity: 0.15; }
+@keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
+
+/* NAVBAR */
+.navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass);
+    border-radius: 50px; position: sticky; top: 20px; z-index: 100;
+    border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.3s;
+}
+.nav-hidden { transform: translateY(-150%); }
+.brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+.nav-links { display: flex; gap: 20px; }
+.nav-link { text-decoration: none; color: var(--text-light); font-weight: 600; padding: 8px 16px; border-radius: 20px; transition: 0.3s; font-size: 0.9rem; }
+.nav-link:hover, .nav-link.active { background: rgba(108, 99, 255, 0.1); color: var(--primary); }
+
+/* CONTAINER & HEADER */
+.container { max-width: 1000px; margin: 0 auto; padding: 20px; padding-top: 40px; }
+
+.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+.page-title { font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--text-main); }
+.search-box {
+    padding: 12px 20px; border-radius: 30px; border: 1px solid var(--border);
+    background: var(--surface); backdrop-filter: var(--glass); 
+    color: var(--text-main); width: 100%; max-width: 300px; box-shadow: var(--shadow);
+}
+
+/* --- SPLIT ROW LAYOUT (PENGGANTIAN TABLE) --- */
+.user-list { display: flex; flex-direction: column; gap: 15px; }
+
+.user-row {
+    display: flex; gap: 15px; /* Jarak antara Info dan Action */
+    align-items: stretch;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+/* Kotak Kiri: Info */
+.info-block {
+    flex: 1; /* Ambil baki ruang */
+    background: var(--surface-card); backdrop-filter: var(--glass);
+    border: 1px solid var(--border); border-radius: 20px;
+    padding: 20px; display: flex; flex-direction: column; justify-content: center;
+    box-shadow: var(--shadow);
+}
+.user-name { font-weight: 700; font-size: 1.05rem; color: var(--text-main); margin-bottom: 4px; }
+.user-meta { font-size: 0.85rem; color: var(--text-light); display: flex; gap: 15px; flex-wrap: wrap; }
+.meta-item { display: flex; align-items: center; gap: 6px; }
+
+/* Kotak Kanan: Action */
+.action-block {
+    width: 240px; /* Lebar tetap untuk action */
+    background: var(--surface-card); backdrop-filter: var(--glass);
+    border: 1px solid var(--border); border-radius: 20px;
+    padding: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;
+    box-shadow: var(--shadow);
+}
+
+/* Action Controls */
+.modern-select {
+    padding: 8px 10px; border-radius: 12px; border: 1px solid var(--border);
+    background: var(--bg-body); color: var(--text-main); 
+    font-size: 0.85rem; font-weight: 600; cursor: pointer;
+    width: 100%; outline: none; transition: 0.3s;
+}
+.modern-select:focus { border-color: var(--primary); }
+
+.btn-action {
+    width: 40px; height: 40px; border-radius: 12px; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: 0.2s;
+    font-size: 1rem; color: white; flex-shrink: 0;
+}
+.btn-save { background: var(--success); }
+.btn-save:hover { background: #059669; transform: scale(1.05); }
+.btn-del { background: var(--danger); }
+.btn-del:hover { background: #dc2626; transform: scale(1.05); }
+
+/* FLOATING BUTTONS */
+.float-btn {
+    position: fixed; width: 50px; height: 50px; border-radius: 50%;
+    background: var(--surface); color: var(--text-main); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: 0.3s;
+}
+#themeBtn { bottom: 30px; left: 30px; }
+#topBtn { bottom: 30px; right: 30px; opacity: 0; visibility: hidden; background: var(--primary); color: white; border: none; }
+#topBtn.show { opacity: 1; visibility: visible; }
+.toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--success); color: white; padding: 10px 20px; border-radius: 30px;
+    font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; z-index: 1000; transition: 0.4s;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+@media(max-width: 768px) {
+    .navbar { flex-direction: column; gap: 15px; }
+    .user-row { flex-direction: column; gap: 10px; }
+    .action-block { width: 100%; justify-content: space-between; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+
+<nav class="navbar" id="mainNav">
+    <div class="brand"><i class="fa-solid fa-user-shield"></i> PENGGUNA</div>
+    <div class="nav-links">
+        <a href="dashboard.html" class="nav-link">Home</a>
+        <a href="admin_users.html" class="nav-link active">Users</a>
+        <a href="admin_salary.html" class="nav-link">Gaji</a>
+        <a href="admin_history.html" class="nav-link">Rekod</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="header-row">
+        <h2 class="page-title">Senarai Pengguna</h2>
+        <input type="text" id="searchInput" class="search-box" placeholder="Cari Nama / Email..." onkeyup="searchList()">
+    </div>
+    
+    <div class="user-list" id="userListContainer">
+        <p style="text-align:center; padding:40px; color:var(--text-light);">Memuatkan data...</p>
+    </div>
+</div>
+
+<button class="float-btn" id="themeBtn"><i class="fa-solid fa-moon"></i></button>
+<button class="float-btn" id="topBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i></button>
+<div id="toast" class="toast"><i class="fa-solid fa-check-circle"></i> <span id="toastMsg">Berjaya</span></div>
+
+<script>
+// --- ADMIN SECURITY CHECK ---
+// Letak ini betul-betul lepas firebase config
+if (!sessionStorage.getItem('admin_verified')) {
+    alert("Akses tidak dibenarkan. Sila sahkan No. Staf.");
+    window.location.href = 'admin_gate.html';
+}
+    // --- CONFIG ---
+    const firebaseConfig = { apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8", authDomain: "data-staff-6hha55.firebaseapp.com", projectId: "data-staff-6hha55", storageBucket: "data-staff-6hha55.firebasestorage.app", messagingSenderId: "834544418876", appId: "1:834544418876:web:71b355bd0f3faf73244339" };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(); const auth = firebase.auth();
+
+    // --- UI LOGIC ---
+    let lastScrollTop = 0;
+    const navbar = document.getElementById('mainNav');
+    const topBtn = document.getElementById('topBtn');
+
+    window.addEventListener('scroll', () => {
+        let st = window.pageYOffset || document.documentElement.scrollTop;
+        if (st > lastScrollTop && st > 100) navbar.classList.add('nav-hidden');
+        else navbar.classList.remove('nav-hidden');
+        lastScrollTop = st;
+        if (st > 300) topBtn.classList.add('show'); else topBtn.classList.remove('show');
+    });
+
+    // Dark Mode
+    const themeBtn = document.getElementById('themeBtn');
+    if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+    themeBtn.onclick = () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        themeBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    };
+
+    function showToast(msg) {
+        const t = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg;
+        t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // --- DATA LOGIC ---
+    auth.onAuthStateChanged(user => { if(user) checkAdmin(user); else location.href='login.html'; });
+
+    async function checkAdmin(user) {
+        const doc = await db.collection('users').doc(user.uid).get();
+        if(doc.exists && doc.data().role === 'pentadbir') loadUsers();
+        else location.href='dashboard.html';
+    }
+
+    async function loadUsers() {
+        try {
+            const snap = await db.collection('users').get();
+            const container = document.getElementById('userListContainer');
+            
+            if(snap.empty) {
+                container.innerHTML = '<p style="text-align:center;">Tiada pengguna.</p>';
+                return;
+            }
+
+            let html = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                const role = d.role || 'user';
+                const phone = d.phone || d.no_tel || '-';
+                const docId = doc.id;
+                
+                // KITA GUNA DIV ROW, BUKAN TABLE
+                html += `
+                <div class="user-row">
+                    <div class="info-block">
+                        <div class="user-name">${d.fullname || 'Tiada Nama'}</div>
+                        <div class="user-meta">
+                            <div class="meta-item"><i class="fa-regular fa-envelope" style="color:var(--primary)"></i> ${d.email}</div>
+                            <div class="meta-item"><i class="fa-solid fa-phone" style="color:var(--success)"></i> ${phone}</div>
+                        </div>
+                    </div>
+
+                    <div class="action-block">
+                        <select class="modern-select" id="role-${docId}">
+                            <option value="user" ${role === 'user' ? 'selected' : ''}>User</option>
+                            <option value="pentadbir" ${role === 'pentadbir' ? 'selected' : ''}>Pentadbir</option>
+                        </select>
+                        <button class="btn-action btn-save" title="Simpan Role" onclick="updateRole('${docId}')">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button class="btn-action btn-del" title="Padam User" onclick="deleteUser('${docId}')">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
+            });
+            container.innerHTML = html;
+        } catch(e) { console.error(e); }
+    }
+
+    async function updateRole(id) {
+        const selectEl = document.getElementById(`role-${id}`);
+        const newRole = selectEl.value;
+        const btn = selectEl.nextElementSibling;
+        const originalIcon = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; // Loading
+
+        try {
+            await db.collection('users').doc(id).update({ role: newRole });
+            setTimeout(() => {
+                btn.innerHTML = originalIcon;
+                showToast(`Role berjaya: ${newRole}`);
+            }, 600);
+        } catch(e) { 
+            alert("Gagal update role"); 
+            btn.innerHTML = originalIcon;
+        }
+    }
+
+    async function deleteUser(id) {
+        if(confirm("Adakah anda pasti mahu memadam pengguna ini?")) {
+            await db.collection('users').doc(id).delete();
+            showToast("Pengguna dipadam");
+            loadUsers(); // Refresh list
+        }
+    }
+
+    function searchList() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toUpperCase();
+        const rows = document.getElementsByClassName("user-row");
+        
+        for (let i = 0; i < rows.length; i++) {
+            const nameEl = rows[i].querySelector(".user-name");
+            const emailEl = rows[i].querySelector(".user-meta"); // Search in meta too
+            
+            const txt = (nameEl.innerText + " " + emailEl.innerText).toUpperCase();
+            
+            rows[i].style.display = txt.indexOf(filter) > -1 ? "flex" : "none";
+        }
+    }
+</script>
+</body>
+</html>
