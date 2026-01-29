@@ -198,7 +198,7 @@
     }
     .menu-card:hover .card-arrow { opacity: 1; transform: translateX(0); }
 
-    /* GUIDE SECTION (UPDATED FOR POP-OUT) */
+    /* GUIDE SECTION */
     .guide-section {
         background: var(--surface); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         border-radius: 30px; padding: 40px; box-shadow: var(--shadow-card); position: relative; overflow: hidden; margin-bottom: 40px;
@@ -206,7 +206,6 @@
     }
     .guide-title { font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 30px; text-align: center; position: relative; z-index: 2; }
     
-    /* Expand Button Style */
     .expand-btn {
         position: absolute; top: 30px; right: 30px; z-index: 5;
         width: 40px; height: 40px; border-radius: 50%; border: none;
@@ -266,7 +265,7 @@
     .mini-info span { font-size: 0.8rem; color: var(--text-light); }
 
     /* =========================================
-       5. RESPONSIVE MOBILE (UPDATED)
+       5. RESPONSIVE MOBILE
        ========================================= */
     @media (max-width: 900px) {
         body { height: auto; overflow-y: auto; }
@@ -275,7 +274,6 @@
         
         .nav-center { 
             display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; 
-            /* Background Solid Putih seperti diminta */
             background: #ffffff; 
             border-radius: 25px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
             gap: 15px; text-align: center; max-height: 0; overflow: hidden; opacity: 0; padding: 0 20px; 
@@ -284,20 +282,11 @@
             z-index: 9999;
         }
 
-        /* Fix untuk Dark Mode supaya tak kekal putih menyilau */
-        body.dark-mode .nav-center {
-            background: #1e293b; 
-            border-color: #334155;
-        }
+        body.dark-mode .nav-center { background: #1e293b; border-color: #334155; }
         
-        .nav-center.active { max-height: 400px; opacity: 1; padding: 25px 20px; }
+        .nav-center.active { max-height: 500px; opacity: 1; padding: 25px 20px; }
         .user-pill { display: none; }
         .hamburger { display: block; }
-        .main-wrapper { padding: 20px; }
-        .glass-panel { flex-direction: column; padding: 30px; gap: 30px; }
-        .profile-left { border-right: none; border-bottom: 1px dashed var(--border); padding-right: 0; padding-bottom: 30px; width: 100%; }
-        .row { flex-direction: column; gap: 0; }
-        input { margin-bottom: 15px; }
         
         .hero-card { flex-direction: column; align-items: flex-start; gap: 20px; padding: 30px; }
         .hero-clock { width: 100%; display: flex; justify-content: space-between; align-items: center; }
@@ -306,46 +295,14 @@
         .card-arrow { opacity: 1; transform: none; background: transparent; color: var(--text-main); right: 20px; bottom: 20px; }
         .steps-grid { grid-template-columns: 1fr; gap: 30px; }
         
-        /* --- BUTTON EXPAND (FULLSCREEN) ADJUSTMENT UNTUK MOBILE --- */
-        .expand-btn {
-            top: 15px;           /* Naikkan sikit */
-            right: 15px;         /* Ke kanan sikit */
-            width: 35px;         /* Kecilkan saiz button */
-            height: 35px;
-            font-size: 1rem;
-            background: var(--primary); /* Warna solid supaya jelas */
-            color: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
+        .expand-btn { top: 15px; right: 15px; width: 35px; height: 35px; font-size: 1rem; background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .guide-title { margin-top: 10px; font-size: 1.1rem; padding-right: 40px; }
         
-        /* Adjust Tajuk Panduan supaya tak berlaga dengan button */
-        .guide-title {
-            margin-top: 10px;
-            font-size: 1.1rem;
-            padding-right: 40px; /* Elak text kena button */
-        }
-        
-        /* --- POP OUT (MODAL) ADJUSTMENT UNTUK MOBILE --- */
-        .modal-content { 
-            width: 90%;          /* Lebar optimum untuk mobile */
-            padding: 25px 20px;  /* Kurangkan padding tepi */
-            margin: 0; 
-            max-height: 85vh;    /* Elak terlalu panjang */
-            border-radius: 20px;
-        }
-        .modal-header h2 {
-            font-size: 1.2rem;   /* Kecilkan tajuk modal */
-            padding-right: 20px;
-        }
+        .modal-content { width: 90%; padding: 25px 20px; margin: 0; max-height: 85vh; border-radius: 20px; }
+        .modal-header h2 { font-size: 1.2rem; padding-right: 20px; }
 
-        /* Dark Mode Button Mobile */
-        .theme-btn {
-            left: -25px !important; border-radius: 0 50% 50% 0 !important;
-            width: 60px !important; padding-left: 20px !important; opacity: 0.7;
-        }
-        .theme-btn:hover, .theme-btn:active {
-            left: 0 !important; opacity: 1; padding-left: 0 !important; width: 50px !important; border-radius: 50% !important;
-        }
+        .theme-btn { left: -25px !important; border-radius: 0 50% 50% 0 !important; width: 60px !important; padding-left: 20px !important; opacity: 0.7; }
+        .theme-btn:hover, .theme-btn:active { left: 0 !important; opacity: 1; padding-left: 0 !important; width: 50px !important; border-radius: 50% !important; }
     }
     
     /* Dark Mode Toggle Desktop */
@@ -511,25 +468,21 @@
     // 1. POP-OUT GUIDE MODAL LOGIC
     // ===================================
     function openGuideModal() {
-        // Ambil isi content dari guide asal
         const content = document.getElementById('originalGuideContent').innerHTML;
-        // Masukkan ke dalam modal
         document.getElementById('modalBody').innerHTML = `<div class="steps-grid" style="grid-template-columns: 1fr 1fr; gap: 30px;">${content}</div>`;
         
-        // Periksa mobile (kalau mobile column jadi 1)
         if(window.innerWidth <= 900) {
             document.querySelector('#modalBody .steps-grid').style.gridTemplateColumns = '1fr';
         }
 
         document.getElementById('guideModal').classList.add('active');
-        document.body.style.overflow = 'hidden'; // Stop background scroll
+        document.body.style.overflow = 'hidden';
     }
 
     function closeGuideModal(e) {
-        // Tutup jika tekan overlay ATAU button pangkah
         if (e.target === document.getElementById('guideModal') || e.target.closest('.close-btn')) {
             document.getElementById('guideModal').classList.remove('active');
-            document.body.style.overflow = 'auto'; // Resume scroll
+            document.body.style.overflow = 'auto';
         }
     }
 
@@ -539,8 +492,7 @@
     const navbar = document.getElementById('mainNavbar');
 
     window.addEventListener('scroll', () => {
-        const scrollY = window.scrollY;
-        if (scrollY > 100) {
+        if (window.scrollY > 100) {
             navbar.classList.add('nav-hidden');
         } else {
             navbar.classList.remove('nav-hidden');
@@ -592,7 +544,7 @@
     updateClock();
 
     // ===================================
-    // 4. FIREBASE LOGIC
+    // 4. FIREBASE LOGIC (UPDATED ADMIN)
     // ===================================
     firebase.auth().onAuthStateChanged(async user => {
         if(!user){ window.location.href='login.html'; return; }
@@ -615,6 +567,26 @@
                 avatarEl.style.border = '2px solid white';
             } else {
                 avatarEl.innerText = firstName.charAt(0).toUpperCase();
+            }
+
+// ============================================
+            // LOGIC ADMIN (INJECT 3 MENU)
+            // ============================================
+            if (data && data.role === 'pentadbir') {
+                const navMenu = document.getElementById('navMenu');
+                const mobileLogout = document.getElementById('mobileLogout');
+                
+                // HTML Link Admin (3 Page)
+                const adminLinks = `
+                <a href="admin_gate.html" class="nav-link">Admin Panel</a>
+                `;
+
+                // Masukkan SEBELUM butang logout mobile
+                if (mobileLogout) {
+                    mobileLogout.insertAdjacentHTML('beforebegin', adminLinks);
+                } else {
+                    navMenu.insertAdjacentHTML('beforeend', adminLinks);
+                }
             }
 
         } catch(e) { console.error("Error loading dashboard:", e); }
