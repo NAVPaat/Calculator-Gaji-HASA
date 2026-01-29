@@ -58,7 +58,7 @@ body.dark-mode .blob { opacity: 0.15; }
 .nav-link { text-decoration: none; color: var(--text-light); font-weight: 600; padding: 8px 16px; border-radius: 20px; transition: 0.3s; font-size: 0.9rem; }
 .nav-link:hover, .nav-link.active { background: rgba(108, 99, 255, 0.1); color: var(--primary); }
 
-/* ADMIN BADGE (DISPLAY NAME) */
+/* ADMIN BADGE */
 .admin-badge {
     display: flex; align-items: center; gap: 10px;
     background: var(--bg-body); padding: 8px 20px; border-radius: 30px;
@@ -128,6 +128,37 @@ body.dark-mode .blob { opacity: 0.15; }
 .btn-del { background: var(--danger); }
 .btn-del:hover { background: #dc2626; transform: scale(1.05); }
 
+/* --- MODAL POPUP STYLES --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+    display: none; justify-content: center; align-items: center; z-index: 2000;
+    opacity: 0; transition: opacity 0.3s;
+}
+.modal-overlay.show { display: flex; opacity: 1; }
+.modal-box {
+    background: var(--surface-card); padding: 30px; border-radius: 24px;
+    width: 90%; max-width: 400px; text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    transform: translateY(30px); transition: transform 0.3s; border: 1px solid var(--border);
+}
+.modal-overlay.show .modal-box { transform: translateY(0); }
+.modal-icon {
+    font-size: 2.5rem; color: #ef4444; margin-bottom: 15px;
+    background: #fee2e2; width: 80px; height: 80px;
+    border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    animation: pulseRed 2s infinite;
+}
+@keyframes pulseRed { 0% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);} 70% {box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);} 100% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);} }
+.modal-title { font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+.modal-desc { font-size: 0.95rem; color: var(--text-light); margin-bottom: 25px; line-height: 1.5; }
+.modal-actions { display: flex; gap: 12px; }
+.btn-modal { flex: 1; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem; transition: 0.2s; }
+.btn-cancel { background: #e2e8f0; color: #475569; }
+.btn-cancel:hover { background: #cbd5e1; }
+.btn-confirm-del { background: #ef4444; color: white; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3); }
+.btn-confirm-del:hover { background: #dc2626; transform: translateY(-2px); }
+
 /* FLOATING BUTTONS */
 .float-btn {
     position: fixed; width: 50px; height: 50px; border-radius: 50%;
@@ -192,13 +223,24 @@ body.dark-mode .blob { opacity: 0.15; }
     </div>
 </div>
 
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <div class="modal-icon"><i class="fa-solid fa-trash-can"></i></div>
+        <h3 class="modal-title">Padam Pengguna?</h3>
+        <p class="modal-desc">Adakah anda pasti mahu memadam pengguna ini sepenuhnya? Tindakan ini tidak boleh diundur.</p>
+        <div class="modal-actions">
+            <button class="btn-modal btn-cancel" onclick="closeModal()">Batal</button>
+            <button class="btn-modal btn-confirm-del" onclick="confirmDelete()">Ya, Padam</button>
+        </div>
+    </div>
+</div>
+
 <button class="float-btn" id="themeBtn"><i class="fa-solid fa-moon"></i></button>
 <button class="float-btn" id="topBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i></button>
 <div id="toast" class="toast"><i class="fa-solid fa-check-circle"></i> <span id="toastMsg">Berjaya</span></div>
 
 <script>
     // --- 1. ADMIN SECURITY CHECK ---
-    // Pastikan user datang dari admin_gate.html
     if (!sessionStorage.getItem('admin_verified')) {
         alert("Akses tidak dibenarkan. Sila sahkan No. Staf.");
         window.location.href = 'admin_gate.html';
@@ -236,9 +278,10 @@ body.dark-mode .blob { opacity: 0.15; }
     }
 
     // --- 4. MAIN DATA LOGIC ---
+    let deleteTargetId = null; // ID user yang nak didelete
+
     auth.onAuthStateChanged(user => { 
         if(user) {
-            // Load Nama Admin dari Whitelist (Guna No Staf yang disimpan di Session)
             loadAdminName();
             loadUsers();
         } else {
@@ -246,35 +289,20 @@ body.dark-mode .blob { opacity: 0.15; }
         }
     });
 
-    // FUNCTION: Ambil Nama Admin dari Collection admin_whitelist (Guna No Staf)
+    // Load Nama Admin
     async function loadAdminName() {
-        const currentStafID = sessionStorage.getItem('current_admin_staf'); // Kunci dari Gate
-        
+        const currentStafID = sessionStorage.getItem('current_admin_staf');
         if(currentStafID) {
             try {
-                const snapshot = await db.collection('admin_whitelist')
-                                         .where('no_staf', '==', currentStafID)
-                                         .limit(1)
-                                         .get();
-                
+                const snapshot = await db.collection('admin_whitelist').where('no_staf', '==', currentStafID).limit(1).get();
                 if(!snapshot.empty) {
-                    const adminData = snapshot.docs[0].data();
-                    // Papar nama (pastikan field dalam database ialah 'nama')
-                    document.getElementById('adminNameDisplay').innerText = adminData.nama || "Pentadbir";
-                } else {
-                    document.getElementById('adminNameDisplay').innerText = "Unknown Staff";
+                    document.getElementById('adminNameDisplay').innerText = snapshot.docs[0].data().nama || "Pentadbir";
                 }
-            } catch(e) {
-                console.error("Gagal load nama admin:", e);
-                document.getElementById('adminNameDisplay').innerText = "Error";
-            }
-        } else {
-            // Fallback kalau entah macam mana session storage hilang
-            document.getElementById('adminNameDisplay').innerText = "Guest Admin";
+            } catch(e) { console.error(e); }
         }
     }
 
-    // FUNCTION: Load Senarai Users
+    // Load Senarai Users
     async function loadUsers() {
         try {
             const snap = await db.collection('users').get();
@@ -310,7 +338,7 @@ body.dark-mode .blob { opacity: 0.15; }
                         <button class="btn-action btn-save" title="Simpan Role" onclick="updateRole('${docId}')">
                             <i class="fa-solid fa-check"></i>
                         </button>
-                        <button class="btn-action btn-del" title="Padam User" onclick="deleteUser('${docId}')">
+                        <button class="btn-action btn-del" title="Padam User" onclick="openDeleteModal('${docId}')">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -326,7 +354,6 @@ body.dark-mode .blob { opacity: 0.15; }
         const newRole = selectEl.value;
         const btn = selectEl.nextElementSibling;
         const originalIcon = btn.innerHTML;
-        
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; 
 
         try {
@@ -335,31 +362,38 @@ body.dark-mode .blob { opacity: 0.15; }
                 btn.innerHTML = originalIcon;
                 showToast(`Role berjaya: ${newRole}`);
             }, 600);
-        } catch(e) { 
-            alert("Gagal update role"); 
-            btn.innerHTML = originalIcon;
-        }
+        } catch(e) { alert("Gagal update role"); btn.innerHTML = originalIcon; }
     }
 
-    async function deleteUser(id) {
-        if(confirm("Adakah anda pasti mahu memadam pengguna ini?")) {
-            await db.collection('users').doc(id).delete();
+    // --- MODAL LOGIC ---
+    window.openDeleteModal = function(id) {
+        deleteTargetId = id;
+        document.getElementById('deleteModal').classList.add('show');
+    }
+
+    window.closeModal = function() {
+        document.getElementById('deleteModal').classList.remove('show');
+        deleteTargetId = null;
+    }
+
+    window.confirmDelete = async function() {
+        if(!deleteTargetId) return;
+        try {
+            await db.collection('users').doc(deleteTargetId).delete();
+            closeModal();
             showToast("Pengguna dipadam");
-            loadUsers(); 
-        }
+            loadUsers(); // Refresh list
+        } catch(e) { alert("Gagal padam."); closeModal(); }
     }
 
     function searchList() {
         const input = document.getElementById("searchInput");
         const filter = input.value.toUpperCase();
         const rows = document.getElementsByClassName("user-row");
-        
         for (let i = 0; i < rows.length; i++) {
             const nameEl = rows[i].querySelector(".user-name");
             const emailEl = rows[i].querySelector(".user-meta"); 
-            
             const txt = (nameEl.innerText + " " + emailEl.innerText).toUpperCase();
-            
             rows[i].style.display = txt.indexOf(filter) > -1 ? "flex" : "none";
         }
     }
