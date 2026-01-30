@@ -19,14 +19,14 @@
 :root {
     --primary: #6C63FF; --primary-dark: #5a52d5;
     --success: #10b981; --danger: #ef4444;
-    --bg-body: #F3F4F6; --surface: rgba(255, 255, 255, 0.65);
+    --bg-body: #F3F4F6; --surface: rgba(255, 255, 255, 0.95);
     --surface-card: rgba(255, 255, 255, 0.9);
     --text-main: #334155; --text-light: #64748b; --border: rgba(255,255,255,0.6);
     --glass: blur(12px); --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
 }
 
 body.dark-mode {
-    --bg-body: #0f172a; --surface: rgba(30, 41, 59, 0.6);
+    --bg-body: #0f172a; --surface: rgba(30, 41, 59, 0.95);
     --surface-card: rgba(30, 41, 59, 0.9);
     --text-main: #f1f5f9; --text-light: #94a3b8; --border: rgba(255,255,255,0.08);
     --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
@@ -44,111 +44,80 @@ body.dark-mode .blob { opacity: 0.15; }
 @keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
 
 /* NAVBAR */
-.navbar {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass);
-    border-radius: 50px; position: sticky; top: 20px; z-index: 100;
-    border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.3s;
-}
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.3s; }
 .nav-hidden { transform: translateY(-150%); }
 .brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-
 .nav-right { display: flex; align-items: center; gap: 20px; }
 .nav-links { display: flex; gap: 15px; }
 .nav-link { text-decoration: none; color: var(--text-light); font-weight: 600; padding: 8px 16px; border-radius: 20px; transition: 0.3s; font-size: 0.9rem; }
 .nav-link:hover, .nav-link.active { background: rgba(108, 99, 255, 0.1); color: var(--primary); }
 
 /* ADMIN BADGE */
-.admin-badge {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--bg-body); padding: 8px 20px; border-radius: 30px;
-    font-size: 0.9rem; font-weight: 700; color: var(--text-main);
-    border: 1px solid var(--border); box-shadow: var(--shadow); cursor: default;
-}
+.admin-badge { display: flex; align-items: center; gap: 10px; background: var(--bg-body); padding: 8px 20px; border-radius: 30px; font-size: 0.9rem; font-weight: 700; color: var(--text-main); border: 1px solid var(--border); box-shadow: var(--shadow); cursor: default; }
 .admin-badge i { color: var(--success); font-size: 1.2rem; }
 .admin-details { display: flex; flex-direction: column; line-height: 1.2; text-align: left; }
 .admin-role-label { font-size: 0.65rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
 #adminNameDisplay { font-size: 0.9rem; font-weight: 700; }
 
-/* CONTAINER & HEADER */
+/* CONTAINER */
 .container { max-width: 1000px; margin: 0 auto; padding: 20px; padding-top: 40px; }
 
-.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+/* HEADER TITLE ROW */
+.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
 .page-title { font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--text-main); }
-.search-box {
-    padding: 12px 20px; border-radius: 30px; border: 1px solid var(--border);
-    background: var(--surface); backdrop-filter: var(--glass); 
-    color: var(--text-main); width: 100%; max-width: 300px; box-shadow: var(--shadow);
-    outline: none; transition: 0.3s;
-}
-.search-box:focus { border-color: var(--primary); }
 
-/* USER LIST LAYOUT */
+/* --- NEW SEARCH & FILTER DESIGN (MATCHING ADMIN_HISTORY) --- */
+.search-container {
+    background: var(--surface); backdrop-filter: var(--glass);
+    padding: 10px 20px; border-radius: 50px; margin-bottom: 25px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 15px; flex-wrap: wrap;
+}
+
+.search-input-wrapper { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 200px; }
+.search-input { width: 100%; border: none; background: transparent; font-size: 1rem; color: var(--text-main); font-family: inherit; padding: 10px 0; outline: none; }
+.search-icon { color: var(--text-light); font-size: 1.1rem; }
+
+.sort-select {
+    padding: 8px 15px; border-radius: 20px; border: 1px solid var(--border);
+    background: rgba(255,255,255,0.5); color: var(--text-main); font-family: inherit; font-size: 0.9rem;
+    cursor: pointer; outline: none; transition: 0.3s;
+}
+body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
+.sort-select:focus { border-color: var(--primary); }
+
+.count-tag {
+    background: var(--primary); color: white; padding: 8px 20px;
+    border-radius: 30px; font-weight: 700; font-size: 0.9rem;
+    white-space: nowrap; box-shadow: 0 4px 10px rgba(108, 99, 255, 0.3);
+}
+
+.btn-reset {
+    background: #e2e8f0; color: var(--text-light); border: none;
+    width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.2s; font-size: 0.9rem;
+}
+.btn-reset:hover { background: var(--primary); color: white; transform: rotate(90deg); }
+
+/* USER LIST */
 .user-list { display: flex; flex-direction: column; gap: 15px; }
-
-.user-row {
-    display: flex; gap: 15px; align-items: stretch;
-    animation: fadeIn 0.4s ease forwards;
-}
-
-.info-block {
-    flex: 1; 
-    background: var(--surface-card); backdrop-filter: var(--glass);
-    border: 1px solid var(--border); border-radius: 20px;
-    padding: 20px; display: flex; flex-direction: column; justify-content: center;
-    box-shadow: var(--shadow);
-}
+.user-row { display: flex; gap: 15px; align-items: stretch; animation: fadeIn 0.4s ease forwards; }
+.info-block { flex: 1; background: var(--surface-card); backdrop-filter: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; justify-content: center; box-shadow: var(--shadow); }
 .user-name { font-weight: 700; font-size: 1.05rem; color: var(--text-main); margin-bottom: 4px; }
 .user-meta { font-size: 0.85rem; color: var(--text-light); display: flex; gap: 15px; flex-wrap: wrap; }
 .meta-item { display: flex; align-items: center; gap: 6px; }
+.action-block { width: 240px; background: var(--surface-card); backdrop-filter: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: var(--shadow); }
+.modern-select { padding: 8px 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-size: 0.85rem; font-weight: 600; cursor: pointer; width: 100%; outline: none; transition: 0.3s; }
+.btn-action { width: 40px; height: 40px; border-radius: 12px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; font-size: 1rem; color: white; flex-shrink: 0; }
+.btn-save { background: var(--success); } .btn-save:hover { background: #059669; transform: scale(1.05); }
+.btn-del { background: var(--danger); } .btn-del:hover { background: #dc2626; transform: scale(1.05); }
 
-.action-block {
-    width: 240px; 
-    background: var(--surface-card); backdrop-filter: var(--glass);
-    border: 1px solid var(--border); border-radius: 20px;
-    padding: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;
-    box-shadow: var(--shadow);
-}
-
-.modern-select {
-    padding: 8px 10px; border-radius: 12px; border: 1px solid var(--border);
-    background: var(--bg-body); color: var(--text-main); 
-    font-size: 0.85rem; font-weight: 600; cursor: pointer;
-    width: 100%; outline: none; transition: 0.3s;
-}
-.modern-select:focus { border-color: var(--primary); }
-
-.btn-action {
-    width: 40px; height: 40px; border-radius: 12px; border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; transition: 0.2s;
-    font-size: 1rem; color: white; flex-shrink: 0;
-}
-.btn-save { background: var(--success); }
-.btn-save:hover { background: #059669; transform: scale(1.05); }
-.btn-del { background: var(--danger); }
-.btn-del:hover { background: #dc2626; transform: scale(1.05); }
-
-/* --- MODAL POPUP STYLES --- */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-    display: none; justify-content: center; align-items: center; z-index: 2000;
-    opacity: 0; transition: opacity 0.3s;
-}
+/* MODAL */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; opacity: 0; transition: opacity 0.3s; }
 .modal-overlay.show { display: flex; opacity: 1; }
-.modal-box {
-    background: var(--surface-card); padding: 30px; border-radius: 24px;
-    width: 90%; max-width: 400px; text-align: center;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-    transform: translateY(30px); transition: transform 0.3s; border: 1px solid var(--border);
-}
+.modal-box { background: var(--surface-card); padding: 30px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); transform: translateY(30px); transition: transform 0.3s; border: 1px solid var(--border); }
 .modal-overlay.show .modal-box { transform: translateY(0); }
-.modal-icon {
-    font-size: 2.5rem; color: #ef4444; margin-bottom: 15px;
-    background: #fee2e2; width: 80px; height: 80px;
-    border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
-    animation: pulseRed 2s infinite;
-}
+.modal-icon { font-size: 2.5rem; color: #ef4444; margin-bottom: 15px; background: #fee2e2; width: 80px; height: 80px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; animation: pulseRed 2s infinite; }
 @keyframes pulseRed { 0% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);} 70% {box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);} 100% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);} }
 .modal-title { font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
 .modal-desc { font-size: 0.95rem; color: var(--text-light); margin-bottom: 25px; line-height: 1.5; }
@@ -159,21 +128,12 @@ body.dark-mode .blob { opacity: 0.15; }
 .btn-confirm-del { background: #ef4444; color: white; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3); }
 .btn-confirm-del:hover { background: #dc2626; transform: translateY(-2px); }
 
-/* FLOATING BUTTONS */
-.float-btn {
-    position: fixed; width: 50px; height: 50px; border-radius: 50%;
-    background: var(--surface); color: var(--text-main); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-    cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: 0.3s;
-}
+/* FLOAT BTN */
+.float-btn { position: fixed; width: 50px; height: 50px; border-radius: 50%; background: var(--surface); color: var(--text-main); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: 0.3s; }
 #themeBtn { bottom: 30px; left: 30px; }
 #topBtn { bottom: 30px; right: 30px; opacity: 0; visibility: hidden; background: var(--primary); color: white; border: none; }
 #topBtn.show { opacity: 1; visibility: visible; }
-.toast {
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-    background: var(--success); color: white; padding: 10px 20px; border-radius: 30px;
-    font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; z-index: 1000; transition: 0.4s;
-}
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 10px 20px; border-radius: 30px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; z-index: 1000; transition: 0.4s; }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
 @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
@@ -181,9 +141,11 @@ body.dark-mode .blob { opacity: 0.15; }
     .navbar { flex-direction: column; gap: 15px; padding: 20px; height: auto; }
     .nav-right { flex-direction: column; width: 100%; gap: 15px; }
     .nav-links { width: 100%; justify-content: center; flex-wrap: wrap; }
+    .search-container { flex-direction: column; align-items: stretch; border-radius: 20px; padding: 15px; }
     .user-row { flex-direction: column; gap: 10px; }
     .action-block { width: 100%; justify-content: space-between; }
     .admin-badge { width: 100%; justify-content: center; }
+    .count-tag { text-align: center; margin-top:10px; }
 }
 </style>
 </head>
@@ -193,7 +155,6 @@ body.dark-mode .blob { opacity: 0.15; }
 
 <nav class="navbar" id="mainNav">
     <div class="brand"><i class="fa-solid fa-user-shield"></i> PENGGUNA</div>
-    
     <div class="nav-right">
         <div class="admin-badge" id="adminBadge">
             <i class="fa-solid fa-circle-user"></i>
@@ -202,12 +163,12 @@ body.dark-mode .blob { opacity: 0.15; }
                 <span id="adminNameDisplay">Loading...</span>
             </div>
         </div>
-
         <div class="nav-links">
             <a href="dashboard.html" class="nav-link">Home</a>
+            <a href="admin_dashboard.html" class="nav-link">Dashboard</a>
             <a href="admin_users.html" class="nav-link active">Users</a>
-            <a href="admin_salary.html" class="nav-link">Gaji</a>
             <a href="admin_history.html" class="nav-link">Rekod</a>
+            <a href="admin_salary.html" class="nav-link">Gaji</a>
         </div>
     </div>
 </nav>
@@ -215,7 +176,27 @@ body.dark-mode .blob { opacity: 0.15; }
 <div class="container">
     <div class="header-row">
         <h2 class="page-title">Senarai Pengguna</h2>
-        <input type="text" id="searchInput" class="search-box" placeholder="Cari Nama / Email..." onkeyup="searchList()">
+    </div>
+
+    <div class="search-container">
+        <div class="search-input-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari nama pengguna..." onkeyup="applyFilter()">
+        </div>
+        
+        <select id="sortFilter" class="sort-select" onchange="applyFilter()">
+            <option value="new">Terkini (Baru)</option>
+            <option value="old">Terlama (Lama)</option>
+            <option value="az">Nama (A-Z)</option>
+        </select>
+
+        <div class="count-tag">
+            Jumlah: <span id="totalCount">0</span>
+        </div>
+
+        <button class="btn-reset" onclick="resetFilter()" title="Reset Filter">
+            <i class="fa-solid fa-rotate-right"></i>
+        </button>
     </div>
     
     <div class="user-list" id="userListContainer">
@@ -240,26 +221,18 @@ body.dark-mode .blob { opacity: 0.15; }
 <div id="toast" class="toast"><i class="fa-solid fa-check-circle"></i> <span id="toastMsg">Berjaya</span></div>
 
 <script>
-    // --- 1. ADMIN SECURITY CHECK ---
-    if (!sessionStorage.getItem('admin_verified')) {
-        alert("Akses tidak dibenarkan. Sila sahkan No. Staf.");
-        window.location.href = 'admin_gate.html';
-    }
+    if (!sessionStorage.getItem('admin_verified')) { window.location.href = 'admin_gate.html'; }
 
-    // --- 2. FIREBASE CONFIG ---
     const firebaseConfig = { apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8", authDomain: "data-staff-6hha55.firebaseapp.com", projectId: "data-staff-6hha55", storageBucket: "data-staff-6hha55.firebasestorage.app", messagingSenderId: "834544418876", appId: "1:834544418876:web:71b355bd0f3faf73244339" };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore(); const auth = firebase.auth();
 
-    // --- 3. UI HELPERS ---
     let lastScrollTop = 0;
     const navbar = document.getElementById('mainNav');
     const topBtn = document.getElementById('topBtn');
-
     window.addEventListener('scroll', () => {
         let st = window.pageYOffset || document.documentElement.scrollTop;
-        if (st > lastScrollTop && st > 100) navbar.classList.add('nav-hidden');
-        else navbar.classList.remove('nav-hidden');
+        if (st > lastScrollTop && st > 100) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
         lastScrollTop = st;
         if (st > 300) topBtn.classList.add('show'); else topBtn.classList.remove('show');
     });
@@ -277,76 +250,117 @@ body.dark-mode .blob { opacity: 0.15; }
         t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-    // --- 4. MAIN DATA LOGIC ---
-    let deleteTargetId = null; // ID user yang nak didelete
+    let deleteTargetId = null;
+    let globalUserList = [];
 
     auth.onAuthStateChanged(user => { 
         if(user) {
             loadAdminName();
             loadUsers();
-        } else {
-            location.href='login.html';
-        }
+        } else location.href='login.html';
     });
 
-    // Load Nama Admin
     async function loadAdminName() {
         const currentStafID = sessionStorage.getItem('current_admin_staf');
         if(currentStafID) {
             try {
                 const snapshot = await db.collection('admin_whitelist').where('no_staf', '==', currentStafID).limit(1).get();
-                if(!snapshot.empty) {
-                    document.getElementById('adminNameDisplay').innerText = snapshot.docs[0].data().nama || "Pentadbir";
-                }
+                if(!snapshot.empty) document.getElementById('adminNameDisplay').innerText = snapshot.docs[0].data().nama || "Pentadbir";
             } catch(e) { console.error(e); }
         }
     }
 
-    // Load Senarai Users
     async function loadUsers() {
         try {
-            const snap = await db.collection('users').get();
             const container = document.getElementById('userListContainer');
-            
-            if(snap.empty) {
-                container.innerHTML = '<p style="text-align:center;">Tiada pengguna.</p>';
-                return;
+            container.innerHTML = '<p style="text-align:center; padding:40px;">Sedang memuatkan data...</p>';
+            const snap = await db.collection('users').get();
+            if(snap.empty) { container.innerHTML = '<p style="text-align:center;">Tiada pengguna.</p>'; document.getElementById('totalCount').innerText = "0"; return; }
+
+            globalUserList = [];
+            snap.forEach(doc => {
+                const data = doc.data();
+                globalUserList.push({
+                    id: doc.id,
+                    fullname: data.fullname || '',
+                    email: data.email || '',
+                    phone: data.phone || data.no_tel || '-',
+                    role: data.role || 'user',
+                    createdAt: data.createdAt ? data.createdAt.toDate() : new Date(0)
+                });
+            });
+
+            // CHECK URL PARAMETER & APPLY SEARCH
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchParam = urlParams.get('search');
+            if(searchParam) {
+                document.getElementById('searchInput').value = decodeURIComponent(searchParam);
             }
 
-            let html = '';
-            snap.forEach(doc => {
-                const d = doc.data();
-                const role = d.role || 'user';
-                const phone = d.phone || d.no_tel || '-';
-                const docId = doc.id;
-                
-                html += `
-                <div class="user-row">
-                    <div class="info-block">
-                        <div class="user-name">${d.fullname || 'Tiada Nama'}</div>
-                        <div class="user-meta">
-                            <div class="meta-item"><i class="fa-regular fa-envelope" style="color:var(--primary)"></i> ${d.email}</div>
-                            <div class="meta-item"><i class="fa-solid fa-phone" style="color:var(--success)"></i> ${phone}</div>
-                        </div>
-                    </div>
+            applyFilter();
 
-                    <div class="action-block">
-                        <select class="modern-select" id="role-${docId}">
-                            <option value="user" ${role === 'user' ? 'selected' : ''}>User</option>
-                            <option value="pentadbir" ${role === 'pentadbir' ? 'selected' : ''}>Pentadbir</option>
-                        </select>
-                        <button class="btn-action btn-save" title="Simpan Role" onclick="updateRole('${docId}')">
-                            <i class="fa-solid fa-check"></i>
-                        </button>
-                        <button class="btn-action btn-del" title="Padam User" onclick="openDeleteModal('${docId}')">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+        } catch(e) { console.error(e); document.getElementById('userListContainer').innerHTML = '<p style="text-align:center; color:red;">Gagal memuatkan data.</p>'; }
+    }
+
+    // FUNGSI UTAMA FILTER
+    function applyFilter() {
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+        const sortType = document.getElementById('sortFilter').value;
+        const container = document.getElementById('userListContainer');
+        const countBadge = document.getElementById('totalCount');
+
+        let filteredData = globalUserList.filter(user => {
+            const name = user.fullname.toLowerCase();
+            const email = user.email.toLowerCase();
+            return name.includes(searchText) || email.includes(searchText);
+        });
+
+        if (sortType === 'new') filteredData.sort((a, b) => b.createdAt - a.createdAt);
+        else if (sortType === 'old') filteredData.sort((a, b) => a.createdAt - b.createdAt);
+        else if (sortType === 'az') filteredData.sort((a, b) => a.fullname.localeCompare(b.fullname));
+
+        countBadge.innerText = filteredData.length;
+
+        if (filteredData.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-light);">Tiada pengguna dijumpai.</p>';
+            return;
+        }
+
+        let html = '';
+        filteredData.forEach(user => {
+            html += `
+            <div class="user-row">
+                <div class="info-block">
+                    <div class="user-name">${user.fullname || 'Tiada Nama'}</div>
+                    <div class="user-meta">
+                        <div class="meta-item"><i class="fa-regular fa-envelope" style="color:var(--primary)"></i> ${user.email}</div>
+                        <div class="meta-item"><i class="fa-solid fa-phone" style="color:var(--success)"></i> ${user.phone}</div>
                     </div>
                 </div>
-                `;
-            });
-            container.innerHTML = html;
-        } catch(e) { console.error(e); }
+                <div class="action-block">
+                    <select class="modern-select" id="role-${user.id}">
+                        <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+                        <option value="pentadbir" ${user.role === 'pentadbir' ? 'selected' : ''}>Pentadbir</option>
+                    </select>
+                    <button class="btn-action btn-save" title="Simpan Role" onclick="updateRole('${user.id}')"><i class="fa-solid fa-check"></i></button>
+                    <button class="btn-action btn-del" title="Padam User" onclick="openDeleteModal('${user.id}')"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    // FUNGSI RESET FILTER
+    function resetFilter() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('sortFilter').value = 'new';
+        
+        // Buang parameter search dari URL tanpa refresh
+        const url = new URL(window.location);
+        url.searchParams.delete('search');
+        window.history.pushState({}, '', url);
+
+        applyFilter();
     }
 
     async function updateRole(id) {
@@ -355,47 +369,22 @@ body.dark-mode .blob { opacity: 0.15; }
         const btn = selectEl.nextElementSibling;
         const originalIcon = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; 
-
         try {
             await db.collection('users').doc(id).update({ role: newRole });
-            setTimeout(() => {
-                btn.innerHTML = originalIcon;
-                showToast(`Role berjaya: ${newRole}`);
-            }, 600);
+            setTimeout(() => { btn.innerHTML = originalIcon; showToast(`Role berjaya: ${newRole}`); }, 600);
         } catch(e) { alert("Gagal update role"); btn.innerHTML = originalIcon; }
     }
 
-    // --- MODAL LOGIC ---
-    window.openDeleteModal = function(id) {
-        deleteTargetId = id;
-        document.getElementById('deleteModal').classList.add('show');
-    }
-
-    window.closeModal = function() {
-        document.getElementById('deleteModal').classList.remove('show');
-        deleteTargetId = null;
-    }
-
+    window.openDeleteModal = function(id) { deleteTargetId = id; document.getElementById('deleteModal').classList.add('show'); }
+    window.closeModal = function() { document.getElementById('deleteModal').classList.remove('show'); deleteTargetId = null; }
     window.confirmDelete = async function() {
         if(!deleteTargetId) return;
         try {
             await db.collection('users').doc(deleteTargetId).delete();
-            closeModal();
-            showToast("Pengguna dipadam");
-            loadUsers(); // Refresh list
+            closeModal(); showToast("Pengguna dipadam");
+            globalUserList = globalUserList.filter(user => user.id !== deleteTargetId);
+            applyFilter();
         } catch(e) { alert("Gagal padam."); closeModal(); }
-    }
-
-    function searchList() {
-        const input = document.getElementById("searchInput");
-        const filter = input.value.toUpperCase();
-        const rows = document.getElementsByClassName("user-row");
-        for (let i = 0; i < rows.length; i++) {
-            const nameEl = rows[i].querySelector(".user-name");
-            const emailEl = rows[i].querySelector(".user-meta"); 
-            const txt = (nameEl.innerText + " " + emailEl.innerText).toUpperCase();
-            rows[i].style.display = txt.indexOf(filter) > -1 ? "flex" : "none";
-        }
     }
 </script>
 </body>
