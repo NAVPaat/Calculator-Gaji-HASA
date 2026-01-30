@@ -46,9 +46,19 @@ body.dark-mode .blob { opacity: 0.15; }
 @keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
 
 /* NAVBAR */
-.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.3s; }
-.nav-hidden { transform: translateY(-150%); }
+.navbar { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 15px 5%; margin: 20px; 
+    background: var(--surface); backdrop-filter: var(--glass); 
+    border-radius: 50px; position: sticky; top: 20px; z-index: 100; 
+    border: 1px solid var(--border); box-shadow: var(--shadow); 
+    transition: transform 0.4s ease, opacity 0.4s ease; 
+}
+.nav-hidden { transform: translateY(-150%); opacity: 0; pointer-events: none; }
+
 .brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+
+/* Navbar Right & Links */
 .nav-right { display: flex; align-items: center; gap: 20px; }
 .nav-links { display: flex; gap: 15px; }
 .nav-link { text-decoration: none; color: var(--text-light); font-weight: 600; padding: 8px 16px; border-radius: 20px; transition: 0.3s; font-size: 0.9rem; }
@@ -58,6 +68,9 @@ body.dark-mode .blob { opacity: 0.15; }
 .admin-badge i { color: var(--success); font-size: 1.2rem; }
 .admin-details { display: flex; flex-direction: column; line-height: 1.2; text-align: left; }
 .admin-role-label { font-size: 0.65rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+/* HAMBURGER (MOBILE) */
+.hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
 
 /* CONTAINER & LAYOUT */
 .container { max-width: 1100px; margin: 0 auto; padding: 20px; padding-top: 40px; flex: 1; width: 100%; }
@@ -128,7 +141,6 @@ body.dark-mode .blob { opacity: 0.15; }
     display: flex; justify-content: space-between; align-items: center;
     background: rgba(255,255,255,0.05);
 }
-.modal-title-group { display: flex; flex-direction: column; }
 .modal-title { font-size: 1.4rem; font-weight: 800; color: var(--text-main); }
 .modal-controls { display: flex; align-items: center; gap: 15px; }
 
@@ -147,7 +159,7 @@ body.dark-mode .blob { opacity: 0.15; }
 }
 .modal-canvas-wrapper { width: 100%; height: 100%; position: relative; }
 
-/* DETAILED STATS ITEMS */
+/* DETAILED STATS ITEMS (FOR POPUP) */
 .detail-card {
     background: var(--surface-card); padding: 15px; border-radius: 15px;
     border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.05);
@@ -156,12 +168,11 @@ body.dark-mode .blob { opacity: 0.15; }
 @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 .detail-label { font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
 .detail-value { font-size: 1rem; color: var(--text-main); font-weight: 700; margin-top: 3px; word-break: break-all; }
-.detail-highlight { border-left: 4px solid var(--primary); padding-left: 12px; }
 .detail-header { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--border); font-weight: 700; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
 
 /* FOOTER */
 .footer {
-    text-align: center; padding: 25px; margin-top: 40px;
+    text-align: center; padding: 25px; margin-top: 20px;
     background: var(--surface); backdrop-filter: var(--glass);
     border-top: 1px solid var(--border);
     color: var(--text-light); font-size: 0.85rem; font-weight: 500;
@@ -172,17 +183,89 @@ body.dark-mode .blob { opacity: 0.15; }
 .float-btn:hover { opacity: 1; }
 #themeBtn { bottom: 30px; left: 30px; }
 
+/* RESPONSIVE MOBILE */
 @media(max-width: 900px) {
-    .navbar { flex-direction: column; gap: 15px; padding: 20px; height: auto; }
-    .nav-right { flex-direction: column; width: 100%; gap: 15px; }
-    .nav-links { width: 100%; justify-content: center; flex-wrap: wrap; }
-    .charts-grid { grid-template-columns: 1fr; }
-    .modal-body { flex-direction: column; overflow-y: auto; }
-    .modal-chart-section { height: 400px; border-right: none; border-bottom: 1px solid var(--border); }
-    .modal-content { height: 90vh; }
-    .modal-header { flex-direction: column; gap: 15px; align-items: flex-start; }
-    .modal-controls { width: 100%; justify-content: space-between; }
+    /* 1. Navbar Mobile (Ikut coding asal anda) */
+    .navbar { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 15px; 
+        padding: 20px; 
+        height: auto; 
+        position: relative; 
+    }
+    .nav-right { 
+        width: 100%; 
+        flex-direction: column; 
+        display: none; 
+        margin-top: 15px; 
+    }
+    .nav-right.active { 
+        display: flex; 
+        animation: slideDown 0.3s ease; 
+    }
+    .nav-links { 
+        width: 100%; 
+        flex-direction: column; 
+        align-items: center; 
+    }
+    .nav-link { 
+        width: 100%; 
+        text-align: center; 
+        display: block; 
+    }
+    .hamburger { 
+        display: block; 
+        position: absolute; 
+        right: 20px; 
+        top: 20px; 
+    }
+
+    /* 2. STATISTIK BOX FIX (Supaya kemas di phone) */
+    .stats-grid { 
+        grid-template-columns: 1fr; /* Paksa jadi 1 lajur */
+        gap: 15px; 
+    }
+    .stat-card { 
+        padding: 20px; 
+        min-height: auto; 
+    }
+    .stat-value { 
+        font-size: 1.6rem; /* Kecilkan sikit font nombor */
+    }
+
+    /* 3. Layout Lain (Chart & Modal) */
+    .charts-grid { 
+        grid-template-columns: 1fr; 
+    }
+    .modal-body { 
+        flex-direction: column; 
+        overflow-y: auto; 
+    }
+    .modal-chart-section { 
+        height: 400px; 
+        border-right: none; 
+        border-bottom: 1px solid var(--border); 
+    }
+    .modal-content { 
+        height: 90vh; 
+    }
+    .modal-header { 
+        flex-direction: column; 
+        gap: 15px; 
+        align-items: flex-start; 
+    }
+    .modal-controls { 
+        width: 100%; 
+        justify-content: space-between; 
+    }
 }
+
+@keyframes slideDown { 
+    from { opacity:0; transform:translateY(-10px); } 
+    to { opacity:1; transform:translateY(0); } 
+}
+
 </style>
 </head>
 <body>
@@ -191,7 +274,9 @@ body.dark-mode .blob { opacity: 0.15; }
 
 <nav class="navbar" id="mainNav">
     <div class="brand"><i class="fa-solid fa-chart-line"></i> DASHBOARD</div>
-    <div class="nav-right">
+    <button class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+    
+    <div class="nav-right" id="navMenu">
         <div class="admin-badge" id="adminBadge">
             <i class="fa-solid fa-circle-user"></i>
             <div class="admin-details">
@@ -238,6 +323,7 @@ body.dark-mode .blob { opacity: 0.15; }
                 <div class="chart-title">Trend Pendaftaran</div>
                 <div class="header-controls">
                     <select id="userFilter" class="filter-select" onchange="updateUserChart()">
+                        <option value="1d">1 Hari</option>
                         <option value="7d" selected>7 Hari</option>
                         <option value="30d">30 Hari</option>
                         <option value="1y">Tahun Ini</option>
@@ -255,6 +341,7 @@ body.dark-mode .blob { opacity: 0.15; }
                 <div class="chart-title">Statistik Sektor</div>
                 <div class="header-controls">
                     <select id="recordFilter" class="filter-select" onchange="updateRecordChart()">
+                        <option value="1d">1 Hari</option>
                         <option value="7d" selected>7 Hari</option>
                         <option value="30d">30 Hari</option>
                         <option value="1y">Tahun Ini</option>
@@ -279,6 +366,7 @@ body.dark-mode .blob { opacity: 0.15; }
             <div class="modal-title" id="modalTitle">Statistik Terperinci</div>
             <div class="modal-controls">
                 <select id="modalFilter" class="filter-select" onchange="updateModalChart()">
+                    <option value="1d">1 Hari</option>
                     <option value="7d">7 Hari</option>
                     <option value="30d">30 Hari</option>
                     <option value="1y">Tahun Ini</option>
@@ -309,15 +397,15 @@ body.dark-mode .blob { opacity: 0.15; }
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore(); const auth = firebase.auth();
 
-    // GLOBAL DATA STORAGE
     let rawUserData = [];
     let rawRecordData = [];
+    let userMap = {}; // Untuk simpan ID -> Nama sebenar
     let chartInstanceUser = null;
     let chartInstanceRecord = null;
-    let chartInstanceBig = null; // For Modal
+    let chartInstanceBig = null;
     let currentModalType = '';
 
-    // THEME LOGIC
+    // THEME
     const themeBtn = document.getElementById('themeBtn');
     if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
     themeBtn.onclick = () => {
@@ -325,6 +413,23 @@ body.dark-mode .blob { opacity: 0.15; }
         localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
         themeBtn.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
     };
+
+    // NAV SCROLL HIDE
+    let lastScrollTop = 0;
+    const navbar = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+        let st = window.pageYOffset || document.documentElement.scrollTop;
+        if (st > 100) { // Scroll down
+            navbar.classList.add('nav-hidden');
+        } else { // Scroll near top
+            navbar.classList.remove('nav-hidden');
+        }
+    });
+
+    // MOBILE MENU
+    function toggleMenu() {
+        document.getElementById('navMenu').classList.toggle('active');
+    }
 
     auth.onAuthStateChanged(user => { 
         if(user) {
@@ -343,31 +448,46 @@ body.dark-mode .blob { opacity: 0.15; }
         }
     }
 
-    // LOAD ALL DATA ONCE
+    // ⚡ CRITICAL FIX: Fetch Users Map First, Then Records
     async function loadAllData() {
         try {
-            // 1. Fetch Users
+            // 1. Fetch Users & Build Map
             const userSnap = await db.collection('users').get();
             rawUserData = [];
+            userMap = {};
+            
             userSnap.forEach(doc => {
                 const d = doc.data();
+                const realName = d.fullname || d.nama || d.name || d.email.split('@')[0];
+                userMap[doc.id] = realName; // Map ID -> Name
+                
                 rawUserData.push({
                     id: doc.id,
-                    name: d.name || d.fullname || "User",
+                    name: realName,
                     email: d.email || "No Email",
                     createdAt: d.createdAt ? d.createdAt.toDate() : new Date(0)
                 });
             });
             document.getElementById('displayTotalUser').innerText = rawUserData.length;
 
-            // 2. Fetch Records
+            // 2. Fetch Records & Map Names
             const recordSnap = await db.collection('printedSlips').get();
             rawRecordData = [];
+            
             recordSnap.forEach(doc => {
                 const d = doc.data();
+                // Logic: Guna userMap[d.id] jika wujud (andaikan slip simpan ID user),
+                // atau fallback ke field nama dalam slip
+                let recordName = "User";
+                if(d.userId && userMap[d.userId]) {
+                    recordName = userMap[d.userId];
+                } else {
+                    recordName = d.fullname || d.nama_penuh || d.nama || d.name || "User";
+                }
+
                 rawRecordData.push({
                     id: doc.id,
-                    name: d.fullname || d.nama || "User",
+                    name: recordName,
                     amount: d.gaji_bersih || 0,
                     timestamp: d.timestamp ? new Date(d.timestamp.seconds * 1000) : new Date(0),
                     sektor: (d.jenis_sektor || d.kategori || 'awam').toLowerCase()
@@ -375,24 +495,25 @@ body.dark-mode .blob { opacity: 0.15; }
             });
             document.getElementById('displayTotalRecord').innerText = rawRecordData.length;
 
-            // 3. Render Small Charts
+            // 3. Render
             updateUserChart();
             updateRecordChart();
 
         } catch(e) { console.error("Error loading data:", e); }
     }
 
-    // --- HELPER: FILTER BY DATE ---
+    // FILTER HELPER
     function filterDataByTime(dataArray, timeKey, filterVal) {
         const now = new Date();
         let startTime = new Date();
-        if (filterVal === '7d') startTime.setDate(now.getDate() - 7);
+        if (filterVal === '1d') startTime.setHours(0,0,0,0);
+        else if (filterVal === '7d') startTime.setDate(now.getDate() - 7);
         else if (filterVal === '30d') startTime.setDate(now.getDate() - 30);
         else if (filterVal === '1y') startTime.setFullYear(now.getFullYear() - 1);
         return dataArray.filter(item => item[timeKey] >= startTime);
     }
 
-    // --- CHART 1: USER TRENDS (SMALL) ---
+    // CHART 1: USER
     function updateUserChart() {
         const filterVal = document.getElementById('userFilter').value;
         const filteredData = filterDataByTime(rawUserData, 'createdAt', filterVal);
@@ -425,7 +546,7 @@ body.dark-mode .blob { opacity: 0.15; }
         });
     }
 
-    // --- CHART 2: SECTOR DOUGHNUT (SMALL) ---
+    // CHART 2: SECTOR
     function updateRecordChart() {
         const filterVal = document.getElementById('recordFilter').value;
         const filteredData = filterDataByTime(rawRecordData, 'timestamp', filterVal);
@@ -453,23 +574,20 @@ body.dark-mode .blob { opacity: 0.15; }
         });
     }
 
-    // --- MODAL & BIG CHART LOGIC ---
+    // MODAL LOGIC
     function openChartModal(type) {
         currentModalType = type;
         const modal = document.getElementById('chartModal');
         const title = document.getElementById('modalTitle');
         const modalFilter = document.getElementById('modalFilter');
         
-        // Sync filter value from small dashboard to modal filter
         const dashboardFilterId = type === 'user' ? 'userFilter' : 'recordFilter';
         modalFilter.value = document.getElementById(dashboardFilterId).value;
 
         modal.classList.add('show');
-
         if(type === 'user') title.innerText = "Analisis Trend Pendaftaran";
         else title.innerText = "Analisis Sektor Pekerjaan";
-        
-        updateModalChart(); // Initial render inside modal
+        updateModalChart();
     }
 
     function closeChartModal() {
@@ -505,12 +623,10 @@ body.dark-mode .blob { opacity: 0.15; }
         `;
     }
 
-    // --- BIG USER CHART (Interactive) ---
     function renderBigUserChart() {
-        const filterVal = document.getElementById('modalFilter').value; // Get filter from modal
+        const filterVal = document.getElementById('modalFilter').value;
         const filteredData = filterDataByTime(rawUserData, 'createdAt', filterVal);
         
-        // Group Logic
         const grouped = {};
         filteredData.forEach(u => {
             const dateKey = u.createdAt.toLocaleDateString('ms-MY', { day:'numeric', month:'short', year:'numeric' });
@@ -521,7 +637,7 @@ body.dark-mode .blob { opacity: 0.15; }
         const labels = Object.keys(grouped);
         const dataCounts = labels.map(k => grouped[k].length);
 
-        renderDefaultDetails("Jumlah Pendaftaran (Tempoh Ini)", filteredData.length, "Klik pada titik graf untuk lihat senarai nama.");
+        renderDefaultDetails("Jumlah Pendaftaran", filteredData.length, "Klik titik graf untuk lihat senarai nama.");
 
         const ctx = document.getElementById('bigChart').getContext('2d');
         if(chartInstanceBig) chartInstanceBig.destroy();
@@ -531,15 +647,9 @@ body.dark-mode .blob { opacity: 0.15; }
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Pendaftaran',
-                    data: dataCounts,
-                    borderColor: '#6C63FF',
-                    backgroundColor: 'rgba(108, 99, 255, 0.2)',
-                    borderWidth: 3,
-                    pointRadius: 6,
-                    pointHoverRadius: 9,
-                    fill: true,
-                    tension: 0.3
+                    label: 'Pendaftaran', data: dataCounts,
+                    borderColor: '#6C63FF', backgroundColor: 'rgba(108, 99, 255, 0.2)',
+                    borderWidth: 3, pointRadius: 6, pointHoverRadius: 9, fill: true, tension: 0.3
                 }]
             },
             options: {
@@ -549,10 +659,9 @@ body.dark-mode .blob { opacity: 0.15; }
                     if(activeEls.length > 0) {
                         const index = activeEls[0].index;
                         const dateKey = labels[index];
-                        const usersList = grouped[dateKey];
-                        showUserDetails(dateKey, usersList);
+                        showUserDetails(dateKey, grouped[dateKey]);
                     } else {
-                        renderDefaultDetails("Jumlah Pendaftaran (Tempoh Ini)", filteredData.length, "Klik pada titik graf untuk lihat senarai nama.");
+                        renderDefaultDetails("Jumlah Pendaftaran", filteredData.length, "Klik titik graf untuk lihat senarai nama.");
                     }
                 }
             }
@@ -565,8 +674,7 @@ body.dark-mode .blob { opacity: 0.15; }
             <div class="detail-header">
                 <span>${dateKey}</span>
                 <span style="background:var(--primary); color:white; padding:2px 8px; border-radius:10px; font-size:0.7rem;">${list.length} User</span>
-            </div>
-        `;
+            </div>`;
         list.forEach(u => {
             html += `
             <div class="detail-card">
@@ -579,18 +687,16 @@ body.dark-mode .blob { opacity: 0.15; }
         container.innerHTML = html;
     }
 
-    // --- BIG RECORD CHART (Interactive) ---
     function renderBigRecordChart() {
-        const filterVal = document.getElementById('modalFilter').value; // Get filter from modal
+        const filterVal = document.getElementById('modalFilter').value;
         const filteredData = filterDataByTime(rawRecordData, 'timestamp', filterVal);
 
         let awamList = [], swastaList = [];
         filteredData.forEach(r => {
-            if(r.sektor.includes('swasta')) swastaList.push(r);
-            else awamList.push(r);
+            if(r.sektor.includes('swasta')) swastaList.push(r); else awamList.push(r);
         });
 
-        renderDefaultDetails("Jumlah Pengiraan", filteredData.length, "Klik pada carta untuk melihat senarai pengiraan mengikut sektor.");
+        renderDefaultDetails("Jumlah Pengiraan", filteredData.length, "Klik carta untuk lihat senarai pengiraan.");
 
         const ctx = document.getElementById('bigChart').getContext('2d');
         if(chartInstanceBig) chartInstanceBig.destroy();
@@ -602,9 +708,7 @@ body.dark-mode .blob { opacity: 0.15; }
                 datasets: [{
                     data: [awamList.length, swastaList.length],
                     backgroundColor: ['#6C63FF', '#10b981'],
-                    borderWidth: 2,
-                    borderColor: localStorage.getItem('theme')==='dark' ? '#1e293b' : '#ffffff',
-                    hoverOffset: 15
+                    borderWidth: 2, hoverOffset: 15
                 }]
             },
             options: {
@@ -617,7 +721,7 @@ body.dark-mode .blob { opacity: 0.15; }
                         if(idx === 0) showRecordDetails('Sektor Awam', awamList, '#6C63FF');
                         else showRecordDetails('Sektor Swasta', swastaList, '#10b981');
                     } else {
-                        renderDefaultDetails("Jumlah Pengiraan", filteredData.length, "Klik pada carta untuk melihat senarai pengiraan mengikut sektor.");
+                        renderDefaultDetails("Jumlah Pengiraan", filteredData.length, "Klik carta untuk lihat senarai pengiraan.");
                     }
                 }
             }
@@ -626,18 +730,16 @@ body.dark-mode .blob { opacity: 0.15; }
 
     function showRecordDetails(title, list, color) {
         const container = document.getElementById('modalDetails');
-        list.sort((a,b) => b.amount - a.amount); // Sort by highest salary
+        list.sort((a,b) => b.amount - a.amount);
 
         let html = `
             <div class="detail-header" style="color:${color}; border-color:${color}">
                 <span>${title}</span>
                 <span style="background:${color}; color:white; padding:2px 8px; border-radius:10px; font-size:0.7rem;">${list.length} Rekod</span>
-            </div>
-        `;
+            </div>`;
         
-        if(list.length === 0) {
-            html += `<p style="text-align:center; margin-top:20px; color:var(--text-light);">Tiada rekod.</p>`;
-        } else {
+        if(list.length === 0) html += `<p style="text-align:center; margin-top:20px; color:var(--text-light);">Tiada rekod.</p>`;
+        else {
             list.slice(0, 50).forEach(r => {
                 html += `
                 <div class="detail-card" style="border-left: 3px solid ${color}">
