@@ -96,7 +96,11 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 .badge-awam { background: #EEF2FF; color: #6C63FF; border: 1px solid #C7D2FE; }
 .badge-swasta { background: #ECFDF5; color: #10b981; border: 1px solid #A7F3D0; }
 .header-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
-.money { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
+
+/* UPDATED MONEY STYLE to accommodate label */
+.money { display: flex; align-items: center; justify-content: flex-end; gap: 8px; font-size: 1.2rem; font-weight: 800; color: var(--primary); flex-wrap: wrap; }
+.money-label { font-size: 0.75rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+
 .date { font-size: 0.75rem; color: var(--text-light); }
 .btn-group { display: flex; gap: 10px; margin-top: 5px; }
 .btn-icon { width: 35px; height: 35px; border-radius: 50%; border: 1px solid transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
@@ -158,6 +162,7 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
     .header-right { text-align: left; width: 100%; display: flex; flex-direction: row; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 10px; }
     .search-container { flex-direction: column; align-items: stretch; border-radius: 20px; padding: 15px; }
     .count-tag { text-align: center; margin-top:10px; }
+    .money { justify-content: space-between; width: 100%; }
 }
 </style>
 </head>
@@ -314,7 +319,7 @@ async function loadHistory() {
             data.id = doc.id;
             if(!data.timestamp) data.timestamp = { seconds: 0 };
             
-            // DEBUGGING: Anda boleh tengok di Console jika nama masih tak keluar
+            // DEBUGGING
             console.log("Raw Data Slip:", data); 
 
             allRecords.push(data);
@@ -343,10 +348,10 @@ function renderList(dataArr) {
         const sektorLabel = sektor.toUpperCase();
         const rm = (val) => `RM ${parseFloat(val || 0).toFixed(2)}`;
 
-        // LOGIC USERNAME: Guna username jika ada, jika tiada guna email
+        // LOGIC USERNAME
         const displayUsername = d.username || d.email || 'No Username';
         
-        // --- ⚡ IMPORTANT FIX: CHECK ALL POSSIBLE NAME FIELDS ⚡ ---
+        // --- NAME CHECK ---
         const mainName = d.fullname || d.nama_penuh || d.nama || d.name || 'User';
 
         let expTable = '';
@@ -367,6 +372,8 @@ function renderList(dataArr) {
         let posBasikVal = parseFloat(d.bipb || 0) || (d.nama_sijil_pos_basik ? 100 : 0);
         let posBasikName = d.nama_sijil_pos_basik ? `<br><small style="color:var(--primary);">${d.nama_sijil_pos_basik}</small>` : '';
 
+        // UPDATED HTML HERE:
+        // Added 'money-label' next to the RM value inside .money div
         html += `
         <div class="record-card" id="card-${d.id}">
             <div class="record-header">
@@ -387,7 +394,11 @@ function renderList(dataArr) {
                     </div>
                 </div>
                 <div class="header-right">
-                    <div class="money">${rm(d.gaji_bersih)}</div><span class="date">${dateStr}</span>
+                    <div class="money">
+                        <span class="money-label"><b>Jumlah Keseluruhan Gaji:</b></span>
+                        <span>${rm(d.gaji_bersih)}</span>
+                    </div>
+                    <span class="date">${dateStr}</span>
                     <div class="btn-group">
                         <button class="btn-icon btn-trash" onclick="openDeleteModal('${d.id}')" title="Padam Rekod"><i class="fa-solid fa-trash"></i></button>
                         <button class="btn-icon btn-expand" onclick="toggleCard(event, '${d.id}')" title="Lihat Perincian"><i class="fa-solid fa-chevron-down"></i></button>
