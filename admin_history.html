@@ -78,7 +78,19 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 .record-header:hover { background: rgba(108, 99, 255, 0.05); }
 .record-card.active .record-header { border-bottom-color: var(--border); background: rgba(108, 99, 255, 0.05); }
 .info-left { flex: 1; }
-.user-name { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+
+/* USER NAME & LINK BTN */
+.user-name { 
+    margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main); 
+    display: flex; align-items: center; gap: 8px;
+}
+.btn-link-user {
+    background: transparent; border: none; color: var(--text-light);
+    cursor: pointer; font-size: 0.9rem; transition: 0.3s;
+    padding: 5px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+.btn-link-user:hover { color: var(--primary); background: rgba(108, 99, 255, 0.1); transform: translateX(2px) translateY(-2px); }
+
 .user-details { font-size: 0.85rem; color: var(--text-light); margin-top: 5px; line-height: 1.5; }
 .badge-sector { display: inline-block; width: 140px; text-align: center; padding: 5px 0; margin-top: 6px; margin-bottom: 6px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 .badge-awam { background: #EEF2FF; color: #6C63FF; border: 1px solid #C7D2FE; }
@@ -126,27 +138,13 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 .btn-confirm-del { background: #ef4444; color: white; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3); }
 .btn-confirm-del:hover { background: #dc2626; transform: translateY(-2px); }
 
-/* --- FLOAT BUTTON (AUTO HIDE LOGIC) --- */
-.float-btn { 
-    position: fixed; width: 50px; height: 50px; border-radius: 50%; 
-    background: var(--surface); color: var(--text-main); border: 1px solid var(--border); 
-    display: flex; align-items: center; justify-content: center; font-size: 1.2rem; 
-    cursor: pointer; z-index: 90; box-shadow: var(--shadow); 
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    opacity: 0.5; transform: translateX(-50%); /* Start Hidden */
-}
-/* Bila hover atau aktif, muncul penuh */
+/* FLOAT BTN & TOAST */
+.float-btn { position: fixed; width: 50px; height: 50px; border-radius: 50%; background: var(--surface); color: var(--text-main); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); opacity: 0.5; transform: translateX(-50%); }
 .float-btn:hover, .float-btn.active-float { opacity: 1; transform: translateX(0); }
-
-#themeBtn { bottom: 30px; left: 30px; transform: translateX(-25px); } /* Semicircle kiri */
+#themeBtn { bottom: 30px; left: 30px; transform: translateX(-25px); }
 #themeBtn:hover, #themeBtn.active-float { transform: translateX(0); }
-
-#topBtn { 
-    bottom: 30px; right: 30px; opacity: 0; visibility: hidden; 
-    background: var(--primary); color: white; border: none;
-    transform: translateY(20px); 
-}
-#topBtn.show { opacity: 0.5; visibility: visible; transform: translateY(0) translateX(25px); } /* Semicircle kanan */
+#topBtn { bottom: 30px; right: 30px; opacity: 0; visibility: hidden; background: var(--primary); color: white; border: none; transform: translateY(20px); }
+#topBtn.show { opacity: 0.5; visibility: visible; transform: translateY(0) translateX(25px); }
 #topBtn.show:hover, #topBtn.show.active-float { opacity: 1; transform: translateY(0) translateX(0); }
 
 .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #10b981; color: white; padding: 12px 25px; border-radius: 30px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; z-index: 3000; transition: 0.4s; display: flex; align-items: center; gap: 8px; }
@@ -169,7 +167,6 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 
 <nav class="navbar" id="mainNav">
     <div class="brand"><i class="fa-solid fa-folder-open"></i> REKOD TERPERINCI</div>
-    
     <div class="nav-right">
         <div class="admin-badge" id="adminBadge">
             <i class="fa-solid fa-circle-user"></i>
@@ -178,12 +175,12 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
                 <span id="adminNameDisplay">Loading...</span>
             </div>
         </div>
-
         <div class="nav-links">
             <a href="dashboard.html" class="nav-link">Home</a>
+            <a href="admin_dashboard.html" class="nav-link">Dashboard</a>
             <a href="admin_users.html" class="nav-link">Users</a>
-            <a href="admin_salary.html" class="nav-link">Gaji</a>
             <a href="admin_history.html" class="nav-link active">Rekod</a>
+            <a href="admin_salary.html" class="nav-link">Gaji</a>
         </div>
     </div>
 </nav>
@@ -194,9 +191,15 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
     <div class="search-container">
         <div class="search-input-wrapper">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" id="searchInput" class="search-input" placeholder="Cari nama pemohon..." onkeyup="filterHistory()">
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari nama atau username..." onkeyup="filterHistory()">
         </div>
         
+        <select id="sectorSelect" class="sort-select" onchange="filterHistory()" style="margin-left:5px;">
+            <option value="all" selected>Semua Sektor</option>
+            <option value="awam">Sektor Awam</option>
+            <option value="swasta">Sektor Swasta</option>
+        </select>
+
         <select id="sortSelect" class="sort-select" onchange="filterHistory()">
             <option value="newest" selected>Terkini</option>
             <option value="oldest">Terlama</option>
@@ -230,7 +233,6 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 <div id="toast" class="toast"><i class="fa-solid fa-check-circle"></i> Rekod berjaya dipadam!</div>
 
 <script>
-// --- ADMIN SECURITY CHECK ---
 if (!sessionStorage.getItem('admin_verified')) {
     alert("Akses tidak dibenarkan. Sila sahkan No. Staf.");
     window.location.href = 'admin_gate.html';
@@ -240,25 +242,18 @@ const firebaseConfig = { apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8", auth
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore(); const auth = firebase.auth();
 
-// --- BUTTON AUTO HIDE LOGIC ---
+// AUTO HIDE & UI
 let floatTimer;
 const floatBtns = document.querySelectorAll('.float-btn');
-
 function showFloatBtns() {
     floatBtns.forEach(btn => btn.classList.add('active-float'));
     clearTimeout(floatTimer);
-    // Hide again after 2.5 seconds of inactivity
-    floatTimer = setTimeout(() => {
-        floatBtns.forEach(btn => btn.classList.remove('active-float'));
-    }, 2500);
+    floatTimer = setTimeout(() => { floatBtns.forEach(btn => btn.classList.remove('active-float')); }, 2500);
 }
-
-// Trigger show on scroll or click anywhere
 window.addEventListener('scroll', showFloatBtns);
 window.addEventListener('click', showFloatBtns);
 window.addEventListener('touchstart', showFloatBtns);
 
-// --- NAVBAR SCROLL HIDE ---
 let lastScrollTop = 0;
 const navbar = document.getElementById('mainNav');
 const topBtn = document.getElementById('topBtn');
@@ -272,7 +267,7 @@ window.addEventListener('scroll', () => {
 const themeBtn = document.getElementById('themeBtn');
 if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
 themeBtn.onclick = (e) => {
-    e.stopPropagation(); // Stop auto-hide trigering instantly
+    e.stopPropagation();
     document.body.classList.toggle('dark-mode');
     localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
     themeBtn.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
@@ -299,9 +294,7 @@ async function loadAdminName() {
     if(currentStafID) {
         try {
             const snapshot = await db.collection('admin_whitelist').where('no_staf', '==', currentStafID).limit(1).get();
-            if(!snapshot.empty) {
-                document.getElementById('adminNameDisplay').innerText = snapshot.docs[0].data().nama || "Pentadbir";
-            }
+            if(!snapshot.empty) document.getElementById('adminNameDisplay').innerText = snapshot.docs[0].data().nama || "Pentadbir";
         } catch(e) { console.error(e); }
     }
 }
@@ -315,17 +308,18 @@ async function loadHistory() {
             document.getElementById('totalCount').innerText = "0";
             return; 
         }
-
         allRecords = [];
         snap.forEach(doc => {
             let data = doc.data();
             data.id = doc.id;
             if(!data.timestamp) data.timestamp = { seconds: 0 };
+            
+            // DEBUGGING: Anda boleh tengok di Console jika nama masih tak keluar
+            console.log("Raw Data Slip:", data); 
+
             allRecords.push(data);
         });
-
         renderList(allRecords);
-
     } catch(e) { console.error(e); container.innerHTML = "Ralat memuatkan data."; }
 }
 
@@ -342,68 +336,32 @@ function renderList(dataArr) {
     let html = '';
     dataArr.forEach(d => {
         const dateStr = d.timestamp.seconds ? new Date(d.timestamp.seconds * 1000).toLocaleString('ms-MY', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
-        
         let sektor = d.jenis_sektor || d.kategori || 'Sektor Awam';
-        if(sektor.toLowerCase().includes('swasta')) sektor = 'Sektor Swasta';
-        else sektor = 'Sektor Awam';
+        if(sektor.toLowerCase().includes('swasta')) sektor = 'Sektor Swasta'; else sektor = 'Sektor Awam';
         
         const tagClass = sektor === 'Sektor Swasta' ? 'badge-swasta' : 'badge-awam';
         const sektorLabel = sektor.toUpperCase();
         const rm = (val) => `RM ${parseFloat(val || 0).toFixed(2)}`;
 
+        // LOGIC USERNAME: Guna username jika ada, jika tiada guna email
+        const displayUsername = d.username || d.email || 'No Username';
+        
+        // --- ⚡ IMPORTANT FIX: CHECK ALL POSSIBLE NAME FIELDS ⚡ ---
+        const mainName = d.fullname || d.nama_penuh || d.nama || d.name || 'User';
+
         let expTable = '';
         if(d.senarai_pengalaman && d.senarai_pengalaman.length > 0) {
             let rows = d.senarai_pengalaman.map(e => {
                 let durationText = e.tempoh_format_lengkap || `${e.tempoh_bulan || 0} Bulan`;
-                let dateRange = '';
-                if(e.tarikh_mula && e.tarikh_tamat) {
-                    dateRange = `${new Date(e.tarikh_mula).toLocaleDateString()} - ${new Date(e.tarikh_tamat).toLocaleDateString()}`;
-                }
-                let gajiLast = e.gaji_terakhir ? `RM ${parseFloat(e.gaji_terakhir).toFixed(2)}` : '-';
-                
-                return `
-                    <tr>
-                        <td><strong>${e.jawatan}</strong><br><small>${e.organisasi}</small></td>
-                        <td>${gajiLast}</td>
-                        <td>
-                            ${dateRange ? `<span style="font-size:0.8rem">${dateRange}</span><br>` : ''}
-                            <span style="font-weight:600; color:var(--primary); font-size:0.75rem;">${durationText}</span>
-                        </td>
-                    </tr>`;
+                let dateRange = (e.tarikh_mula && e.tarikh_tamat) ? `${new Date(e.tarikh_mula).toLocaleDateString()} - ${new Date(e.tarikh_tamat).toLocaleDateString()}` : '';
+                return `<tr><td><strong>${e.jawatan}</strong><br><small>${e.organisasi}</small></td><td>${e.gaji_terakhir ? 'RM '+parseFloat(e.gaji_terakhir).toFixed(2) : '-'}</td><td>${dateRange ? `<span style="font-size:0.8rem">${dateRange}</span><br>` : ''}<span style="font-weight:600; color:var(--primary); font-size:0.75rem;">${durationText}</span></td></tr>`;
             }).join('');
-            
-            expTable = `
-                <div class="detail-section-title">Rekod Pengalaman Terdahulu</div>
-                <div style="overflow-x:auto">
-                    <table class="exp-table">
-                        <thead>
-                            <tr>
-                                <th width="35%">Jawatan / Organisasi</th>
-                                <th width="20%">Gaji Akhir</th>
-                                <th width="45%">Tempoh Perkhidmatan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows}
-                            <tr style="background:rgba(0,0,0,0.02)">
-                                <td colspan="2" align="right"><strong>Jumlah Pengalaman Diambil Kira:</strong></td>
-                                <td><strong>${d.jumlah_tahun_pengalaman || 0} Tahun</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            `;
+            expTable = `<div class="detail-section-title">Rekod Pengalaman Terdahulu</div><div style="overflow-x:auto"><table class="exp-table"><thead><tr><th width="35%">Jawatan / Organisasi</th><th width="20%">Gaji Akhir</th><th width="45%">Tempoh Perkhidmatan</th></tr></thead><tbody>${rows}<tr style="background:rgba(0,0,0,0.02)"><td colspan="2" align="right"><strong>Jumlah Pengalaman Diambil Kira:</strong></td><td><strong>${d.jumlah_tahun_pengalaman || 0} Tahun</strong></td></tr></tbody></table></div>`;
         }
 
         let awamInfo = '';
         if(sektor === 'Sektor Awam' && d.dapat_pgt) {
-            awamInfo = `
-                <div class="detail-section-title">Maklumat Perkhidmatan</div>
-                <div class="details-grid">
-                    <div class="detail-item"><label>Status PGT</label><strong>${d.dapat_pgt}</strong></div>
-                    <div class="detail-item"><label>Bulan TPG</label><strong>${d.bulan_pergerakan || '-'}</strong></div>
-                </div>
-            `;
+            awamInfo = `<div class="detail-section-title">Maklumat Perkhidmatan</div><div class="details-grid"><div class="detail-item"><label>Status PGT</label><strong>${d.dapat_pgt}</strong></div><div class="detail-item"><label>Bulan TPG</label><strong>${d.bulan_pergerakan || '-'}</strong></div></div>`;
         }
 
         let posBasikVal = parseFloat(d.bipb || 0) || (d.nama_sijil_pos_basik ? 100 : 0);
@@ -413,24 +371,29 @@ function renderList(dataArr) {
         <div class="record-card" id="card-${d.id}">
             <div class="record-header">
                 <div class="info-left" onclick="toggleCard(event, '${d.id}')">
-                    <div class="user-name">${d.nama_penuh || 'User'}</div>
+                    <div class="user-name">
+                        ${mainName}
+                        <button class="btn-link-user" onclick="goToUser('${mainName}')" title="Lihat Profil">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </button>
+                    </div>
+                    
                     <div class="badge-sector ${tagClass}">${sektorLabel}</div>
+
                     <div class="user-details">
-                        <i class="fa-solid fa-briefcase" style="width:20px; color:var(--primary);"></i> ${d.jawatan_terpilih || d.jawatan || '-'}<br>
-                        <i class="fa-solid fa-location-dot" style="width:20px; color:var(--primary);"></i> ${d.wilayah_asal || '-'}
+                        <span style="color:var(--primary); font-weight:600; font-size:0.8rem;">@${displayUsername}</span><br>
+                        <i class="fa-solid fa-briefcase" style="width:20px; color:var(--text-light);"></i> ${d.jawatan_terpilih || d.jawatan || '-'}<br>
+                        <i class="fa-solid fa-location-dot" style="width:20px; color:var(--text-light);"></i> ${d.wilayah_asal || '-'}
                     </div>
                 </div>
-                
                 <div class="header-right">
-                    <div class="money">${rm(d.gaji_bersih)}</div>
-                    <span class="date">${dateStr}</span>
+                    <div class="money">${rm(d.gaji_bersih)}</div><span class="date">${dateStr}</span>
                     <div class="btn-group">
                         <button class="btn-icon btn-trash" onclick="openDeleteModal('${d.id}')" title="Padam Rekod"><i class="fa-solid fa-trash"></i></button>
                         <button class="btn-icon btn-expand" onclick="toggleCard(event, '${d.id}')" title="Lihat Perincian"><i class="fa-solid fa-chevron-down"></i></button>
                     </div>
                 </div>
             </div>
-            
             <div class="record-details">
                 ${awamInfo}
                 <div class="detail-section-title">Pendapatan Utama</div>
@@ -460,46 +423,53 @@ function renderList(dataArr) {
 function filterHistory() {
     const input = document.getElementById('searchInput').value.toLowerCase();
     const sortMode = document.getElementById('sortSelect').value;
+    const sectorMode = document.getElementById('sectorSelect').value;
 
     let filtered = allRecords.filter(d => {
-        const name = (d.nama_penuh || "").toLowerCase();
-        const email = (d.email || "").toLowerCase();
-        return name.includes(input) || email.includes(input);
+        // --- FIX: SEMAK PELBAGAI FIELD UNTUK SEARCH ---
+        const name = (d.fullname || d.nama_penuh || d.nama || "").toLowerCase();
+        const username = (d.username || d.email || "").toLowerCase();
+        
+        const matchesSearch = name.includes(input) || username.includes(input);
+
+        let sektor = d.jenis_sektor || d.kategori || 'awam';
+        let isSectorMatch = true;
+        if (sectorMode === 'awam') isSectorMatch = !sektor.toLowerCase().includes('swasta');
+        else if (sectorMode === 'swasta') isSectorMatch = sektor.toLowerCase().includes('swasta');
+
+        return matchesSearch && isSectorMatch;
     });
 
     filtered.sort((a, b) => {
         const timeA = a.timestamp ? (a.timestamp.seconds || 0) : 0;
         const timeB = b.timestamp ? (b.timestamp.seconds || 0) : 0;
-        const nameA = (a.nama_penuh || "").toLowerCase();
-        const nameB = (b.nama_penuh || "").toLowerCase();
-
         if (sortMode === 'newest') return timeB - timeA;
         if (sortMode === 'oldest') return timeA - timeB;
-        if (sortMode === 'az') return nameA.localeCompare(nameB);
+        // --- FIX: SORT MENGGUNAKAN NAMA YANG ADA ---
+        if (sortMode === 'az') {
+            const nameA = (a.fullname || a.nama_penuh || "").toLowerCase();
+            const nameB = (b.fullname || b.nama_penuh || "").toLowerCase();
+            return nameA.localeCompare(nameB);
+        }
         return 0;
     });
-
     renderList(filtered);
 }
 
-// --- TOGGLE & AUTO HIDE (CLICK OUTSIDE ONLY) ---
-window.toggleCard = function(e, id) {
-    if(e) e.stopPropagation(); 
-    
-    const card = document.getElementById(`card-${id}`);
-    const isActive = card.classList.contains('active');
-
-    // Tutup yang lain dulu
-    closeAllCards();
-
-    // Buka yang baru
-    if(!isActive) {
-        card.classList.add('active');
-        const icon = card.querySelector('.fa-chevron-down');
-        if(icon) icon.style.transform = 'rotate(180deg)';
-    }
+// Redirect ke Page User (PASS NAME)
+function goToUser(name) {
+    if(!name || name === 'User') { alert("Tiada nama pengguna."); return; }
+    window.location.href = `admin_users.html?search=${encodeURIComponent(name)}`;
 }
 
+window.toggleCard = function(e, id) {
+    if(e && e.target.closest('.btn-link-user')) return; 
+    if(e) e.stopPropagation();
+    const card = document.getElementById(`card-${id}`);
+    const isActive = card.classList.contains('active');
+    closeAllCards();
+    if(!isActive) { card.classList.add('active'); const icon = card.querySelector('.fa-chevron-down'); if(icon) icon.style.transform = 'rotate(180deg)'; }
+}
 function closeAllCards() {
     document.querySelectorAll('.record-card.active').forEach(card => {
         card.classList.remove('active');
@@ -507,31 +477,13 @@ function closeAllCards() {
         if(icon) icon.style.transform = 'rotate(0deg)';
     });
 }
+document.addEventListener('click', function(e) { if (!e.target.closest('.record-card')) closeAllCards(); });
 
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.record-card')) {
-        closeAllCards();
-    }
-});
-
-// --- MODAL LOGIC ---
-window.openDeleteModal = function(id) {
-    deleteTargetId = id;
-    document.getElementById('deleteModal').classList.add('show');
-}
-window.closeModal = function() {
-    document.getElementById('deleteModal').classList.remove('show');
-    deleteTargetId = null;
-}
+window.openDeleteModal = function(id) { deleteTargetId = id; document.getElementById('deleteModal').classList.add('show'); }
+window.closeModal = function() { document.getElementById('deleteModal').classList.remove('show'); deleteTargetId = null; }
 window.confirmDelete = async function() {
     if(!deleteTargetId) return;
-    try {
-        await db.collection('printedSlips').doc(deleteTargetId).delete();
-        closeModal();
-        showToast();
-        allRecords = allRecords.filter(r => r.id !== deleteTargetId);
-        filterHistory();
-    } catch(e) { alert("Ralat."); closeModal(); }
+    try { await db.collection('printedSlips').doc(deleteTargetId).delete(); closeModal(); showToast(); allRecords = allRecords.filter(r => r.id !== deleteTargetId); filterHistory(); } catch(e) { alert("Ralat."); closeModal(); }
 }
 </script>
 </body>
