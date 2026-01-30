@@ -47,6 +47,9 @@ body.dark-mode .blob { opacity: 0.15; }
 .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.3s; }
 .nav-hidden { transform: translateY(-150%); }
 .brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+
+.hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+
 .nav-right { display: flex; align-items: center; gap: 20px; }
 .nav-links { display: flex; gap: 15px; }
 .nav-link { text-decoration: none; color: var(--text-light); font-weight: 600; padding: 8px 16px; border-radius: 20px; transition: 0.3s; font-size: 0.9rem; }
@@ -142,9 +145,18 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 @media(max-width: 900px) {
     /* 1. NAVBAR */
     .navbar { flex-direction: column; align-items: flex-start; gap: 15px; padding: 20px; height: auto; position: relative; }
-    .hamburger { display: block; position: absolute; right: 20px; top: 25px; background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+    
+    /* Show hamburger ONLY on mobile */
+.hamburger { 
+        display: block; 
+        position: absolute; 
+        right: 20px; 
+        top: 16px; 
+    }
+    
     .nav-right { width: 100%; flex-direction: column; display: none; margin-top: 15px; gap: 15px; }
     .nav-right.active { display: flex; animation: slideDown 0.3s ease; }
+    
     .nav-links { width: 100%; flex-direction: column; align-items: center; gap: 10px; }
     .nav-link { width: 100%; text-align: center; display: block; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 15px; }
     .admin-badge { width: 100%; justify-content: center; }
@@ -358,7 +370,6 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
                 year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-                second: '2-digit',
                 hour12: true
             });
 
