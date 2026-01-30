@@ -264,6 +264,72 @@
     .mini-info h4 { font-size: 0.95rem; font-weight: 600; }
     .mini-info span { font-size: 0.8rem; color: var(--text-light); }
 
+    /* --- FORM FEEDBACK STYLES --- */
+    .feedback-form-container { display: flex; flex-direction: column; gap: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-label { font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
+    .form-textarea { 
+        width: 100%; padding: 15px; border-radius: 15px; 
+        border: 1px solid var(--border); background: var(--bg-body); 
+        color: var(--text-main); font-family: inherit; font-size: 0.95rem;
+        min-height: 120px; resize: vertical; transition: 0.3s;
+    }
+    .form-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1); }
+    
+    .rating-group { display: flex; gap: 10px; margin-bottom: 10px; }
+    .star-btn { 
+        font-size: 1.5rem; cursor: pointer; color: var(--text-light); 
+        background: none; border: none; transition: 0.2s; 
+    }
+    .star-btn:hover, .star-btn.active { color: #F59E0B; transform: scale(1.1); }
+    
+    .btn-submit {
+        background: var(--primary); color: white; border: none; padding: 12px 25px;
+        border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .btn-submit:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    /* --- TOAST NOTIFICATION --- */
+    .toast {
+        position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+        background: #10b981; color: white; padding: 12px 25px; border-radius: 30px;
+        font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        opacity: 0; z-index: 11000; transition: 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        display: flex; align-items: center; gap: 10px;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* --- FLOATING BUTTONS (LEFT SIDE) --- */
+    .theme-btn, .feedback-btn {
+        position: fixed; left: 30px; 
+        width: 50px; height: 50px;
+        background: var(--surface-glass); color: var(--text-main); 
+        border: 2px solid var(--border); border-radius: 50%;
+        font-size: 1.2rem; cursor: pointer; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        z-index: 2000; display: flex; align-items: center; justify-content: center;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+    .theme-btn:hover, .feedback-btn:hover { transform: scale(1.1); color: var(--primary); }
+    
+    .theme-btn { bottom: 30px; }
+    .feedback-btn { bottom: 90px; } /* Above theme btn */
+
+    /* --- CUSTOM TOOLTIPS (LEFT SIDE BUTTONS -> TOOLTIP ON RIGHT) --- */
+    .theme-btn::after, .feedback-btn::after {
+        content: attr(data-tooltip);
+        position: absolute; left: 65px; top: 50%; transform: translateY(-50%) translateX(-10px);
+        background: rgba(0,0,0,0.8); color: white; padding: 6px 12px;
+        border-radius: 8px; font-size: 0.75rem; white-space: nowrap;
+        opacity: 0; visibility: hidden; transition: 0.3s ease; pointer-events: none;
+        font-family: 'Poppins', sans-serif; font-weight: 500;
+    }
+    .theme-btn:hover::after, .feedback-btn:hover::after {
+        opacity: 1; visibility: visible; transform: translateY(-50%) translateX(0);
+    }
+
     /* =========================================
        5. RESPONSIVE MOBILE
        ========================================= */
@@ -301,22 +367,12 @@
         .modal-content { width: 90%; padding: 25px 20px; margin: 0; max-height: 85vh; border-radius: 20px; }
         .modal-header h2 { font-size: 1.2rem; padding-right: 20px; }
 
-        .theme-btn { left: -25px !important; border-radius: 0 50% 50% 0 !important; width: 60px !important; padding-left: 20px !important; opacity: 0.7; }
-        .theme-btn:hover, .theme-btn:active { left: 0 !important; opacity: 1; padding-left: 0 !important; width: 50px !important; border-radius: 50% !important; }
+        .theme-btn, .feedback-btn { left: -25px !important; border-radius: 0 50% 50% 0 !important; width: 60px !important; padding-left: 20px !important; opacity: 0.7; }
+        .theme-btn:hover, .theme-btn:active, .feedback-btn:hover, .feedback-btn:active { left: 0 !important; opacity: 1; padding-left: 0 !important; width: 50px !important; border-radius: 50% !important; }
+        
+        /* Hide tooltips on mobile */
+        .theme-btn::after, .feedback-btn::after { display: none; }
     }
-    
-    /* Dark Mode Toggle Desktop */
-    .theme-btn {
-        position: fixed; bottom: 30px; left: 30px; 
-        width: 50px; height: 50px;
-        background: var(--surface-glass); color: var(--text-main); 
-        border: 2px solid var(--border); border-radius: 50%;
-        font-size: 1.2rem; cursor: pointer; 
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-        z-index: 2000; display: flex; align-items: center; justify-content: center;
-        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    }
-    .theme-btn:hover { transform: scale(1.1); color: var(--primary); }
 </style>
 </head>
 <body>
@@ -446,9 +502,18 @@
 
     </div>
 
-    <button id="themeToggle" class="theme-btn" title="Tukar Tema">
+    <button id="feedbackBtn" class="feedback-btn" onclick="openFeedbackModal()" data-tooltip="Beri Maklum Balas">
+        <i class="fa-solid fa-comment-dots"></i>
+    </button>
+
+    <button id="themeToggle" class="theme-btn" data-tooltip="Tukar Tema">
         <i class="fa-solid fa-moon"></i>
     </button>
+
+    <div id="toast" class="toast">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>Terima kasih! Maklum balas berjaya dihantar.</span>
+    </div>
 
     <div id="guideModal" class="modal-overlay" onclick="closeGuideModal(event)">
         <div class="modal-content">
@@ -460,6 +525,41 @@
             </div>
             <div id="modalBody">
                 </div>
+        </div>
+    </div>
+
+    <div id="feedbackModal" class="modal-overlay" onclick="closeFeedbackModal(event)">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-paper-plane" style="color:var(--primary); margin-right:10px;"></i> Maklum Balas</h2>
+                <button class="close-btn" onclick="closeFeedbackModal(event)" title="Tutup">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="feedback-form-container">
+                <p style="color:var(--text-light); font-size:0.9rem;">Bantu kami menambah baik sistem ini dengan memberi cadangan atau melaporkan masalah.</p>
+                
+                <div class="form-group">
+                    <label class="form-label">Penilaian Sistem:</label>
+                    <div class="rating-group" id="starRatingGroup">
+                        <button class="star-btn" data-val="1"><i class="fa-solid fa-star"></i></button>
+                        <button class="star-btn" data-val="2"><i class="fa-solid fa-star"></i></button>
+                        <button class="star-btn" data-val="3"><i class="fa-solid fa-star"></i></button>
+                        <button class="star-btn" data-val="4"><i class="fa-solid fa-star"></i></button>
+                        <button class="star-btn" data-val="5"><i class="fa-solid fa-star"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Komen / Cadangan:</label>
+                    <textarea id="feedbackText" class="form-textarea" placeholder="Tulis maklum balas anda di sini..."></textarea>
+                </div>
+
+                <button class="btn-submit" id="submitFeedbackBtn" onclick="submitFeedback()">
+                    Hantar Maklum Balas
+                </button>
+            </div>
         </div>
     </div>
 
@@ -487,7 +587,83 @@
     }
 
     // ===================================
-    // 2. NAVBAR LOGIC: SHOW ONLY AT TOP
+    // 2. FEEDBACK LOGIC
+    // ===================================
+    let selectedRating = 0;
+
+    function openFeedbackModal() {
+        document.getElementById('feedbackModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeFeedbackModal(e) {
+        if (e && e.target !== document.getElementById('feedbackModal') && !e.target.closest('.close-btn')) return;
+        document.getElementById('feedbackModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    document.querySelectorAll('.star-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectedRating = parseInt(this.getAttribute('data-val'));
+            updateStars(selectedRating);
+        });
+    });
+
+    function updateStars(val) {
+        document.querySelectorAll('.star-btn').forEach(btn => {
+            const btnVal = parseInt(btn.getAttribute('data-val'));
+            if(btnVal <= val) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+
+    async function submitFeedback() {
+        const text = document.getElementById('feedbackText').value;
+        const btn = document.getElementById('submitFeedbackBtn');
+        const user = firebase.auth().currentUser;
+
+        if(!text.trim() && selectedRating === 0) {
+            alert("Sila masukkan rating atau komen.");
+            return;
+        }
+
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menghantar...';
+        btn.disabled = true;
+
+        try {
+            await firebase.firestore().collection('feedbacks').add({
+                userId: user ? user.uid : 'anonymous',
+                userName: user ? (user.displayName || user.email) : 'Anonymous',
+                message: text,
+                rating: selectedRating,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'new'
+            });
+
+            // SUCCESS
+            document.getElementById('feedbackText').value = '';
+            selectedRating = 0;
+            updateStars(0);
+            closeFeedbackModal({target: document.getElementById('feedbackModal')});
+            showToast(); // Trigger Notification
+
+        } catch (error) {
+            console.error("Error sending feedback:", error);
+            alert("Ralat semasa menghantar. Sila cuba lagi.");
+        }
+
+        btn.innerHTML = 'Hantar Maklum Balas';
+        btn.disabled = false;
+    }
+
+    function showToast() {
+        const t = document.getElementById('toast');
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ===================================
+    // 3. NAVBAR LOGIC
     // ===================================
     const navbar = document.getElementById('mainNavbar');
 
@@ -500,21 +676,31 @@
     });
 
     // ===================================
-    // 3. UI LOGIC
+    // 4. UI LOGIC & DARK MODE
     // ===================================
     const themeBtn = document.getElementById('themeToggle');
     const body = document.body;
 
+    function updateThemeIcon() {
+        if(body.classList.contains('dark-mode')) {
+            themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            themeBtn.setAttribute('data-tooltip', 'Mode Cerah');
+        } else {
+            themeBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            themeBtn.setAttribute('data-tooltip', 'Mode Gelap');
+        }
+    }
+
     if(localStorage.getItem('theme') === 'dark') {
         body.classList.add('dark-mode');
-        themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        updateThemeIcon();
     }
 
     themeBtn.addEventListener('click', () => {
         body.classList.toggle('dark-mode');
         const isDark = body.classList.contains('dark-mode');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        themeBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        updateThemeIcon();
     });
 
     function toggleMenu() {
@@ -544,7 +730,7 @@
     updateClock();
 
     // ===================================
-    // 4. FIREBASE LOGIC (UPDATED ADMIN)
+    // 5. FIREBASE LOGIC
     // ===================================
     firebase.auth().onAuthStateChanged(async user => {
         if(!user){ window.location.href='login.html'; return; }
@@ -569,19 +755,11 @@
                 avatarEl.innerText = firstName.charAt(0).toUpperCase();
             }
 
-// ============================================
-            // LOGIC ADMIN (INJECT 3 MENU)
-            // ============================================
             if (data && data.role === 'pentadbir') {
                 const navMenu = document.getElementById('navMenu');
                 const mobileLogout = document.getElementById('mobileLogout');
-                
-                // HTML Link Admin (3 Page)
-                const adminLinks = `
-                <a href="admin_gate.html" class="nav-link">Admin Panel</a>
-                `;
+                const adminLinks = `<a href="admin_gate.html" class="nav-link">Admin Panel</a>`;
 
-                // Masukkan SEBELUM butang logout mobile
                 if (mobileLogout) {
                     mobileLogout.insertAdjacentHTML('beforebegin', adminLinks);
                 } else {
