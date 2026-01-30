@@ -276,6 +276,84 @@ body.dark-mode .duration-tag { background: #064e3b; color: #a7f3d0; border-color
 .petunjuk-table td { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; color: var(--text-main); }
 .petunjuk-table strong { color: var(--primary); }
 
+
+/* =========================================
+   TOOLTIP STYLES (SENTIASA DI KANAN)
+   ========================================= */
+
+/* 1. Asas Tooltip (Kotak Teks) */
+.petunjuk-btn::after,
+.theme-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    background: var(--text-main);
+    color: var(--bg-body);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none; /* Supaya tak kacau klik */
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+
+    /* POSISI: SENTIASA DI KANAN (PC & MOBILE) */
+    left: 60px; /* Jarak ke kanan dari butang */
+    top: 50%;   /* Tengah-tengah vertical */
+    
+    /* Keadaan Asal (Sebelum Hover/Tekan) */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-50%) translateX(-10px); /* Sedikit ke kiri */
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* 2. Asas Anak Panah (Segitiga) */
+.petunjuk-btn::before,
+.theme-btn::before {
+    content: '';
+    position: absolute;
+    z-index: 9999;
+    
+    /* POSISI: SENTIASA DI KANAN */
+    left: 54px; /* Duduk antara butang dan kotak */
+    top: 50%;
+    
+    /* Bentuk Segitiga Menghadap Kiri */
+    border-width: 6px 6px 6px 0;
+    border-style: solid;
+    border-color: transparent var(--text-main) transparent transparent;
+
+    /* Keadaan Asal */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-50%) translateX(-10px);
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* 3. LOGIK PAPARAN (HOVER & ACTIVE/TOUCH) */
+/* Ini cover PC (Hover) dan Mobile (Tekan/Sentuh) */
+.petunjuk-btn:hover::after, .theme-btn:hover::after,
+.petunjuk-btn:hover::before, .theme-btn:hover::before,
+.petunjuk-btn:active::after, .theme-btn:active::after,
+.petunjuk-btn:active::before, .theme-btn:active::before,
+.petunjuk-btn:focus::after, .theme-btn:focus::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0); /* Gerak ke posisi sebenar */
+}
+/* =========================================
+   HILANGKAN TOOLTIP BILA SCROLL
+   ========================================= */
+/* Bila body ada class 'is-scrolling', paksa tooltip hilang */
+body.is-scrolling .petunjuk-btn::after,
+body.is-scrolling .petunjuk-btn::before,
+body.is-scrolling .theme-btn::after,
+body.is-scrolling .theme-btn::before {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: none !important; /* Hilang serta merta tanpa delay */
+}
 /* MOBILE RESPONSIVE */
 @media (max-width: 900px) {
     body { height: auto; overflow-y: auto; }
@@ -307,6 +385,73 @@ body.dark-mode .duration-tag { background: #064e3b; color: #a7f3d0; border-color
     body { background: white; padding: 0; }
     .glass-panel { box-shadow: none; border: none; padding: 0; }
     .result-box { display: block !important; border: 1px solid #000; box-shadow: none; }
+}
+
+/* =========================================
+   SECTOR TOGGLE SWITCH (NEW)
+   ========================================= */
+.sector-toggle-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px; /* Jarak dari form */
+    margin-top: -10px;   /* Rapatkan sikit dengan tajuk */
+}
+
+.sector-toggle {
+    position: relative;
+    display: flex;
+    background: var(--surface); /* Ikut warna tema */
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 5px;
+    width: 100%;
+    max-width: 300px; /* Lebar butang */
+    box-shadow: var(--shadow);
+}
+
+.toggle-option {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-decoration: none;
+    z-index: 2; /* Duduk atas slider */
+    border-radius: 40px;
+    transition: color 0.3s ease;
+}
+
+/* Background Slider Bergerak */
+.toggle-slide {
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 5px; /* Default: Kiri (Awam) */
+    width: calc(50% - 5px); /* Separuh lebar */
+    background: var(--primary);
+    border-radius: 40px;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    z-index: 1;
+}
+
+/* Keadaan Aktif (Text Putih) */
+.toggle-option.active {
+    color: #ffffff !important;
+}
+
+.toggle-option:hover {
+    color: var(--primary);
+}
+.toggle-option.active:hover {
+    color: #ffffff;
+}
+
+/* Responsive adjustment */
+@media (max-width: 480px) {
+    .sector-toggle {
+        max-width: 100%; /* Penuh lebar di mobile */
+    }
 }
 </style>
 </head>
@@ -350,7 +495,14 @@ body.dark-mode .duration-tag { background: #064e3b; color: #a7f3d0; border-color
             <h1 class="page-title">Kiraan Gaji Sektor Swasta</h1>
             <p class="page-subtitle">Simulasi Gaji Berdasarkan Pengalaman (Lantikan Baru)</p>
         </div>
-
+<div class="sector-toggle-wrapper">
+    <div class="sector-toggle tema-swasta">
+        <div class="toggle-slide bg-hijau" style="left: 50%;"></div> 
+        
+        <a href="contohawam.html" class="toggle-option">Sektor Awam</a>
+        <a href="#" class="toggle-option active">Sektor Swasta</a>
+    </div>
+</div>
         <div class="glass-panel">
             
             <div class="panduan-box" style="background:#EEF2FF; border-left:4px solid var(--primary); padding:15px; border-radius:10px; margin-bottom:25px; display:flex; gap:10px; align-items:flex-start;">
@@ -513,8 +665,13 @@ body.dark-mode .duration-tag { background: #064e3b; color: #a7f3d0; border-color
         </div>
     </div>
 
-    <button id="themeToggleBtn" class="theme-btn" title="Tukar Tema"><i class="fa-solid fa-moon"></i></button>
-    <button id="petunjukBtn" class="petunjuk-btn">?</button>
+    <button id="themeToggleBtn" class="theme-btn" data-tooltip="Tukar Tema">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <button id="petunjukBtn" class="petunjuk-btn" data-tooltip="Petunjuk Elaun">
+        ?
+    </button>
     <button id="goTopBtn"><i class="fa-solid fa-arrow-up"></i></button>
 
     <div id="petunjukPopup" class="petunjuk-popup">
@@ -600,6 +757,7 @@ body.dark-mode .duration-tag { background: #064e3b; color: #a7f3d0; border-color
         if(window.innerWidth <= 900) blurButtons();
     });
     
+
     goTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
     const logoutBtn = document.getElementById('logoutBtn');
@@ -1050,6 +1208,21 @@ body.dark-mode .duration-tag { background: #064e3b; color: #a7f3d0; border-color
 
     if (history.scrollRestoration) { history.scrollRestoration = 'manual'; }
     window.scrollTo(0, 0);
+// --- SKRIP UNTUK HILANGKAN TOOLTIP MASA SCROLL ---
+    let scrollTimeout;
+
+    window.addEventListener('scroll', function() {
+        // 1. Tambah class 'is-scrolling' pada body bila mula scroll
+        document.body.classList.add('is-scrolling');
+
+        // 2. Clear timeout lama jika pengguna masih scroll
+        clearTimeout(scrollTimeout);
+
+        // 3. Set timeout baru: Kalau berhenti scroll selama 200ms, buang class tu
+        scrollTimeout = setTimeout(function() {
+            document.body.classList.remove('is-scrolling');
+        }, 200); // Anda boleh ubah 200 ke nombor lain (milisaat)
+    });
 </script>
 </body>
 </html>
