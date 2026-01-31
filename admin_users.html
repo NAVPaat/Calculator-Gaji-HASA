@@ -48,7 +48,8 @@ body.dark-mode .blob { opacity: 0.15; }
 .nav-hidden { transform: translateY(-150%); }
 .brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
 
-.hamburger { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+/* FIX: Hamburger hidden by default on Desktop */
+.hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
 
 .nav-right { display: flex; align-items: center; gap: 20px; }
 .nav-links { display: flex; gap: 15px; }
@@ -147,11 +148,11 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
     .navbar { flex-direction: column; align-items: flex-start; gap: 15px; padding: 20px; height: auto; position: relative; }
     
     /* Show hamburger ONLY on mobile */
-.hamburger { 
+    .hamburger { 
         display: block; 
         position: absolute; 
         right: 20px; 
-        top: 16px; 
+        top: 22px; 
     }
     
     .nav-right { width: 100%; flex-direction: column; display: none; margin-top: 15px; gap: 15px; }
@@ -321,6 +322,7 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
                     email: data.email || '',
                     phone: data.phone || data.no_tel || '-',
                     role: data.role || 'user',
+                    gender: data.gender || data.jantina || 'Tidak dinyatakan', // ADDED: Gender Field
                     createdAt: data.createdAt ? data.createdAt.toDate() : new Date(0)
                 });
             });
@@ -363,7 +365,7 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 
         let html = '';
         filteredData.forEach(user => {
-            // FORMAT DATE & TIME (e.g. 20 Jan 2024, 10:30 PM)
+            // FORMAT DATE & TIME
             const joinedDate = user.createdAt.toLocaleString('ms-MY', { 
                 day: 'numeric', 
                 month: 'short', 
@@ -373,12 +375,23 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
                 hour12: true
             });
 
+            // LOGIC JANTINA (GENDER)
+            let genderIcon = '<i class="fa-solid fa-genderless" style="color:var(--text-light)"></i>';
+            let genderText = user.gender;
+
+            if (user.gender && (user.gender.toLowerCase() === 'lelaki' || user.gender.toLowerCase() === 'male')) {
+                genderIcon = '<i class="fa-solid fa-mars" style="color:#3b82f6"></i>'; // Blue
+            } else if (user.gender && (user.gender.toLowerCase() === 'perempuan' || user.gender.toLowerCase() === 'female')) {
+                genderIcon = '<i class="fa-solid fa-venus" style="color:#ec4899"></i>'; // Pink
+            }
+
             html += `
             <div class="user-row">
                 <div class="info-block">
                     <div class="user-name">${user.fullname || 'Tiada Nama'}</div>
                     <div class="user-meta">
                         <div class="meta-item"><i class="fa-regular fa-envelope" style="color:var(--primary)"></i> ${user.email}</div>
+                        <div class="meta-item">${genderIcon} ${genderText}</div>
                         <div class="meta-item"><i class="fa-solid fa-phone" style="color:var(--success)"></i> ${user.phone}</div>
                         <div class="meta-item"><i class="fa-regular fa-calendar" style="color:#f59e0b"></i> ${joinedDate}</div>
                     </div>
