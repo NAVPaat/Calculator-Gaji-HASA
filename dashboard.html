@@ -276,9 +276,15 @@
     }
     .form-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1); }
     
-    .rating-group { display: flex; gap: 10px; margin-bottom: 10px; }
+    .emoji-display {
+        font-size: 3.5rem; text-align: center; margin-bottom: 5px; height: 70px;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .emoji-display.animate { transform: scale(1.3); }
+
+    .rating-group { display: flex; gap: 10px; margin-bottom: 10px; justify-content: center; }
     .star-btn { 
-        font-size: 1.5rem; cursor: pointer; color: var(--text-light); 
+        font-size: 1.8rem; cursor: pointer; color: var(--text-light); 
         background: none; border: none; transition: 0.2s; 
     }
     .star-btn:hover, .star-btn.active { color: #F59E0B; transform: scale(1.1); }
@@ -563,7 +569,7 @@
                 
                 <div class="form-group">
                     <label class="form-label">Penilaian Sistem:</label>
-                    <div class="rating-group" id="starRatingGroup">
+                    <div id="emojiReaction" class="emoji-display">😶</div> <div class="rating-group" id="starRatingGroup">
                         <button class="star-btn" data-val="1"><i class="fa-solid fa-star"></i></button>
                         <button class="star-btn" data-val="2"><i class="fa-solid fa-star"></i></button>
                         <button class="star-btn" data-val="3"><i class="fa-solid fa-star"></i></button>
@@ -607,14 +613,19 @@
         }
     }
 
-    // ===================================
-    // 2. FEEDBACK LOGIC
+// ===================================
+    // 2. FEEDBACK LOGIC (UPDATED)
     // ===================================
     let selectedRating = 0;
 
     function openFeedbackModal() {
         document.getElementById('feedbackModal').classList.add('active');
         document.body.style.overflow = 'hidden';
+        // Reset state
+        selectedRating = 0;
+        updateStars(0);
+        updateEmoji(0);
+        document.getElementById('feedbackText').value = '';
     }
 
     function closeFeedbackModal(e) {
@@ -627,6 +638,7 @@
         btn.addEventListener('click', function() {
             selectedRating = parseInt(this.getAttribute('data-val'));
             updateStars(selectedRating);
+            updateEmoji(selectedRating);
         });
     });
 
@@ -636,6 +648,22 @@
             if(btnVal <= val) btn.classList.add('active');
             else btn.classList.remove('active');
         });
+    }
+
+    function updateEmoji(val) {
+        const emojiEl = document.getElementById('emojiReaction');
+        let emoji = '😶'; // Default (Neutral)
+
+        if (val >= 1 && val <= 2) emoji = '😔'; // Sad
+        else if (val >= 3 && val <= 4) emoji = '🙂'; // Content
+        else if (val === 5) emoji = '😘'; // Kiss/Love
+
+        emojiEl.innerText = emoji;
+        
+        // Trigger bounce animation
+        emojiEl.classList.remove('animate');
+        void emojiEl.offsetWidth; // Trigger reflow
+        if(val > 0) emojiEl.classList.add('animate');
     }
 
     async function submitFeedback() {
@@ -652,9 +680,26 @@
         btn.disabled = true;
 
         try {
+            // FETCH REAL USERNAME FROM 'users' COLLECTION
+            let realName = 'Anonymous';
+            
+            if (user) {
+                // Default fallback to email or display name
+                realName = user.displayName || user.email;
+
+                // Try to get custom username/fullname from Firestore
+                const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    // Prioritize fullname, then username, then fallback
+                    realName = userData.fullname || userData.username || realName; 
+                }
+            }
+
+            // SAVE TO FIREBASE
             await firebase.firestore().collection('feedbacks').add({
                 userId: user ? user.uid : 'anonymous',
-                userName: user ? (user.displayName || user.email) : 'Anonymous',
+                userName: realName, // SAVING THE REAL NAME HERE
                 message: text,
                 rating: selectedRating,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -665,6 +710,7 @@
             document.getElementById('feedbackText').value = '';
             selectedRating = 0;
             updateStars(0);
+            updateEmoji(0);
             closeFeedbackModal({target: document.getElementById('feedbackModal')});
             showToast(); // Trigger Notification
 
