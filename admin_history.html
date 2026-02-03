@@ -97,7 +97,7 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 .badge-swasta { background: #ECFDF5; color: #10b981; border: 1px solid #A7F3D0; }
 .header-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
 
-/* MONEY STYLE */
+/* UPDATED MONEY STYLE to accommodate label */
 .money { display: flex; align-items: center; justify-content: flex-end; gap: 8px; font-size: 1.2rem; font-weight: 800; color: var(--primary); flex-wrap: wrap; }
 .money-label { font-size: 0.75rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -186,6 +186,7 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
             <a href="admin_users.html" class="nav-link">Users</a>
             <a href="admin_history.html" class="nav-link active">Rekod</a>
             <a href="admin_salary.html" class="nav-link">Gaji</a>
+            <a href="admin_feedback.html" class="nav-link">Feedback</a>
         </div>
     </div>
 </nav>
@@ -340,22 +341,7 @@ function renderList(dataArr) {
 
     let html = '';
     dataArr.forEach(d => {
-        // --- UPDATED DATE & TIME LOGIC (with AM/PM and Seconds) ---
-        let dateStr = '-';
-        if (d.timestamp.seconds) {
-            const dateObj = new Date(d.timestamp.seconds * 1000);
-            // Format example: 20 Jan 2024, 10:30:05 PM
-            dateStr = dateObj.toLocaleString('en-MY', { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric', 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit',
-                hour12: true 
-            });
-        }
-
+        const dateStr = d.timestamp.seconds ? new Date(d.timestamp.seconds * 1000).toLocaleString('ms-MY', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' }) : '-';
         let sektor = d.jenis_sektor || d.kategori || 'Sektor Awam';
         if(sektor.toLowerCase().includes('swasta')) sektor = 'Sektor Swasta'; else sektor = 'Sektor Awam';
         
@@ -364,7 +350,7 @@ function renderList(dataArr) {
         const rm = (val) => `RM ${parseFloat(val || 0).toFixed(2)}`;
 
         // LOGIC USERNAME
-        const displayUsername = d.username || d.email || 'No Username';
+        const displayUsername = d.fullname || d.email || 'No Username';
         
         // --- NAME CHECK ---
         const mainName = d.fullname || d.nama_penuh || d.nama || d.name || 'User';
@@ -388,6 +374,7 @@ function renderList(dataArr) {
         let posBasikName = d.nama_sijil_pos_basik ? `<br><small style="color:var(--primary);">${d.nama_sijil_pos_basik}</small>` : '';
 
         // UPDATED HTML HERE:
+        // Added 'money-label' next to the RM value inside .money div
         html += `
         <div class="record-card" id="card-${d.id}">
             <div class="record-header">
@@ -409,7 +396,7 @@ function renderList(dataArr) {
                 </div>
                 <div class="header-right">
                     <div class="money">
-                        <span class="money-label">Jumlah Keseluruhan Gaji:</span>
+                        <span class="money-label"><b>Jumlah Keseluruhan Gaji:</b></span>
                         <span>${rm(d.gaji_bersih)}</span>
                     </div>
                     <span class="date">${dateStr}</span>
