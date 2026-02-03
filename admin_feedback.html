@@ -14,7 +14,7 @@
 
 <style>
 /* =========================================
-   CORE THEME (Sama seperti Admin Salary)
+   CORE THEME
    ========================================= */
 :root {
     --primary: #6C63FF; --primary-dark: #5a52d5;
@@ -41,10 +41,10 @@ body.dark-mode .blob { opacity: 0.15; }
 @keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
 
 /* NAVBAR */
-.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.3s; }
-.nav-hidden { transform: translateY(-150%); }
-.brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.4s ease, opacity 0.4s ease; }
+.nav-hidden { transform: translateY(-150%); opacity: 0; pointer-events: none; }
 
+.brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
 .hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
 
 .nav-right { display: flex; align-items: center; gap: 20px; }
@@ -108,18 +108,24 @@ body.dark-mode .feedback-card { background: rgba(0,0,0,0.2); }
 .btn-delete:hover { background: var(--danger); color: white; }
 
 /* FLOAT BTN & TOAST */
-.float-btn { position: fixed; width: 50px; height: 50px; border-radius: 50%; background: var(--surface); color: var(--text-main); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: 0.3s; }
-#themeBtn { bottom: 30px; left: 30px; }
-#topBtn { bottom: 30px; right: 30px; opacity: 0; visibility: hidden; background: var(--primary); color: white; border: none; }
-#topBtn.show { opacity: 1; visibility: visible; }
+.float-btn { position: fixed; width: 50px; height: 50px; border-radius: 50%; background: var(--surface); color: var(--text-main); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: all 0.4s; opacity: 0.5; transform: translateX(-50%); }
+.float-btn:hover, .float-btn.active-float { opacity: 1; transform: translateX(0); }
+#themeBtn { bottom: 30px; left: 30px; transform: translateX(-25px); }
+#themeBtn:hover, #themeBtn.active-float { transform: translateX(0); }
+#topBtn { bottom: 30px; right: 30px; opacity: 0; visibility: hidden; background: var(--primary); color: white; border: none; transform: translateY(20px); }
+#topBtn.show { opacity: 0.5; visibility: visible; transform: translateY(0) translateX(25px); }
+#topBtn.show:hover, #topBtn.show.active-float { opacity: 1; transform: translateY(0) translateX(0); }
+
 .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #10b981; color: white; padding: 10px 20px; border-radius: 30px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; z-index: 1000; transition: 0.4s; }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
 @media(max-width: 900px) {
     .navbar { flex-direction: column; align-items: flex-start; gap: 15px; padding: 20px; height: auto; position: relative; }
     .hamburger { display: block; position: absolute; right: 20px; top: 22px; }
+    
     .nav-right { width: 100%; flex-direction: column; display: none; margin-top: 15px; gap: 15px; }
     .nav-right.active { display: flex; animation: slideDown 0.3s ease; }
+    
     .nav-links { width: 100%; flex-direction: column; align-items: center; gap: 10px; }
     .nav-link { width: 100%; text-align: center; display: block; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 15px; }
     .admin-badge { width: 100%; justify-content: center; }
@@ -201,20 +207,37 @@ body.dark-mode .feedback-card { background: rgba(0,0,0,0.2); }
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore(); const auth = firebase.auth();
 
-    // --- UI HELPERS ---
+    // 1. BURGER MENU
+    function toggleMenu() {
+        document.getElementById('navMenu').classList.toggle('active');
+    }
+
+    // 2. SCROLL LOGIC (SHOW ONLY AT TOP)
     let lastScrollTop = 0;
     const navbar = document.getElementById('mainNav');
     const topBtn = document.getElementById('topBtn');
     window.addEventListener('scroll', () => {
         let st = window.pageYOffset || document.documentElement.scrollTop;
-        if (st > lastScrollTop && st > 100) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
-        lastScrollTop = st;
+        if (st > 50) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
         if (st > 300) topBtn.classList.add('show'); else topBtn.classList.remove('show');
     });
 
+    // 3. AUTO HIDE FLOAT BUTTONS
+    let floatTimer;
+    const floatBtns = document.querySelectorAll('.float-btn');
+    function showFloatBtns() {
+        floatBtns.forEach(btn => btn.classList.add('active-float'));
+        clearTimeout(floatTimer);
+        floatTimer = setTimeout(() => { floatBtns.forEach(btn => btn.classList.remove('active-float')); }, 2500);
+    }
+    window.addEventListener('scroll', showFloatBtns);
+    window.addEventListener('click', showFloatBtns);
+    window.addEventListener('touchstart', showFloatBtns);
+
     const themeBtn = document.getElementById('themeBtn');
     if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
-    themeBtn.onclick = () => {
+    themeBtn.onclick = (e) => {
+        e.stopPropagation();
         document.body.classList.toggle('dark-mode');
         localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
         themeBtn.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
@@ -223,10 +246,6 @@ body.dark-mode .feedback-card { background: rgba(0,0,0,0.2); }
     function showToast(msg) {
         const t = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg;
         t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
-    }
-
-    function toggleMenu() {
-        document.getElementById('navMenu').classList.toggle('active');
     }
 
     // --- LOGIC ---
@@ -249,9 +268,8 @@ body.dark-mode .feedback-card { background: rgba(0,0,0,0.2); }
         }
     }
 
-    // --- UPDATED: COLLECTION NAME CHANGED TO 'feedbacks' ---
     function loadFeedback() {
-        // PERUBAHAN DI SINI: db.collection('feedbacks')
+        // MENGAMBIL DATA DARI COLLECTION 'feedbacks'
         db.collection('feedbacks').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
             const listContainer = document.getElementById('feedbackList');
             
@@ -345,10 +363,8 @@ body.dark-mode .feedback-card { background: rgba(0,0,0,0.2); }
         document.getElementById('avgStars').innerHTML = bigStarsHtml;
     }
 
-    // --- UPDATED: DELETE FROM 'feedbacks' ---
     window.deleteFeedback = function(id) {
         if(confirm("Padam maklum balas ini?")) {
-            // PERUBAHAN DI SINI: db.collection('feedbacks')
             db.collection('feedbacks').doc(id).delete()
             .then(() => showToast("Maklum balas dipadam"))
             .catch(err => alert("Gagal memadam: " + err.message));
