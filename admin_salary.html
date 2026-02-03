@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <title>Admin - Master Gaji</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -18,19 +18,20 @@
    ========================================= */
 :root {
     --primary: #6C63FF; --primary-dark: #5a52d5;
-    --success: #10b981; --danger: #ef4444;
-    --bg-body: #F3F4F6; --surface: rgba(255, 255, 255, 0.8);
+    --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+    --info: #3b82f6;
+    --bg-body: #F3F4F6; --surface: rgba(255, 255, 255, 0.95);
     --text-main: #334155; --text-light: #64748b; --border: rgba(255,255,255,0.6);
     --glass: blur(12px); --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
 }
 
 body.dark-mode {
-    --bg-body: #0f172a; --surface: rgba(30, 41, 59, 0.7);
-    --text-main: #f1f5f9; --text-light: #94a3b8; --border: rgba(255,255,255,0.05);
+    --bg-body: #0f172a; --surface: rgba(30, 41, 59, 0.95);
+    --text-main: #f1f5f9; --text-light: #94a3b8; --border: rgba(255,255,255,0.08);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-body { font-family: 'Poppins', sans-serif; background: var(--bg-body); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; transition: 0.3s; }
+body { font-family: 'Poppins', sans-serif; background-color: var(--bg-body); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; transition: 0.3s; }
 
 /* BLOBS */
 .bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
@@ -41,23 +42,25 @@ body.dark-mode .blob { opacity: 0.15; }
 @keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
 
 /* NAVBAR */
-.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.3s; }
-.nav-hidden { transform: translateY(-150%); }
-.brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.4s ease, opacity 0.4s ease; }
+.nav-hidden { transform: translateY(-150%); opacity: 0; pointer-events: none; }
 
-/* NAV RIGHT SECTION (Container for Badge + Links) */
+.brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+.hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+
 .nav-right { display: flex; align-items: center; gap: 20px; }
 .nav-links { display: flex; gap: 15px; }
 .nav-link { text-decoration: none; color: var(--text-light); font-weight: 600; padding: 8px 16px; border-radius: 20px; transition: 0.3s; font-size: 0.9rem; }
 .nav-link:hover, .nav-link.active { background: rgba(108, 99, 255, 0.1); color: var(--primary); }
 
-/* ADMIN BADGE STYLE */
+/* ADMIN BADGE */
 .admin-badge { display: flex; align-items: center; gap: 10px; background: var(--bg-body); padding: 8px 20px; border-radius: 30px; font-size: 0.9rem; font-weight: 700; color: var(--text-main); border: 1px solid var(--border); box-shadow: var(--shadow); cursor: default; }
 .admin-badge i { color: var(--success); font-size: 1.2rem; }
 .admin-details { display: flex; flex-direction: column; line-height: 1.2; text-align: left; }
 .admin-role-label { font-size: 0.65rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+#adminNameDisplay { font-size: 0.9rem; font-weight: 700; }
 
-/* CONTENT */
+/* CONTAINER */
 .container { max-width: 900px; margin: 0 auto; padding: 20px; padding-top: 40px; display: flex; flex-direction: column; gap: 20px; }
 .glass-panel { background: var(--surface); backdrop-filter: var(--glass); border-radius: 24px; padding: 30px; border: 1px solid var(--border); box-shadow: var(--shadow); }
 
@@ -92,7 +95,6 @@ input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px 
 }
 .btn-add-new:hover { background: var(--primary); color: white; border-style: solid; }
 
-/* Delete Button */
 .btn-delete {
     width: 100%; background: #fee2e2; color: #ef4444; border:none; 
     padding: 16px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 15px; 
@@ -101,20 +103,32 @@ input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px 
 .btn-delete:hover { background: #ef4444; color: white; transform: translateY(-3px); }
 
 /* FLOATING & TOAST */
-.float-btn { position: fixed; width: 50px; height: 50px; border-radius: 50%; background: var(--surface); color: var(--text-main); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: 0.3s; }
-#themeBtn { bottom: 30px; left: 30px; }
-#topBtn { bottom: 30px; right: 30px; opacity: 0; visibility: hidden; background: var(--primary); color: white; border: none; }
-#topBtn.show { opacity: 1; visibility: visible; }
+.float-btn { position: fixed; width: 50px; height: 50px; border-radius: 50%; background: var(--surface); color: var(--text-main); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: all 0.4s; opacity: 0.5; transform: translateX(-50%); }
+.float-btn:hover, .float-btn.active-float { opacity: 1; transform: translateX(0); }
+#themeBtn { bottom: 30px; left: 30px; transform: translateX(-25px); }
+#themeBtn:hover, #themeBtn.active-float { transform: translateX(0); }
+#topBtn { bottom: 30px; right: 30px; opacity: 0; visibility: hidden; background: var(--primary); color: white; border: none; transform: translateY(20px); }
+#topBtn.show { opacity: 0.5; visibility: visible; transform: translateY(0) translateX(25px); }
+#topBtn.show:hover, #topBtn.show.active-float { opacity: 1; transform: translateY(0) translateX(0); }
+
 .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #10b981; color: white; padding: 10px 20px; border-radius: 30px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; z-index: 1000; transition: 0.4s; }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
 @media(max-width: 900px) {
-    .navbar { flex-direction: column; gap: 15px; height: auto; padding: 20px; }
-    .nav-right { flex-direction: column; width: 100%; gap: 15px; }
-    .nav-links { width: 100%; justify-content: center; flex-wrap: wrap; }
+    .navbar { flex-direction: column; align-items: flex-start; gap: 15px; padding: 20px; height: auto; position: relative; }
+    .hamburger { display: block; position: absolute; right: 20px; top: 22px; }
+    
+    .nav-right { width: 100%; flex-direction: column; display: none; margin-top: 15px; gap: 15px; }
+    .nav-right.active { display: flex; animation: slideDown 0.3s ease; }
+    
+    .nav-links { width: 100%; flex-direction: column; align-items: center; gap: 10px; }
+    .nav-link { width: 100%; text-align: center; display: block; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 15px; }
+    .admin-badge { width: 100%; justify-content: center; }
+    
     .selection-row { flex-direction: column; align-items: stretch; }
     .grid-form { grid-template-columns: 1fr; }
 }
+@keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
 </style>
 </head>
 <body>
@@ -123,8 +137,9 @@ input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px 
 
 <nav class="navbar" id="mainNav">
     <div class="brand"><i class="fa-solid fa-money-check-dollar"></i> MASTER GAJI</div>
+    <div class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></div>
     
-    <div class="nav-right">
+    <div class="nav-right" id="navMenu">
         <div class="admin-badge" id="adminBadge">
             <i class="fa-solid fa-circle-user"></i>
             <div class="admin-details">
@@ -178,12 +193,12 @@ input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px 
 
         <div class="grid-form">
             <div><label>ITKA</label><input type="number" id="itka" placeholder="0"></div>
-            <div><label>ITP (Perumahan)</label><input type="number" id="itp" placeholder="0"></div>
-            <div><label>ITK (Keraian)</label><input type="number" id="itk" placeholder="0"></div>
-            <div><label>BIPK (Kritikal)</label><input type="number" id="bipk" placeholder="0"></div>
-            <div><label>BISH (Sara Hidup)</label><input type="number" id="bish" placeholder="0"></div>
-            <div><label>BIW (Wilayah)</label><input type="number" id="biw" placeholder="0"></div>
-            <div style="grid-column: 1/-1;"><label>BIP (Pakar)</label><input type="number" id="bip" placeholder="0"></div>
+            <div><label>ITP</label><input type="number" id="itp" placeholder="0"></div>
+            <div><label>ITK</label><input type="number" id="itk" placeholder="0"></div>
+            <div><label>BIPK</label><input type="number" id="bipk" placeholder="0"></div>
+            <div><label>BISH</label><input type="number" id="bish" placeholder="0"></div>
+            <div><label>BIW</label><input type="number" id="biw" placeholder="0"></div>
+            <div style="grid-column: 1/-1;"><label>BIP</label><input type="number" id="bip" placeholder="0"></div>
         </div>
 
         <button class="btn-save" id="btnSave" onclick="saveData()">
@@ -213,19 +228,37 @@ if (!sessionStorage.getItem('admin_verified')) {
     let allJobs = [];
 
     // --- UI HELPERS ---
+    // 1. BURGER MENU LOGIC
+    function toggleMenu() {
+        document.getElementById('navMenu').classList.toggle('active');
+    }
+
+    // 2. SCROLL LOGIC
     let lastScrollTop = 0;
     const navbar = document.getElementById('mainNav');
     const topBtn = document.getElementById('topBtn');
     window.addEventListener('scroll', () => {
         let st = window.pageYOffset || document.documentElement.scrollTop;
-        if (st > lastScrollTop && st > 100) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
-        lastScrollTop = st;
+        if (st > 50) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
         if (st > 300) topBtn.classList.add('show'); else topBtn.classList.remove('show');
     });
 
+    // 3. AUTO HIDE FLOAT BUTTONS
+    let floatTimer;
+    const floatBtns = document.querySelectorAll('.float-btn');
+    function showFloatBtns() {
+        floatBtns.forEach(btn => btn.classList.add('active-float'));
+        clearTimeout(floatTimer);
+        floatTimer = setTimeout(() => { floatBtns.forEach(btn => btn.classList.remove('active-float')); }, 2500);
+    }
+    window.addEventListener('scroll', showFloatBtns);
+    window.addEventListener('click', showFloatBtns);
+    window.addEventListener('touchstart', showFloatBtns);
+
     const themeBtn = document.getElementById('themeBtn');
     if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
-    themeBtn.onclick = () => {
+    themeBtn.onclick = (e) => {
+        e.stopPropagation();
         document.body.classList.toggle('dark-mode');
         localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
         themeBtn.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
