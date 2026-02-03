@@ -583,8 +583,8 @@ body.is-scrolling .theme-btn::before {
                     </button>
                 </div>
                 <div style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 25px; background: var(--input-bg); padding: 10px 15px; border-radius: 10px; border: 1px dashed var(--secondary);">
-                    <i class="fa-solid fa-circle-info" style="color: var(--primary); margin-right: 5px;"></i><i> Masukkan Tarikh Mula dan Tamat. Sistem akan mengira tempoh secara automatik. <br>Sekiranya mahu menambah pengalaman kerja, tekan butang <strong>Tambah</strong>. Akhir sekali, tekan butang <strong>Kira Gaji Sekarang</strong> untuk melihat keputusan simulasi gaji anda.
-                </div></i>
+                    <i class="fa-solid fa-circle-info" style="color: var(--primary); margin-right: 5px;"></i> Masukkan Tarikh Mula dan Tamat. Sistem akan mengira tempoh secara automatik.
+                </div>
 
                 <div id="experienceContainer"></div>
 
@@ -709,6 +709,10 @@ body.is-scrolling .theme-btn::before {
     // ===========================================
     // 2. UI LOGIC (NAV, SCROLL, THEME)
     // ===========================================
+    
+    // Global variable untuk simpan nama sebenar
+    let currentUserRealName = "Pengguna";
+
     document.addEventListener("DOMContentLoaded", function() {
         loadJawatan();
         addExperienceRow(); // AUTO SHOW 1ST ROW
@@ -782,15 +786,27 @@ body.is-scrolling .theme-btn::before {
         });
     }
 
+    // AUTH CHANGE - UPDATE FETCH REAL NAME
     firebase.auth().onAuthStateChanged(async user => {
         if(!user) { location.href='login.html'; return; }
+        
         const nameEl = document.getElementById('navName');
         const avatarEl = document.getElementById('navAvatar');
+        
+        // Papar nama sementara
+        if(nameEl) nameEl.innerText = user.email.split('@')[0];
+
         try {
             const doc = await db.collection('users').doc(user.uid).get();
             if (doc.exists) {
                 const data = doc.data();
-                if (nameEl && data.fullname) nameEl.innerText = data.fullname.split(' ')[0]; 
+                
+                // === AMBIL NAMA SEBENAR ===
+                // Priority: fullname -> username -> email
+                currentUserRealName = data.fullname || data.username || user.email;
+
+                if (nameEl) nameEl.innerText = currentUserRealName.split(' ')[0]; // Papar nama pendek di nav
+                
                 if (avatarEl && data.photoURL) {
                     avatarEl.innerHTML = `<img src="${data.photoURL}" alt="Profile" style="width:100%; height:100%; object-fit:cover;">`;
                     avatarEl.style.backgroundColor = 'transparent';
@@ -1089,7 +1105,10 @@ body.is-scrolling .theme-btn::before {
             try {
                 await db.collection('printedSlips').add({
                     uid: user.uid,
-                    nama_penuh: user.displayName || user.email,
+                    
+                    // UPDATE: Guna variable global yang dah fetch nama sebenar
+                    nama_penuh: currentUserRealName,
+                    
                     email: user.email,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     
@@ -1118,6 +1137,7 @@ body.is-scrolling .theme-btn::before {
                     nama_sijil_pos_basik: sijilPosBasik,
                     gaji_bersih: grandTotal
                 });
+                console.log("Data disimpan untuk:", currentUserRealName);
             } catch(e) { console.error("Gagal simpan:", e); }
         }
     };
