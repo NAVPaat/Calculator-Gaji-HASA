@@ -18,7 +18,8 @@
    ========================================= */
 :root {
     --primary: #6C63FF; --primary-dark: #5a52d5;
-    --success: #10b981;
+    --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+    --info: #3b82f6;
     --bg-body: #F3F4F6; --surface: rgba(255, 255, 255, 0.95);
     --text-main: #334155; --text-light: #64748b; --border: rgba(255,255,255,0.6);
     --glass: blur(12px); --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
@@ -43,9 +44,11 @@ body.dark-mode .blob { opacity: 0.15; }
 @keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
 
 /* NAVBAR */
-.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.3s; }
-.nav-hidden { transform: translateY(-150%); }
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.4s ease, opacity 0.4s ease; }
+.nav-hidden { transform: translateY(-150%); opacity: 0; pointer-events: none; }
+
 .brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+.hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
 
 .nav-right { display: flex; align-items: center; gap: 20px; }
 .nav-links { display: flex; gap: 15px; }
@@ -61,6 +64,34 @@ body.dark-mode .blob { opacity: 0.15; }
 
 /* CONTAINER */
 .container { max-width: 1000px; margin: 0 auto; padding: 20px; padding-top: 40px; }
+
+/* --- HEADER ROW (NEW) --- */
+.header-row { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin-bottom: 25px; flex-wrap: wrap; gap: 15px; 
+}
+.page-title { 
+    font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--text-main); 
+}
+
+/* ACTION BUTTONS (UPDATED) */
+.action-container { 
+    display: flex; gap: 10px; align-items: center; margin-bottom: 0; flex-wrap: wrap;
+}
+.btn-action { 
+    display: flex; align-items: center; gap: 8px; padding: 10px 20px; 
+    border-radius: 12px; font-weight: 700; font-size: 0.85rem; border: none; 
+    cursor: pointer; transition: 0.3s; box-shadow: var(--shadow); 
+}
+
+.btn-refresh { background: var(--info); color: white; }
+.btn-refresh:hover { background: #2563eb; transform: translateY(-2px); }
+
+.btn-export { background: var(--success); color: white; }
+.btn-export:hover { background: #059669; transform: translateY(-2px); }
+
+.btn-clear { background: var(--danger); color: white; }
+.btn-clear:hover { background: #dc2626; transform: translateY(-2px); }
 
 /* SEARCH & FILTER CONTAINER */
 .search-container { background: var(--surface); backdrop-filter: var(--glass); padding: 10px 20px; border-radius: 50px; margin-bottom: 25px; box-shadow: var(--shadow); border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
@@ -79,16 +110,8 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 .record-card.active .record-header { border-bottom-color: var(--border); background: rgba(108, 99, 255, 0.05); }
 .info-left { flex: 1; }
 
-/* USER NAME & LINK BTN */
-.user-name { 
-    margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main); 
-    display: flex; align-items: center; gap: 8px;
-}
-.btn-link-user {
-    background: transparent; border: none; color: var(--text-light);
-    cursor: pointer; font-size: 0.9rem; transition: 0.3s;
-    padding: 5px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-}
+.user-name { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+.btn-link-user { background: transparent; border: none; color: var(--text-light); cursor: pointer; font-size: 0.9rem; transition: 0.3s; padding: 5px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .btn-link-user:hover { color: var(--primary); background: rgba(108, 99, 255, 0.1); transform: translateX(2px) translateY(-2px); }
 
 .user-details { font-size: 0.85rem; color: var(--text-light); margin-top: 5px; line-height: 1.5; }
@@ -97,7 +120,6 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 .badge-swasta { background: #ECFDF5; color: #10b981; border: 1px solid #A7F3D0; }
 .header-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
 
-/* UPDATED MONEY STYLE to accommodate label */
 .money { display: flex; align-items: center; justify-content: flex-end; gap: 8px; font-size: 1.2rem; font-weight: 800; color: var(--primary); flex-wrap: wrap; }
 .money-label { font-size: 0.75rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -126,10 +148,10 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 .exp-table td { padding: 10px; border-bottom: 1px solid var(--border); color: var(--text-main); vertical-align: top; }
 .exp-table tr:last-child td { border-bottom: none; }
 
-/* MODAL */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; opacity: 0; transition: opacity 0.3s; }
+/* MODAL STYLES */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; opacity: 0; transition: opacity 0.3s; }
 .modal-overlay.show { display: flex; opacity: 1; }
-.modal-box { background: var(--surface); padding: 30px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); transform: translateY(30px); transition: transform 0.3s; border: 1px solid var(--border); }
+.modal-box { background: var(--surface); padding: 30px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); transform: translateY(30px); transition: transform 0.3s; border: 1px solid var(--border); }
 .modal-overlay.show .modal-box { transform: translateY(0); }
 .modal-icon { font-size: 2.5rem; color: #ef4444; margin-bottom: 15px; background: #fee2e2; width: 80px; height: 80px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; animation: pulseRed 2s infinite; }
 @keyframes pulseRed { 0% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);} 70% {box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);} 100% {box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);} }
@@ -143,7 +165,7 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 .btn-confirm-del:hover { background: #dc2626; transform: translateY(-2px); }
 
 /* FLOAT BTN & TOAST */
-.float-btn { position: fixed; width: 50px; height: 50px; border-radius: 50%; background: var(--surface); color: var(--text-main); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); opacity: 0.5; transform: translateX(-50%); }
+.float-btn { position: fixed; width: 50px; height: 50px; border-radius: 50%; background: var(--surface); color: var(--text-main); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: all 0.4s; opacity: 0.5; transform: translateX(-50%); }
 .float-btn:hover, .float-btn.active-float { opacity: 1; transform: translateX(0); }
 #themeBtn { bottom: 30px; left: 30px; transform: translateX(-25px); }
 #themeBtn:hover, #themeBtn.active-float { transform: translateX(0); }
@@ -154,16 +176,30 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #10b981; color: white; padding: 12px 25px; border-radius: 30px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; z-index: 3000; transition: 0.4s; display: flex; align-items: center; gap: 8px; }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+/* RESPONSIVE */
 @media(max-width: 900px) {
-    .navbar { flex-direction: column; gap: 15px; height: auto; padding: 20px; }
-    .nav-right { flex-direction: column; width: 100%; gap: 15px; }
-    .nav-links { width: 100%; justify-content: center; flex-wrap: wrap; }
+    .navbar { flex-direction: column; align-items: flex-start; gap: 15px; padding: 20px; height: auto; position: relative; }
+    .hamburger { display: block; position: absolute; right: 20px; top: 22px; }
+    
+    .nav-right { width: 100%; flex-direction: column; display: none; margin-top: 15px; gap: 15px; }
+    .nav-right.active { display: flex; animation: slideDown 0.3s ease; }
+    
+    .nav-links { width: 100%; flex-direction: column; align-items: center; gap: 10px; }
+    .nav-link { width: 100%; text-align: center; display: block; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 15px; }
+    .admin-badge { width: 100%; justify-content: center; }
+    
+    /* Header Row Mobile */
+    .header-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .action-container { width: 100%; justify-content: space-between; }
+    .btn-action { flex: 1; justify-content: center; padding: 10px; }
+
     .record-header { flex-direction: column; align-items: flex-start; gap: 15px; }
     .header-right { text-align: left; width: 100%; display: flex; flex-direction: row; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 10px; }
     .search-container { flex-direction: column; align-items: stretch; border-radius: 20px; padding: 15px; }
     .count-tag { text-align: center; margin-top:10px; }
     .money { justify-content: space-between; width: 100%; }
 }
+@keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
 </style>
 </head>
 <body>
@@ -172,7 +208,9 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 
 <nav class="navbar" id="mainNav">
     <div class="brand"><i class="fa-solid fa-folder-open"></i> REKOD TERPERINCI</div>
-    <div class="nav-right">
+    <div class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></div>
+    
+    <div class="nav-right" id="navMenu">
         <div class="admin-badge" id="adminBadge">
             <i class="fa-solid fa-circle-user"></i>
             <div class="admin-details">
@@ -192,8 +230,22 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 </nav>
 
 <div class="container">
-    <h2 style="margin-bottom:20px; color:var(--text-main);">Sejarah Kiraan Lengkap</h2>
-    
+    <div class="header-row">
+        <h2 class="page-title">Sejarah Kiraan Lengkap</h2>
+        
+        <div class="action-container">
+            <button class="btn-action btn-refresh" onclick="loadHistory(true)">
+                <i class="fa-solid fa-rotate-right"></i> Refresh
+            </button>
+            <button class="btn-action btn-export" onclick="exportToExcel()">
+                <i class="fa-solid fa-file-excel"></i> Excel
+            </button>
+            <button class="btn-action btn-clear" onclick="openFirstWarning()">
+                <i class="fa-solid fa-trash-can"></i> Padam Semua
+            </button>
+        </div>
+    </div>
+
     <div class="search-container">
         <div class="search-input-wrapper">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
@@ -234,9 +286,33 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
     </div>
 </div>
 
+<div class="modal-overlay" id="firstWarningModal">
+    <div class="modal-box">
+        <div class="modal-icon" style="background:#fef3c7; color:#f59e0b;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3 class="modal-title">Padam SEMUA Rekod?</h3>
+        <p class="modal-desc">AWAS! Anda akan memadam <b>seluruh pangkalan data sejarah</b>. Adakah anda pasti? Sila pastikan anda sudah memuat turun fail Excel sebagai sandaran.</p>
+        <div class="modal-actions">
+            <button class="btn-modal btn-cancel" onclick="closeFirstWarning()">Batal</button>
+            <button class="btn-modal btn-confirm-del" onclick="proceedToFinalWarning()" style="background:#f59e0b;">Teruskan</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="finalWarningModal">
+    <div class="modal-box">
+        <div class="modal-icon"><i class="fa-solid fa-skull-crossbones"></i></div>
+        <h3 class="modal-title" style="color:var(--danger)">PENGESAHAN TERAKHIR</h3>
+        <p class="modal-desc">Ini adalah amaran terakhir. Semua data akan hilang serta-merta dan <b>tidak boleh dikembalikan</b>. Adakah anda benar-benar pasti?</p>
+        <div class="modal-actions">
+            <button class="btn-modal btn-cancel" onclick="closeFinalWarning()">JANGAN PADAM</button>
+            <button class="btn-modal btn-confirm-del" onclick="executeDeleteAll()">YA, SAYA FAHAM</button>
+        </div>
+    </div>
+</div>
+
 <button class="float-btn" id="themeBtn"><i class="fa-solid fa-moon"></i></button>
 <button class="float-btn" id="topBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i></button>
-<div id="toast" class="toast"><i class="fa-solid fa-check-circle"></i> Rekod berjaya dipadam!</div>
+<div id="toast" class="toast"><i class="fa-solid fa-check-circle"></i> <span id="toastMsg">Rekod berjaya dipadam!</span></div>
 
 <script>
 if (!sessionStorage.getItem('admin_verified')) {
@@ -248,7 +324,33 @@ const firebaseConfig = { apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8", auth
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore(); const auth = firebase.auth();
 
-// AUTO HIDE & UI
+// 1. BURGER MENU LOGIC
+function toggleMenu() {
+    const menu = document.getElementById('navMenu');
+    menu.classList.toggle('active');
+}
+
+// 2. SCROLL NAVBAR LOGIC (SHOW ONLY AT TOP)
+let lastScrollTop = 0;
+const navbar = document.getElementById('mainNav');
+const topBtn = document.getElementById('topBtn');
+
+window.addEventListener('scroll', () => {
+    let st = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Logic: Jika scroll lebih 50px ke bawah, sembunyikan navbar.
+    // Jika berada di atas (kurang dari 50px), tunjukkan navbar.
+    if (st > 50) {
+        navbar.classList.add('nav-hidden');
+    } else {
+        navbar.classList.remove('nav-hidden');
+    }
+
+    // Top button logic
+    if (st > 300) topBtn.classList.add('show'); else topBtn.classList.remove('show');
+});
+
+// AUTO HIDE FLOAT BUTTONS
 let floatTimer;
 const floatBtns = document.querySelectorAll('.float-btn');
 function showFloatBtns() {
@@ -260,16 +362,6 @@ window.addEventListener('scroll', showFloatBtns);
 window.addEventListener('click', showFloatBtns);
 window.addEventListener('touchstart', showFloatBtns);
 
-let lastScrollTop = 0;
-const navbar = document.getElementById('mainNav');
-const topBtn = document.getElementById('topBtn');
-window.addEventListener('scroll', () => {
-    let st = window.pageYOffset || document.documentElement.scrollTop;
-    if (st > lastScrollTop && st > 100) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
-    lastScrollTop = st;
-    if (st > 300) topBtn.classList.add('show'); else topBtn.classList.remove('show');
-});
-
 const themeBtn = document.getElementById('themeBtn');
 if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
 themeBtn.onclick = (e) => {
@@ -279,8 +371,9 @@ themeBtn.onclick = (e) => {
     themeBtn.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
 };
 
-function showToast() {
+function showToast(msg = "Rekod berjaya dipadam!") {
     const t = document.getElementById('toast');
+    document.getElementById('toastMsg').innerText = msg;
     t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
 }
 
@@ -305,8 +398,13 @@ async function loadAdminName() {
     }
 }
 
-async function loadHistory() {
+async function loadHistory(isRefresh = false) {
     const container = document.getElementById('recordsList');
+    if(isRefresh) {
+        container.innerHTML = '<p style="text-align:center; padding:40px;">Memuat semula data...</p>';
+        showToast("Sedang memuat semula data...");
+    }
+    
     try {
         const snap = await db.collection('printedSlips').orderBy('timestamp', 'desc').get();
         if(snap.empty) { 
@@ -319,10 +417,6 @@ async function loadHistory() {
             let data = doc.data();
             data.id = doc.id;
             if(!data.timestamp) data.timestamp = { seconds: 0 };
-            
-            // DEBUGGING
-            console.log("Raw Data Slip:", data); 
-
             allRecords.push(data);
         });
         renderList(allRecords);
@@ -349,10 +443,7 @@ function renderList(dataArr) {
         const sektorLabel = sektor.toUpperCase();
         const rm = (val) => `RM ${parseFloat(val || 0).toFixed(2)}`;
 
-        // LOGIC USERNAME
         const displayUsername = d.fullname || d.email || 'No Username';
-        
-        // --- NAME CHECK ---
         const mainName = d.fullname || d.nama_penuh || d.nama || d.name || 'User';
 
         let expTable = '';
@@ -373,8 +464,6 @@ function renderList(dataArr) {
         let posBasikVal = parseFloat(d.bipb || 0) || (d.nama_sijil_pos_basik ? 100 : 0);
         let posBasikName = d.nama_sijil_pos_basik ? `<br><small style="color:var(--primary);">${d.nama_sijil_pos_basik}</small>` : '';
 
-        // UPDATED HTML HERE:
-        // Added 'money-label' next to the RM value inside .money div
         html += `
         <div class="record-card" id="card-${d.id}">
             <div class="record-header">
@@ -438,10 +527,8 @@ function filterHistory() {
     const sectorMode = document.getElementById('sectorSelect').value;
 
     let filtered = allRecords.filter(d => {
-        // --- FIX: SEMAK PELBAGAI FIELD UNTUK SEARCH ---
         const name = (d.fullname || d.nama_penuh || d.nama || "").toLowerCase();
         const username = (d.username || d.email || "").toLowerCase();
-        
         const matchesSearch = name.includes(input) || username.includes(input);
 
         let sektor = d.jenis_sektor || d.kategori || 'awam';
@@ -457,7 +544,6 @@ function filterHistory() {
         const timeB = b.timestamp ? (b.timestamp.seconds || 0) : 0;
         if (sortMode === 'newest') return timeB - timeA;
         if (sortMode === 'oldest') return timeA - timeB;
-        // --- FIX: SORT MENGGUNAKAN NAMA YANG ADA ---
         if (sortMode === 'az') {
             const nameA = (a.fullname || a.nama_penuh || "").toLowerCase();
             const nameB = (b.fullname || b.nama_penuh || "").toLowerCase();
@@ -468,7 +554,6 @@ function filterHistory() {
     renderList(filtered);
 }
 
-// Redirect ke Page User (PASS NAME)
 function goToUser(name) {
     if(!name || name === 'User') { alert("Tiada nama pengguna."); return; }
     window.location.href = `admin_users.html?search=${encodeURIComponent(name)}`;
@@ -496,6 +581,90 @@ window.closeModal = function() { document.getElementById('deleteModal').classLis
 window.confirmDelete = async function() {
     if(!deleteTargetId) return;
     try { await db.collection('printedSlips').doc(deleteTargetId).delete(); closeModal(); showToast(); allRecords = allRecords.filter(r => r.id !== deleteTargetId); filterHistory(); } catch(e) { alert("Ralat."); closeModal(); }
+}
+
+// --- EXPORT TO EXCEL (UPDATED DATE FORMAT) ---
+function exportToExcel() {
+    if(allRecords.length === 0) { alert("Tiada data untuk dieksport."); return; }
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Nama Penuh,Email,Sektor,Jawatan,Wilayah,Gaji Bersih,Tarikh\n";
+
+    allRecords.forEach(r => {
+        const name = (r.fullname || r.nama_penuh || "User").replace(/,/g, " ");
+        const email = r.email || "-";
+        const sector = (r.jenis_sektor || r.kategori || "").replace(/,/g, " ");
+        const job = (r.jawatan_terpilih || r.jawatan || "").replace(/,/g, " ");
+        const loc = r.wilayah_asal || "-";
+        const total = r.gaji_bersih || 0;
+        
+        let dateStr = "-";
+        if(r.timestamp.seconds) {
+            const d = new Date(r.timestamp.seconds * 1000);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hour = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            const sec = String(d.getSeconds()).padStart(2, '0');
+            dateStr = `"${day}/${month}/${year} ${hour}:${min}:${sec}"`;
+        }
+
+        csvContent += `${name},${email},${sector},${job},${loc},${total},${dateStr}\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Rekod_Sejarah_Gaji.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// --- DOUBLE WARNING DELETE ALL LOGIC ---
+window.openFirstWarning = function() { document.getElementById('firstWarningModal').classList.add('show'); }
+window.closeFirstWarning = function() { document.getElementById('firstWarningModal').classList.remove('show'); }
+
+window.proceedToFinalWarning = function() {
+    closeFirstWarning();
+    setTimeout(() => {
+        document.getElementById('finalWarningModal').classList.add('show');
+    }, 300);
+}
+
+window.closeFinalWarning = function() { document.getElementById('finalWarningModal').classList.remove('show'); }
+
+window.executeDeleteAll = async function() {
+    const total = allRecords.length;
+    if(total === 0) { alert("Tiada rekod untuk dipadam."); closeFinalWarning(); return; }
+
+    try {
+        const batchSize = 400; 
+        const chunks = [];
+        
+        for (let i = 0; i < total; i += batchSize) {
+            chunks.push(allRecords.slice(i, i + batchSize));
+        }
+
+        for (const chunk of chunks) {
+            const batch = db.batch();
+            chunk.forEach(doc => {
+                const ref = db.collection('printedSlips').doc(doc.id);
+                batch.delete(ref);
+            });
+            await batch.commit();
+        }
+
+        closeFinalWarning();
+        showToast("Semua rekod berjaya dipadam!");
+        allRecords = [];
+        filterHistory();
+
+    } catch (error) {
+        console.error("Error deleting all:", error);
+        alert("Ralat semasa memadam data.");
+    }
 }
 </script>
 </body>
