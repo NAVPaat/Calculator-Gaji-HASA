@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Admin - Maklum Balas</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<style>
+/* =========================================
+   CORE THEME (Sama seperti Admin Salary)
+   ========================================= */
+:root {
+    --primary: #6C63FF; --primary-dark: #5a52d5;
+    --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+    --bg-body: #F3F4F6; --surface: rgba(255, 255, 255, 0.8);
+    --text-main: #334155; --text-light: #64748b; --border: rgba(255,255,255,0.6);
+    --glass: blur(12px); --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+}
+
+body.dark-mode {
+    --bg-body: #0f172a; --surface: rgba(30, 41, 59, 0.7);
+    --text-main: #f1f5f9; --text-light: #94a3b8; --border: rgba(255,255,255,0.05);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+body { font-family: 'Poppins', sans-serif; background: var(--bg-body); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; transition: 0.3s; }
+
+/* BLOBS */
+.bg-blobs { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+.blob { position: absolute; filter: blur(80px); opacity: 0.6; animation: floatBlob 10s infinite alternate; }
+.blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #abbdf6; }
+.blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #F0FDFA; }
+body.dark-mode .blob { opacity: 0.15; }
+@keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
+
+/* NAVBAR */
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.3s; }
+.nav-hidden { transform: translateY(-150%); }
+.brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+
+.hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+
+.nav-right { display: flex; align-items: center; gap: 20px; }
+.nav-links { display: flex; gap: 15px; }
+.nav-link { text-decoration: none; color: var(--text-light); font-weight: 600; padding: 8px 16px; border-radius: 20px; transition: 0.3s; font-size: 0.9rem; }
+.nav-link:hover, .nav-link.active { background: rgba(108, 99, 255, 0.1); color: var(--primary); }
+
+/* ADMIN BADGE */
+.admin-badge { display: flex; align-items: center; gap: 10px; background: var(--bg-body); padding: 8px 20px; border-radius: 30px; font-size: 0.9rem; font-weight: 700; color: var(--text-main); border: 1px solid var(--border); box-shadow: var(--shadow); cursor: default; }
+.admin-badge i { color: var(--success); font-size: 1.2rem; }
+.admin-details { display: flex; flex-direction: column; line-height: 1.2; text-align: left; }
+.admin-role-label { font-size: 0.65rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+/* LAYOUT */
+.container { max-width: 1000px; margin: 0 auto; padding: 20px; padding-top: 40px; display: flex; flex-direction: column; gap: 25px; }
+.glass-panel { background: var(--surface); backdrop-filter: var(--glass); border-radius: 24px; padding: 30px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+
+/* STATS GRID */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center; }
+.stat-box { padding: 10px; }
+.stat-val { font-size: 2.5rem; font-weight: 800; color: var(--primary); line-height: 1; }
+.stat-label { font-size: 0.85rem; color: var(--text-light); font-weight: 600; margin-top: 5px; }
+.star-display { color: var(--warning); margin-top: 5px; font-size: 1.1rem; }
+
+/* FEEDBACK LIST */
+.feedback-list { display: flex; flex-direction: column; gap: 15px; }
+.feedback-card {
+    background: rgba(255,255,255,0.5); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; position: relative;
+    transition: transform 0.2s;
+}
+body.dark-mode .feedback-card { background: rgba(0,0,0,0.2); }
+.feedback-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+
+.f-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.user-info { display: flex; gap: 12px; align-items: center; }
+.avatar {
+    width: 40px; height: 40px; background: rgba(108, 99, 255, 0.1); color: var(--primary);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1rem;
+}
+.u-details h4 { margin: 0; font-size: 0.95rem; font-weight: 700; }
+.u-details span { font-size: 0.75rem; color: var(--text-light); }
+
+.f-rating { color: #e2e8f0; font-size: 0.85rem; margin-bottom: 10px; }
+.f-rating .filled { color: var(--warning); }
+
+.f-comment {
+    background: rgba(0,0,0,0.03); padding: 12px 15px; border-radius: 10px;
+    color: var(--text-main); font-size: 0.9rem; line-height: 1.5;
+    border-left: 3px solid var(--primary); font-style: italic;
+}
+
+.btn-delete {
+    position: absolute; top: 15px; right: 15px;
+    background: #fee2e2; color: var(--danger);
+    border: none; width: 32px; height: 32px; border-radius: 8px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
+}
+.btn-delete:hover { background: var(--danger); color: white; }
+
+/* FLOAT BTN & TOAST */
+.float-btn { position: fixed; width: 50px; height: 50px; border-radius: 50%; background: var(--surface); color: var(--text-main); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; z-index: 90; box-shadow: var(--shadow); transition: 0.3s; }
+#themeBtn { bottom: 30px; left: 30px; }
+#topBtn { bottom: 30px; right: 30px; opacity: 0; visibility: hidden; background: var(--primary); color: white; border: none; }
+#topBtn.show { opacity: 1; visibility: visible; }
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #10b981; color: white; padding: 10px 20px; border-radius: 30px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; z-index: 1000; transition: 0.4s; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+@media(max-width: 900px) {
+    .navbar { flex-direction: column; align-items: flex-start; gap: 15px; padding: 20px; height: auto; position: relative; }
+    .hamburger { display: block; position: absolute; right: 20px; top: 22px; }
+    .nav-right { width: 100%; flex-direction: column; display: none; margin-top: 15px; gap: 15px; }
+    .nav-right.active { display: flex; animation: slideDown 0.3s ease; }
+    .nav-links { width: 100%; flex-direction: column; align-items: center; gap: 10px; }
+    .nav-link { width: 100%; text-align: center; display: block; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 15px; }
+    .admin-badge { width: 100%; justify-content: center; }
+    .stats-grid { grid-template-columns: 1fr; }
+}
+@keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+
+<nav class="navbar" id="mainNav">
+    <div class="brand"><i class="fa-solid fa-comments"></i> MAKLUM BALAS</div>
+    <div class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></div>
+    
+    <div class="nav-right" id="navMenu">
+        <div class="admin-badge" id="adminBadge">
+            <i class="fa-solid fa-circle-user"></i>
+            <div class="admin-details">
+                <span class="admin-role-label">Logged as</span>
+                <span id="adminNameDisplay">Loading...</span>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link">Home</a>
+            <a href="admin_dashboard.html" class="nav-link">Dashboard</a>
+            <a href="admin_users.html" class="nav-link">Users</a>
+            <a href="admin_history.html" class="nav-link">Rekod</a>
+            <a href="admin_salary.html" class="nav-link">Gaji</a>
+            <a href="admin_feedback.html" class="nav-link active">Feedback</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="glass-panel">
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-val" id="totalReviews">0</div>
+                <div class="stat-label">Jumlah Review</div>
+            </div>
+            <div class="stat-box" style="border-left: 1px solid var(--border); border-right: 1px solid var(--border);">
+                <div class="stat-val" id="avgRating">0.0</div>
+                <div class="stat-label">Purata Rating</div>
+                <div class="star-display" id="avgStars">
+                    <i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>
+                </div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" id="sentimentIcon">😐</div>
+                <div class="stat-label">Status Kepuasan</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel">
+        <h3 style="margin-top:0; margin-bottom:20px; color:var(--text-main);">Senarai Maklum Balas Terkini</h3>
+        <div id="feedbackList" class="feedback-list">
+            <p style="text-align:center; padding:20px; color:var(--text-light);">
+                <i class="fa-solid fa-spinner fa-spin"></i> Sedang memuatkan data...
+            </p>
+        </div>
+    </div>
+</div>
+
+<button class="float-btn" id="themeBtn"><i class="fa-solid fa-moon"></i></button>
+<button class="float-btn" id="topBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i></button>
+<div id="toast" class="toast"><i class="fa-solid fa-check-circle"></i> <span id="toastMsg">Berjaya</span></div>
+
+<script>
+    if (!sessionStorage.getItem('admin_verified')) {
+        alert("Akses tidak dibenarkan. Sila sahkan No. Staf.");
+        window.location.href = 'admin_gate.html';
+    }
+
+    const firebaseConfig = { apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8", authDomain: "data-staff-6hha55.firebaseapp.com", projectId: "data-staff-6hha55", storageBucket: "data-staff-6hha55.firebasestorage.app", messagingSenderId: "834544418876", appId: "1:834544418876:web:71b355bd0f3faf73244339" };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(); const auth = firebase.auth();
+
+    // --- UI HELPERS ---
+    let lastScrollTop = 0;
+    const navbar = document.getElementById('mainNav');
+    const topBtn = document.getElementById('topBtn');
+    window.addEventListener('scroll', () => {
+        let st = window.pageYOffset || document.documentElement.scrollTop;
+        if (st > lastScrollTop && st > 100) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
+        lastScrollTop = st;
+        if (st > 300) topBtn.classList.add('show'); else topBtn.classList.remove('show');
+    });
+
+    const themeBtn = document.getElementById('themeBtn');
+    if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+    themeBtn.onclick = () => {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        themeBtn.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    };
+
+    function showToast(msg) {
+        const t = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg;
+        t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function toggleMenu() {
+        document.getElementById('navMenu').classList.toggle('active');
+    }
+
+    // --- LOGIC ---
+    auth.onAuthStateChanged(user => { 
+        if(user) { 
+            loadAdminName(); 
+            loadFeedback(); 
+        } else {
+            location.href='login.html'; 
+        }
+    });
+
+    async function loadAdminName() {
+        const currentStafID = sessionStorage.getItem('current_admin_staf');
+        if(currentStafID) {
+            try {
+                const snapshot = await db.collection('admin_whitelist').where('no_staf', '==', currentStafID).limit(1).get();
+                if(!snapshot.empty) document.getElementById('adminNameDisplay').innerText = snapshot.docs[0].data().nama || "Pentadbir";
+            } catch(e) { console.error(e); }
+        }
+    }
+
+    // --- UPDATED: COLLECTION NAME CHANGED TO 'feedbacks' ---
+    function loadFeedback() {
+        // PERUBAHAN DI SINI: db.collection('feedbacks')
+        db.collection('feedbacks').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+            const listContainer = document.getElementById('feedbackList');
+            
+            if (snapshot.empty) {
+                listContainer.innerHTML = '<p style="text-align:center; padding:20px; color:var(--text-light);">Tiada maklum balas direkodkan.</p>';
+                updateStats(0, 0);
+                return;
+            }
+
+            let totalStars = 0;
+            let count = 0;
+            let html = '';
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const id = doc.id;
+                
+                const rating = data.rating || 0;
+                totalStars += parseInt(rating);
+                count++;
+
+                let dateStr = "Baru tadi";
+                if(data.timestamp) {
+                    dateStr = data.timestamp.toDate().toLocaleString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric', hour:'2-digit', minute:'2-digit'});
+                }
+
+                let starsHtml = '';
+                for(let i=1; i<=5; i++) {
+                    if(i <= rating) starsHtml += `<i class="fa-solid fa-star filled"></i>`;
+                    else starsHtml += `<i class="fa-regular fa-star"></i>`;
+                }
+
+                const borderClass = rating <= 2 ? 'border-left: 4px solid var(--danger);' : 'border-left: 4px solid var(--success);';
+
+                html += `
+                <div class="feedback-card" style="${borderClass}">
+                    <button class="btn-delete" onclick="deleteFeedback('${id}')" title="Padam">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+
+                    <div class="f-header">
+                        <div class="user-info">
+                            <div class="avatar">${(data.userName || 'U').charAt(0)}</div>
+                            <div class="u-details">
+                                <h4>${data.userName || 'Tanpa Nama'}</h4>
+                                <span>${dateStr}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-rating">
+                        ${starsHtml} <span style="font-weight:600; margin-left:5px;">(${rating}/5)</span>
+                    </div>
+
+                    <div class="f-comment">
+                        "${data.message || 'Tiada komen bertulis.'}"
+                    </div>
+                </div>`;
+            });
+
+            listContainer.innerHTML = html;
+            updateStats(count, totalStars);
+        }, error => {
+            console.error("Error:", error);
+            document.getElementById('feedbackList').innerHTML = '<p style="text-align:center; color:var(--danger);">Ralat memuatkan data.</p>';
+        });
+    }
+
+    function updateStats(count, totalStars) {
+        document.getElementById('totalReviews').innerText = count;
+        
+        if (count === 0) {
+            document.getElementById('avgRating').innerText = "0.0";
+            return;
+        }
+
+        const average = (totalStars / count).toFixed(1);
+        document.getElementById('avgRating').innerText = average;
+
+        const sentimentEl = document.getElementById('sentimentIcon');
+        if (average >= 4.5) sentimentEl.innerText = "😍";
+        else if (average >= 4.0) sentimentEl.innerText = "🙂";
+        else if (average >= 3.0) sentimentEl.innerText = "😐";
+        else sentimentEl.innerText = "😟";
+
+        let bigStarsHtml = '';
+        for(let i=1; i<=5; i++) {
+            if (i <= Math.round(average)) bigStarsHtml += `<i class="fa-solid fa-star"></i>`;
+            else bigStarsHtml += `<i class="fa-regular fa-star"></i>`;
+        }
+        document.getElementById('avgStars').innerHTML = bigStarsHtml;
+    }
+
+    // --- UPDATED: DELETE FROM 'feedbacks' ---
+    window.deleteFeedback = function(id) {
+        if(confirm("Padam maklum balas ini?")) {
+            // PERUBAHAN DI SINI: db.collection('feedbacks')
+            db.collection('feedbacks').doc(id).delete()
+            .then(() => showToast("Maklum balas dipadam"))
+            .catch(err => alert("Gagal memadam: " + err.message));
+        }
+    }
+</script>
+</body>
+</html>
