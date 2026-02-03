@@ -18,7 +18,8 @@
    ========================================= */
 :root {
     --primary: #6C63FF; --primary-dark: #5a52d5;
-    --success: #10b981; --danger: #ef4444;
+    --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+    --info: #3b82f6;
     --bg-body: #F3F4F6; --surface: rgba(255, 255, 255, 0.95);
     --surface-card: rgba(255, 255, 255, 0.9);
     --text-main: #334155; --text-light: #64748b; --border: rgba(255,255,255,0.6);
@@ -44,11 +45,10 @@ body.dark-mode .blob { opacity: 0.15; }
 @keyframes floatBlob { 0% { transform: translate(0,0); } 100% { transform: translate(20px, 40px); } }
 
 /* NAVBAR */
-.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.3s; }
-.nav-hidden { transform: translateY(-150%); }
-.brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; margin: 20px; background: var(--surface); backdrop-filter: var(--glass); border-radius: 50px; position: sticky; top: 20px; z-index: 100; border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 0.4s ease, opacity 0.4s ease; }
+.nav-hidden { transform: translateY(-150%); opacity: 0; pointer-events: none; }
 
-/* FIX: Hamburger hidden by default on Desktop */
+.brand { font-weight: 800; font-size: 1.2rem; color: var(--primary); display: flex; align-items: center; gap: 10px; }
 .hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
 
 .nav-right { display: flex; align-items: center; gap: 20px; }
@@ -70,7 +70,20 @@ body.dark-mode .blob { opacity: 0.15; }
 .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
 .page-title { font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--text-main); }
 
-/* --- NEW SEARCH & FILTER DESIGN --- */
+/* ACTION BUTTONS */
+.action-container { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 20px; flex-wrap: wrap; }
+.btn-action-top { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; transition: 0.3s; box-shadow: var(--shadow); }
+
+.btn-refresh { background: var(--info); color: white; }
+.btn-refresh:hover { background: #2563eb; transform: translateY(-2px); }
+
+.btn-export { background: var(--success); color: white; }
+.btn-export:hover { background: #059669; transform: translateY(-2px); }
+
+.btn-clear { background: var(--danger); color: white; }
+.btn-clear:hover { background: #dc2626; transform: translateY(-2px); }
+
+/* SEARCH & FILTER */
 .search-container {
     background: var(--surface); backdrop-filter: var(--glass);
     padding: 10px 20px; border-radius: 50px; margin-bottom: 25px;
@@ -116,8 +129,8 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 .btn-save { background: var(--success); } .btn-save:hover { background: #059669; transform: scale(1.05); }
 .btn-del { background: var(--danger); } .btn-del:hover { background: #dc2626; transform: scale(1.05); }
 
-/* MODAL */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; opacity: 0; transition: opacity 0.3s; }
+/* MODAL & WARNINGS */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 2000; opacity: 0; transition: opacity 0.3s; }
 .modal-overlay.show { display: flex; opacity: 1; }
 .modal-box { background: var(--surface-card); padding: 30px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); transform: translateY(30px); transition: transform 0.3s; border: 1px solid var(--border); }
 .modal-overlay.show .modal-box { transform: translateY(0); }
@@ -144,35 +157,29 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 
 /* RESPONSIVE MOBILE */
 @media(max-width: 900px) {
-    /* 1. NAVBAR */
+    /* Navbar */
     .navbar { flex-direction: column; align-items: flex-start; gap: 15px; padding: 20px; height: auto; position: relative; }
-    
-    /* Show hamburger ONLY on mobile */
-    .hamburger { 
-        display: block; 
-        position: absolute; 
-        right: 20px; 
-        top: 22px; 
-    }
-    
+    .hamburger { display: block; position: absolute; right: 20px; top: 22px; }
     .nav-right { width: 100%; flex-direction: column; display: none; margin-top: 15px; gap: 15px; }
     .nav-right.active { display: flex; animation: slideDown 0.3s ease; }
-    
     .nav-links { width: 100%; flex-direction: column; align-items: center; gap: 10px; }
     .nav-link { width: 100%; text-align: center; display: block; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 15px; }
     .admin-badge { width: 100%; justify-content: center; }
 
-    /* 2. SEARCH & FILTER */
+    /* Action Buttons Mobile */
+    .action-container { justify-content: center; width: 100%; }
+    .btn-action-top { flex: 1; justify-content: center; padding: 10px; }
+
+    /* Search Filter */
     .search-container { flex-direction: column; align-items: stretch; border-radius: 25px; padding: 20px; gap: 15px; }
     .search-input-wrapper { width: 100%; }
     .sort-select { width: 100%; margin-left: 0 !important; padding: 12px; }
     .count-tag { text-align: center; margin-top: 5px; width: 100%; display: block; }
 
-    /* 3. USER DATA LIST */
+    /* User Row */
     .user-row { flex-direction: column; gap: 15px; padding: 20px; align-items: flex-start; }
     .user-info { width: 100%; flex-direction: row; align-items: center; }
     .user-details { width: 100%; margin-left: 0; padding-left: 0; }
-    .user-email { font-size: 0.85rem; word-break: break-all; }
     .action-block { width: 100%; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 15px; margin-top: 5px; gap: 10px; }
     .btn-action { flex: 1; justify-content: center; padding: 10px; }
 }
@@ -209,6 +216,18 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 <div class="container">
     <div class="header-row">
         <h2 class="page-title">Senarai Pengguna</h2>
+
+    <div class="action-container">
+        <button class="btn-action-top btn-refresh" onclick="loadUsers(true)">
+            <i class="fa-solid fa-rotate-right"></i> Refresh
+        </button>
+        <button class="btn-action-top btn-export" onclick="exportToExcel()">
+            <i class="fa-solid fa-file-excel"></i> Muat Turun Excel
+        </button>
+        <button class="btn-action-top btn-clear" onclick="openFirstWarning()">
+            <i class="fa-solid fa-trash-can"></i> Padam Semua
+        </button>
+    </div>
     </div>
 
     <div class="search-container">
@@ -226,10 +245,6 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
         <div class="count-tag">
             Jumlah: <span id="totalCount">0</span>
         </div>
-
-        <button class="btn-reset" onclick="resetFilter()" title="Reset Filter">
-            <i class="fa-solid fa-rotate-right"></i>
-        </button>
     </div>
     
     <div class="user-list" id="userListContainer">
@@ -249,6 +264,30 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
     </div>
 </div>
 
+<div class="modal-overlay" id="firstWarningModal">
+    <div class="modal-box">
+        <div class="modal-icon" style="background:#fef3c7; color:#f59e0b;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3 class="modal-title">Padam SEMUA Pengguna?</h3>
+        <p class="modal-desc">AWAS! Anda akan memadam <b>seluruh pangkalan data pengguna</b>. Sila pastikan anda sudah memuat turun fail Excel sebagai sandaran.</p>
+        <div class="modal-actions">
+            <button class="btn-modal btn-cancel" onclick="closeFirstWarning()">Batal</button>
+            <button class="btn-modal btn-confirm-del" onclick="proceedToFinalWarning()" style="background:#f59e0b;">Teruskan</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="finalWarningModal">
+    <div class="modal-box">
+        <div class="modal-icon"><i class="fa-solid fa-skull-crossbones"></i></div>
+        <h3 class="modal-title" style="color:var(--danger)">PENGESAHAN TERAKHIR</h3>
+        <p class="modal-desc">Ini adalah amaran terakhir. Semua akaun pengguna akan hilang dan <b>tidak boleh dikembalikan</b>. Adakah anda benar-benar pasti?</p>
+        <div class="modal-actions">
+            <button class="btn-modal btn-cancel" onclick="closeFinalWarning()">JANGAN PADAM</button>
+            <button class="btn-modal btn-confirm-del" onclick="executeDeleteAll()">YA, PADAM SEMUA</button>
+        </div>
+    </div>
+</div>
+
 <button class="float-btn" id="themeBtn"><i class="fa-solid fa-moon"></i></button>
 <button class="float-btn" id="topBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i></button>
 <div id="toast" class="toast"><i class="fa-solid fa-check-circle"></i> <span id="toastMsg">Berjaya</span></div>
@@ -260,15 +299,32 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore(); const auth = firebase.auth();
 
+    // 1. BURGER MENU
+    function toggleMenu() {
+        document.getElementById('navMenu').classList.toggle('active');
+    }
+
+    // 2. SCROLL LOGIC
     let lastScrollTop = 0;
     const navbar = document.getElementById('mainNav');
     const topBtn = document.getElementById('topBtn');
     window.addEventListener('scroll', () => {
         let st = window.pageYOffset || document.documentElement.scrollTop;
-        if (st > lastScrollTop && st > 100) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
-        lastScrollTop = st;
+        if (st > 50) navbar.classList.add('nav-hidden'); else navbar.classList.remove('nav-hidden');
         if (st > 300) topBtn.classList.add('show'); else topBtn.classList.remove('show');
     });
+
+    // 3. AUTO HIDE FLOAT BUTTONS
+    let floatTimer;
+    const floatBtns = document.querySelectorAll('.float-btn');
+    function showFloatBtns() {
+        floatBtns.forEach(btn => btn.classList.add('active-float'));
+        clearTimeout(floatTimer);
+        floatTimer = setTimeout(() => { floatBtns.forEach(btn => btn.classList.remove('active-float')); }, 2500);
+    }
+    window.addEventListener('scroll', showFloatBtns);
+    window.addEventListener('click', showFloatBtns);
+    window.addEventListener('touchstart', showFloatBtns);
 
     const themeBtn = document.getElementById('themeBtn');
     if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
@@ -281,10 +337,6 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
     function showToast(msg) {
         const t = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg;
         t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
-    }
-
-    function toggleMenu() {
-        document.getElementById('navMenu').classList.toggle('active');
     }
 
     let deleteTargetId = null;
@@ -307,10 +359,14 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
         }
     }
 
-    async function loadUsers() {
+    async function loadUsers(isRefresh = false) {
+        const container = document.getElementById('userListContainer');
+        if(isRefresh) {
+            container.innerHTML = '<p style="text-align:center; padding:40px;">Memuat semula data...</p>';
+            showToast("Sedang memuat semula...");
+        }
+
         try {
-            const container = document.getElementById('userListContainer');
-            container.innerHTML = '<p style="text-align:center; padding:40px;">Sedang memuatkan data...</p>';
             const snap = await db.collection('users').get();
             if(snap.empty) { container.innerHTML = '<p style="text-align:center;">Tiada pengguna.</p>'; document.getElementById('totalCount').innerText = "0"; return; }
 
@@ -323,12 +379,12 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
                     email: data.email || '',
                     phone: data.phone || data.no_tel || '-',
                     role: data.role || 'user',
-                    gender: data.gender || data.jantina || 'Tidak dinyatakan', // ADDED: Gender Field
-                    createdAt: data.createdAt ? data.createdAt.toDate() : new Date(0)
+                    gender: data.gender || data.jantina || 'Tidak dinyatakan',
+                    createdAt: data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt)) : new Date(0)
                 });
             });
 
-            // CHECK URL PARAMETER & APPLY SEARCH
+            // Check Search Param
             const urlParams = new URLSearchParams(window.location.search);
             const searchParam = urlParams.get('search');
             if(searchParam) {
@@ -337,10 +393,9 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 
             applyFilter();
 
-        } catch(e) { console.error(e); document.getElementById('userListContainer').innerHTML = '<p style="text-align:center; color:red;">Gagal memuatkan data.</p>'; }
+        } catch(e) { console.error(e); container.innerHTML = '<p style="text-align:center; color:red;">Gagal memuatkan data.</p>'; }
     }
 
-    // FUNGSI UTAMA FILTER
     function applyFilter() {
         const searchText = document.getElementById('searchInput').value.toLowerCase();
         const sortType = document.getElementById('sortFilter').value;
@@ -366,24 +421,13 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 
         let html = '';
         filteredData.forEach(user => {
-            // FORMAT DATE & TIME
-            const joinedDate = user.createdAt.toLocaleString('ms-MY', { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-            });
+            const joinedDate = user.createdAt.toLocaleString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
 
-            // LOGIC JANTINA (GENDER)
             let genderIcon = '<i class="fa-solid fa-genderless" style="color:var(--text-light)"></i>';
-            let genderText = user.gender;
-
             if (user.gender && (user.gender.toLowerCase() === 'lelaki' || user.gender.toLowerCase() === 'male')) {
-                genderIcon = '<i class="fa-solid fa-mars" style="color:#3b82f6"></i>'; // Blue
+                genderIcon = '<i class="fa-solid fa-mars" style="color:#3b82f6"></i>'; 
             } else if (user.gender && (user.gender.toLowerCase() === 'perempuan' || user.gender.toLowerCase() === 'female')) {
-                genderIcon = '<i class="fa-solid fa-venus" style="color:#ec4899"></i>'; // Pink
+                genderIcon = '<i class="fa-solid fa-venus" style="color:#ec4899"></i>'; 
             }
 
             html += `
@@ -392,7 +436,7 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
                     <div class="user-name">${user.fullname || 'Tiada Nama'}</div>
                     <div class="user-meta">
                         <div class="meta-item"><i class="fa-regular fa-envelope" style="color:var(--primary)"></i> ${user.email}</div>
-                        <div class="meta-item">${genderIcon} ${genderText}</div>
+                        <div class="meta-item">${genderIcon} ${user.gender}</div>
                         <div class="meta-item"><i class="fa-solid fa-phone" style="color:var(--success)"></i> ${user.phone}</div>
                         <div class="meta-item"><i class="fa-regular fa-calendar" style="color:#f59e0b"></i> ${joinedDate}</div>
                     </div>
@@ -410,16 +454,12 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
         container.innerHTML = html;
     }
 
-    // FUNGSI RESET FILTER
     function resetFilter() {
         document.getElementById('searchInput').value = '';
         document.getElementById('sortFilter').value = 'new';
-        
-        // Buang parameter search dari URL tanpa refresh
         const url = new URL(window.location);
         url.searchParams.delete('search');
         window.history.pushState({}, '', url);
-
         applyFilter();
     }
 
@@ -435,6 +475,71 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
         } catch(e) { alert("Gagal update role"); btn.innerHTML = originalIcon; }
     }
 
+    // --- EXPORT TO EXCEL ---
+    function exportToExcel() {
+        if(globalUserList.length === 0) { alert("Tiada data untuk dieksport."); return; }
+        
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Nama Penuh,Email,Jantina,No Telefon,Role,Tarikh Daftar\n";
+
+        globalUserList.forEach(u => {
+            const dateStr = u.createdAt.toLocaleString('en-GB'); 
+            // Quote date string to preserve format in Excel
+            csvContent += `"${u.fullname}","${u.email}","${u.gender}","${u.phone}","${u.role}","${dateStr}"\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "Senarai_Pengguna.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // --- DELETE ALL LOGIC ---
+    window.openFirstWarning = function() { document.getElementById('firstWarningModal').classList.add('show'); }
+    window.closeFirstWarning = function() { document.getElementById('firstWarningModal').classList.remove('show'); }
+
+    window.proceedToFinalWarning = function() {
+        closeFirstWarning();
+        setTimeout(() => {
+            document.getElementById('finalWarningModal').classList.add('show');
+        }, 300);
+    }
+
+    window.closeFinalWarning = function() { document.getElementById('finalWarningModal').classList.remove('show'); }
+
+    window.executeDeleteAll = async function() {
+        const total = globalUserList.length;
+        if(total === 0) { alert("Tiada pengguna untuk dipadam."); closeFinalWarning(); return; }
+
+        try {
+            const batchSize = 400; 
+            const chunks = [];
+            for (let i = 0; i < total; i += batchSize) chunks.push(globalUserList.slice(i, i + batchSize));
+
+            for (const chunk of chunks) {
+                const batch = db.batch();
+                chunk.forEach(user => {
+                    const ref = db.collection('users').doc(user.id);
+                    batch.delete(ref);
+                });
+                await batch.commit();
+            }
+
+            closeFinalWarning();
+            showToast("Semua pengguna berjaya dipadam!");
+            globalUserList = [];
+            applyFilter();
+
+        } catch (error) {
+            console.error("Error deleting all:", error);
+            alert("Ralat semasa memadam data.");
+        }
+    }
+
+    // Single Delete
     window.openDeleteModal = function(id) { deleteTargetId = id; document.getElementById('deleteModal').classList.add('show'); }
     window.closeModal = function() { document.getElementById('deleteModal').classList.remove('show'); deleteTargetId = null; }
     window.confirmDelete = async function() {
@@ -449,4 +554,3 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 </script>
 </body>
 </html>
-
