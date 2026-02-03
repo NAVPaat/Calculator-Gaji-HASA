@@ -694,7 +694,7 @@ body.is-scrolling .theme-btn::before {
         </table>
     </div>
 
-    <script>
+<script>
     // ===========================================
     // 1. FIREBASE CONFIG
     // ===========================================
@@ -716,6 +716,9 @@ body.is-scrolling .theme-btn::before {
     // 2. UI LOGIC (NAV, SCROLL, POPUP, DARK MODE)
     // ===========================================
     
+    // Global variable untuk simpan nama sebenar
+    let currentUserRealName = "Pengguna";
+
     // --- DARK MODE LOGIC ---
     const themeBtn = document.getElementById('themeToggleBtn');
     const body = document.body;
@@ -790,16 +793,27 @@ body.is-scrolling .theme-btn::before {
     if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     if(mobileLogout) mobileLogout.addEventListener('click', handleLogout);
     
-    // Auth Change
+    // Auth Change - UPDATE: Fetch Real Name
     firebase.auth().onAuthStateChanged(async user => {
         if(!user) { location.href='login.html'; return; }
+        
         const nameEl = document.getElementById('navName');
         const avatarEl = document.getElementById('navAvatar');
+        
+        // Papar nama sementara
+        if(nameEl) nameEl.innerText = user.email.split('@')[0];
+
         try {
             const doc = await db.collection('users').doc(user.uid).get();
             if (doc.exists) {
                 const data = doc.data();
-                if (nameEl && data.fullname) nameEl.innerText = data.fullname.split(' ')[0]; 
+                
+                // === AMBIL NAMA SEBENAR ===
+                // Priority: fullname -> username -> email
+                currentUserRealName = data.fullname || data.username || user.email;
+                
+                if (nameEl) nameEl.innerText = currentUserRealName.split(' ')[0]; // Papar nama pendek di nav
+                
                 if (avatarEl && data.photoURL) {
                     avatarEl.innerHTML = `<img src="${data.photoURL}" alt="Profile" style="width:100%; height:100%; object-fit:cover;">`;
                     avatarEl.style.backgroundColor = 'transparent';
@@ -895,150 +909,153 @@ body.is-scrolling .theme-btn::before {
         }
     });
 
-window.computeAwam = async function() {
-    var elGaji = document.getElementById('awamGajiPokok');
-    var pgtSelect = document.getElementById('awamTelah');
-    var bulanSelect = document.getElementById('awamPGT');
-    
-    // --- VALIDATION CHECK ---
-    if (!els.jawatan.value || !els.wilayah.value || !elGaji.value || !pgtSelect.value || !bulanSelect.value) { 
-        alert("Harap Maaf. Sila lengkapkan semua butiran (Jawatan, Wilayah, Gaji Pokok, Status PGT & Bulan) sebelum membuat kiraan."); 
-        return; 
-    }
+    window.computeAwam = async function() {
+        var elGaji = document.getElementById('awamGajiPokok');
+        var pgtSelect = document.getElementById('awamTelah');
+        var bulanSelect = document.getElementById('awamPGT');
+        
+        // --- VALIDATION CHECK ---
+        if (!els.jawatan.value || !els.wilayah.value || !elGaji.value || !pgtSelect.value || !bulanSelect.value) { 
+            alert("Harap Maaf. Sila lengkapkan semua butiran (Jawatan, Wilayah, Gaji Pokok, Status PGT & Bulan) sebelum membuat kiraan."); 
+            return; 
+        }
 
-    var kgtVal = 0;
-    if (selectedJawatanData) {
-        var status = pgtSelect.value; 
-        if (status === 'TIDAK') kgtVal = parseFloat(selectedJawatanData.nilai_kgt || selectedJawatanData.Nilai_KGT || 0);
-    }
-    document.getElementById('kgt_tahun_ini').value = kgtVal.toFixed(2);
+        var kgtVal = 0;
+        if (selectedJawatanData) {
+            var status = pgtSelect.value; 
+            if (status === 'TIDAK') kgtVal = parseFloat(selectedJawatanData.nilai_kgt || selectedJawatanData.Nilai_KGT || 0);
+        }
+        document.getElementById('kgt_tahun_ini').value = kgtVal.toFixed(2);
 
-    var gaji = parseFloat(elGaji.value) || 0;
-    var kgtAdd = parseFloat(els.kgtAdd.value) || 0; 
-    var itka = parseFloat(els.itka.value) || 0;
-    var itk  = parseFloat(els.itk.value) || 0;
-    var itp  = parseFloat(els.itp.value) || 0;
-    var bish = parseFloat(els.bish.value) || 0;
-    var biw  = parseFloat(els.biw.value) || 0;
-    var bipk = parseFloat(els.bipk.value) || 0;
-    var bip  = parseFloat(els.bip.value) || 0;
+        var gaji = parseFloat(elGaji.value) || 0;
+        var kgtAdd = parseFloat(els.kgtAdd.value) || 0; 
+        var itka = parseFloat(els.itka.value) || 0;
+        var itk  = parseFloat(els.itk.value) || 0;
+        var itp  = parseFloat(els.itp.value) || 0;
+        var bish = parseFloat(els.bish.value) || 0;
+        var biw  = parseFloat(els.biw.value) || 0;
+        var bipk = parseFloat(els.bipk.value) || 0;
+        var bip  = parseFloat(els.bip.value) || 0;
 
-    // --- POS BASIK LOGIC ---
-    var isPosBasik = document.getElementById('checkPosBasik').checked;
-    var valPosBasik = isPosBasik ? 100.00 : 0;
-    var sijilPosBasik = isPosBasik ? document.getElementById('namaSijilPosBasik').value : "-";
+        // --- POS BASIK LOGIC ---
+        var isPosBasik = document.getElementById('checkPosBasik').checked;
+        var valPosBasik = isPosBasik ? 100.00 : 0;
+        var sijilPosBasik = isPosBasik ? document.getElementById('namaSijilPosBasik').value : "-";
 
-    var totalElaun = itka + itk + itp + bish + biw + bipk + bip + valPosBasik;
-    var grandTotal = gaji + kgtVal + kgtAdd + totalElaun;
+        var totalElaun = itka + itk + itp + bish + biw + bipk + bip + valPosBasik;
+        var grandTotal = gaji + kgtVal + kgtAdd + totalElaun;
 
-    // --- GET PGT INFO ---
-    var pgtStatus = pgtSelect.value;
-    var pgtMonth = bulanSelect.options[bulanSelect.selectedIndex].text;
+        // --- GET PGT INFO ---
+        var pgtStatus = pgtSelect.value;
+        var pgtMonth = bulanSelect.options[bulanSelect.selectedIndex].text;
 
-    document.getElementById('d-jawatan').innerText = els.jawatanText.value;
-    document.getElementById('d-wilayah').innerText = els.wilayah.value;
-    document.getElementById('d-kategori').innerText = els.kategori.value;
-    document.getElementById('d-gaji').innerText = "RM " + gaji.toFixed(2);
-    
-    document.getElementById('d-pgt-status').innerText = pgtStatus;
-    document.getElementById('d-pgt-month').innerText = pgtMonth;
+        document.getElementById('d-jawatan').innerText = els.jawatanText.value;
+        document.getElementById('d-wilayah').innerText = els.wilayah.value;
+        document.getElementById('d-kategori').innerText = els.kategori.value;
+        document.getElementById('d-gaji').innerText = "RM " + gaji.toFixed(2);
+        
+        document.getElementById('d-pgt-status').innerText = pgtStatus;
+        document.getElementById('d-pgt-month').innerText = pgtMonth;
 
-    document.getElementById('d-itka').innerText = "RM " + itka.toFixed(2);
-    document.getElementById('d-itk').innerText = "RM " + itk.toFixed(2);
-    document.getElementById('d-itp').innerText = "RM " + itp.toFixed(2);
-    document.getElementById('d-bish').innerText = "RM " + bish.toFixed(2);
-    document.getElementById('d-biw').innerText = "RM " + biw.toFixed(2);
-    document.getElementById('d-bipk').innerText = "RM " + bipk.toFixed(2);
-    document.getElementById('d-bip').innerText = "RM " + bip.toFixed(2);
-    
-    document.getElementById('d-pos-basik').innerText = "RM " + valPosBasik.toFixed(2);
+        document.getElementById('d-itka').innerText = "RM " + itka.toFixed(2);
+        document.getElementById('d-itk').innerText = "RM " + itk.toFixed(2);
+        document.getElementById('d-itp').innerText = "RM " + itp.toFixed(2);
+        document.getElementById('d-bish').innerText = "RM " + bish.toFixed(2);
+        document.getElementById('d-biw').innerText = "RM " + biw.toFixed(2);
+        document.getElementById('d-bipk').innerText = "RM " + bipk.toFixed(2);
+        document.getElementById('d-bip').innerText = "RM " + bip.toFixed(2);
+        
+        document.getElementById('d-pos-basik').innerText = "RM " + valPosBasik.toFixed(2);
 
-    document.getElementById('d-kgt').innerText = "RM " + kgtVal.toFixed(2);
-    document.getElementById('d-kgt-add').innerText = "RM " + kgtAdd.toFixed(2);
-    document.getElementById('d-grand-total').innerText = "RM " + grandTotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        document.getElementById('d-kgt').innerText = "RM " + kgtVal.toFixed(2);
+        document.getElementById('d-kgt-add').innerText = "RM " + kgtAdd.toFixed(2);
+        document.getElementById('d-grand-total').innerText = "RM " + grandTotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 
-    lastCalculationData = {
-        jawatan: els.jawatanText.value,
-        wilayah: els.wilayah.value,
-        kategori: els.kategori.value,
-        gajiPokok: gaji,
-        elaunList: { itka, itk, itp, bish, biw, bipk, bip, posBasik: valPosBasik },
-        sijilPosBasik: sijilPosBasik, 
-        kgt: kgtVal, kgtTambahan: kgtAdd, jumlahKasar: grandTotal,
-        pgtStatus: pgtStatus,
-        pgtMonth: pgtMonth,
-        date: new Date().toLocaleString('ms-MY', { 
-            day: '2-digit', month: '2-digit', year: 'numeric', 
-            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
-        })
+        lastCalculationData = {
+            jawatan: els.jawatanText.value,
+            wilayah: els.wilayah.value,
+            kategori: els.kategori.value,
+            gajiPokok: gaji,
+            elaunList: { itka, itk, itp, bish, biw, bipk, bip, posBasik: valPosBasik },
+            sijilPosBasik: sijilPosBasik, 
+            kgt: kgtVal, kgtTambahan: kgtAdd, jumlahKasar: grandTotal,
+            pgtStatus: pgtStatus,
+            pgtMonth: pgtMonth,
+            date: new Date().toLocaleString('ms-MY', { 
+                day: '2-digit', month: '2-digit', year: 'numeric', 
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
+            })
+        };
+
+        // RESET SURVEY VISIBILITY ON NEW CALC
+        document.getElementById('surveyBox').style.display = 'block';
+        document.getElementById('promoMessage').style.display = 'none';
+        document.getElementById('actionBtns').style.display = 'none';
+        // UNCHECK RADIOS
+        document.querySelectorAll('.radio-input').forEach(r => r.checked = false);
+
+        els.resultArea.style.display = 'block'; 
+        els.resultArea.scrollIntoView({ behavior: 'smooth' });
+
+        // --- SIMPAN KE FIREBASE (SENYAP) ---
+        const user = auth.currentUser;
+        if(user) {
+            try {
+                await db.collection('printedSlips').add({
+                    uid: user.uid,
+                    
+                    // UPDATE: Guna variable global yang dah fetch nama sebenar
+                    nama_penuh: currentUserRealName, 
+                    
+                    email: user.email,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    
+                    // === DATA ===
+                    jenis_kiraan: "Awam", 
+                    jenis_sektor: "Sektor Awam", 
+                    kategori: els.kategori.value,
+                    jawatan_terpilih: els.jawatanText.value,
+                    wilayah_asal: els.wilayah.value,
+                    gaji_pokok: gaji,
+                    itka: itka,
+                    itk: itk,
+                    itp: itp,
+                    bish: bish,
+                    biw: biw,
+                    bipk: bipk,
+                    bip: bip,
+                    bipd: 0, 
+                    bipb: valPosBasik,
+                    nama_sijil_pos_basik: sijilPosBasik, 
+                    nilai_kgt: kgtVal,
+                    kgt_tambahan: kgtAdd,
+                    dapat_pgt: pgtStatus,
+                    bulan_pergerakan: pgtMonth,
+                    gaji_bersih: grandTotal
+                });
+                console.log("Data disimpan untuk:", currentUserRealName);
+            } catch (e) {
+                console.error("Gagal simpan:", e);
+            }
+        }
     };
 
-    // RESET SURVEY VISIBILITY ON NEW CALC
-    document.getElementById('surveyBox').style.display = 'block';
-    document.getElementById('promoMessage').style.display = 'none';
-    document.getElementById('actionBtns').style.display = 'none';
-    // UNCHECK RADIOS
-    document.querySelectorAll('.radio-input').forEach(r => r.checked = false);
-
-    els.resultArea.style.display = 'block'; 
-    els.resultArea.scrollIntoView({ behavior: 'smooth' });
-
-    // --- SIMPAN KE FIREBASE (SENYAP) ---
-    const user = auth.currentUser;
-    if(user) {
-        try {
-            await db.collection('printedSlips').add({
-                uid: user.uid,
-                nama_penuh: user.displayName || user.email,
-                email: user.email,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                
-                // === DATA ===
-                jenis_kiraan: "Awam", 
-                jenis_sektor: "Sektor Awam", 
-                kategori: els.kategori.value,
-                jawatan_terpilih: els.jawatanText.value,
-                wilayah_asal: els.wilayah.value,
-                gaji_pokok: gaji,
-                itka: itka,
-                itk: itk,
-                itp: itp,
-                bish: bish,
-                biw: biw,
-                bipk: bipk,
-                bip: bip,
-                bipd: 0, 
-                bipb: valPosBasik,
-                nama_sijil_pos_basik: sijilPosBasik, // SAVED HERE
-                nilai_kgt: kgtVal,
-                kgt_tambahan: kgtAdd,
-                dapat_pgt: pgtStatus,
-                bulan_pergerakan: pgtMonth,
-                gaji_bersih: grandTotal
-            });
-            // NO TOAST HERE
-        } catch (e) {
-            console.error("Gagal simpan:", e);
+    window.checkSurvey = function() {
+        const q1 = document.querySelector('input[name="q1"]:checked');
+        const q2 = document.querySelector('input[name="q2"]:checked');
+        
+        if(q1 && q2) {
+            document.getElementById('promoMessage').style.display = 'block';
+            document.getElementById('actionBtns').style.display = 'flex';
+            // Smooth scroll to buttons
+            document.getElementById('promoMessage').scrollIntoView({ behavior: 'smooth' });
         }
     }
-};
 
-window.checkSurvey = function() {
-    const q1 = document.querySelector('input[name="q1"]:checked');
-    const q2 = document.querySelector('input[name="q2"]:checked');
-    
-    if(q1 && q2) {
-        document.getElementById('promoMessage').style.display = 'block';
-        document.getElementById('actionBtns').style.display = 'flex';
-        // Smooth scroll to buttons
-        document.getElementById('promoMessage').scrollIntoView({ behavior: 'smooth' });
-    }
-}
-
-window.resetForm = function() { 
-    window.scrollTo({ top: 0, behavior: 'smooth' }); 
-    setTimeout(() => location.reload(), 800); 
-};
+    window.resetForm = function() { 
+        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        setTimeout(() => location.reload(), 800); 
+    };
 
 window.printResult = function() {
     if(!lastCalculationData) return;
