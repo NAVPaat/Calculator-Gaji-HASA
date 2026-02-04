@@ -547,7 +547,7 @@ body.is-scrolling .theme-btn::before {
 
                 <div class="form-section-title">PERINCIAN ELAUN</div>
                 <div class="row">
-                    <div class="col"><label>ITKA</label><input type="number" id="elaun_itka_sw" readonly></div>
+                    <div class="col"><label>ITKA </label><input type="number" id="elaun_itka_sw" readonly></div>
                     <div class="col"><label>ITK</label><input type="number" id="elaun_itk_sw" readonly></div>
                     <div class="col"><label>ITP</label><input type="number" id="elaun_itp_sw" readonly></div>
                 </div>
@@ -593,74 +593,81 @@ body.is-scrolling .theme-btn::before {
                 </button>
             </div>
 
-            <div id="resultContentSwasta" class="result-box">
-                <div class="result-header">
-                    <span>KEPUTUSAN SIMULASI</span>
-                    <i class="fa-solid fa-receipt"></i>
+<div id="resultContentSwasta" class="result-box">
+        <div class="result-header">
+            <span>KEPUTUSAN SIMULASI</span>
+            <i class="fa-solid fa-receipt"></i>
+        </div>
+        
+        <div class="result-content">
+            
+            <div class="detail-row"><span>Jawatan</span><span id="res_jawatan">-</span></div>
+            <div class="detail-row"><span>Wilayah</span><span id="res_wilayah">-</span></div>
+            <div class="detail-row"><span>Kategori</span><span id="res_kategori" style="font-weight:700;">-</span></div>
+            
+            <div class="form-section-title" style="margin-top:20px;">REKOD PENGALAMAN</div>
+            <div id="experienceResultList" style="margin-bottom:10px;"></div>
+            <div class="detail-row"><span>Jumlah Layak</span><span id="res_total_year">-</span></div>
+            <div class="detail-row"><span>KGT Terkumpul (Pengalaman)</span><span id="res_kgt">-</span></div>
+
+            <div class="form-section-title" style="margin-top:20px;">PENDAPATAN UTAMA</div>
+            <div class="detail-row"><span>Gaji Permulaan (Min)</span><span id="res_gaji_min">-</span></div>
+            <div class="detail-row" style="background:#F0FDF4; padding:10px; border-radius:8px; margin-top:5px;">
+                <span style="color:#064e3b;">Gaji Pokok Baru (Min + KGT)</span>
+                <span id="res_gaji_baru" style="color:var(--primary); font-weight:700;">-</span>
+            </div>
+
+            <div class="form-section-title" style="margin-top:20px;">PERINCIAN ELAUN</div>
+            <div id="res_elaun"></div>
+            
+            <div class="detail-row" style="margin-top:10px; border-top:1px dashed #e2e8f0; padding-top:10px;">
+                <span>Jumlah Elaun</span>
+                <span id="res_total_elaun" style="font-weight:700; color:var(--text-main);">-</span>
+            </div>
+
+            <div class="total-box" style="margin-top:20px;">
+                <div class="total-label">ANGGARAN GAJI KASAR</div>
+                <div class="total-amount" id="res_grand_total">RM 0.00</div>
+            </div>
+
+            <div class="warning-box">
+                <i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem; color:#f97316;"></i>
+                <div style="text-align: justify;">
+                    <strong>PERHATIAN PENTING:</strong><br>
+                    <span class="warn-mobile">
+                        Simulasi ini adalah <strong>ANGGARAN</strong> sahaja. Sila rujuk BSM untuk penyata sebenar.
+                    </span>
+                    <span class="warn-desktop">
+                        Dokumen ini adalah cetakan komputer daripada Sistem Dashboard HASA. Segala nilai yang dipaparkan adalah <strong>SIMULASI ANGGARAN</strong> berdasarkan input pengguna dan data pekeliling semasa. Ia <strong>TIDAK SAH</strong> digunakan sebagai dokumen rasmi untuk tujuan pinjaman bank, urusan undang-undang, atau tuntutan rasmi. Sila rujuk Bahagian Sumber Manusia (BSM) atau Unit Gaji untuk penyata gaji yang sah.
+                    </span>
                 </div>
-                <div class="result-content">
-                    <div class="detail-row"><span>Jawatan</span><span id="res_jawatan">-</span></div>
-                    <div class="detail-row"><span>Wilayah</span><span id="res_wilayah">-</span></div>
-                    <div class="detail-row"><span>Kategori</span><span id="res_kategori" style="font-weight:700;">-</span></div>
-                    
-                    <div class="form-section-title" style="margin-top:20px;">REKOD PENGALAMAN</div>
-                    <div id="experienceResultList" style="margin-bottom:10px;"></div>
-                    <div class="detail-row"><span>Jumlah Layak</span><span id="res_total_year">-</span></div>
+            </div>
 
-                    <div class="form-section-title" style="margin-top:20px;">PENDAPATAN</div>
-                    <div class="detail-row"><span>Gaji Permulaan</span><span id="res_gaji_min">-</span></div>
-                    <div class="detail-row"><span>KGT Terkumpul (Pengalaman)</span><span id="res_kgt">-</span></div>
-                    <div class="detail-row" style="background:#F0FDF4; padding:10px; border-radius:8px;">
-                        <span style="color:#064e3b;">Gaji Pokok Baru</span><span id="res_gaji_baru" style="color:var(--primary); font-weight:700;">-</span>
-                    </div>
-
-                    <div id="res_elaun" style="margin-top: 15px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 15px;"></div>
-
-                    <div class="total-box">
-                        <div class="total-label">ANGGARAN GAJI KASAR</div>
-                        <div class="total-amount" id="res_grand_total">RM 0.00</div>
-                    </div>
-
-                    <div class="warning-box">
-                        <i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem; color:#f97316;"></i>
-                        <div style="text-align: justify;">
-                            <strong>PERHATIAN PENTING:</strong><br>
-                            <span class="warn-mobile">
-                                Simulasi ini adalah <strong>ANGGARAN</strong> sahaja. Sila rujuk BSM untuk penyata sebenar.
-                            </span>
-                            <span class="warn-desktop">
-                                Dokumen ini adalah cetakan komputer daripada Sistem Dashboard HASA. Segala nilai yang dipaparkan adalah <strong>SIMULASI ANGGARAN</strong> berdasarkan input pengguna dan data pekeliling semasa. Ia <strong>TIDAK SAH</strong> digunakan sebagai dokumen rasmi untuk tujuan pinjaman bank, urusan undang-undang, atau tuntutan rasmi. Sila rujuk Bahagian Sumber Manusia (BSM) atau Unit Gaji untuk penyata gaji yang sah.
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="survey-box" id="surveyBox">
-                        <div class="survey-item">
-                            <span class="survey-q">1. Adakah gaji yang ditawarkan setimpal?</span>
-                            <div class="radio-group">
-                                <label class="radio-label"><input type="radio" name="q1" value="Ya" class="radio-input" onchange="checkSurvey()"> Ya</label>
-                                <label class="radio-label"><input type="radio" name="q1" value="Tidak" class="radio-input" onchange="checkSurvey()"> Tidak</label>
-                            </div>
-                        </div>
-                        <div class="survey-item">
-                            <span class="survey-q">2. Adakah anda akan mempertimbangkan menyertai HASA UiTM setelah melihat anggaran gaji?</span>
-                            <div class="radio-group">
-                                <label class="radio-label"><input type="radio" name="q2" value="Ya" class="radio-input" onchange="checkSurvey()"> Ya</label>
-                                <label class="radio-label"><input type="radio" name="q2" value="Tidak" class="radio-input" onchange="checkSurvey()"> Tidak</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="promo-box" id="promoMessage">
-                        <h3>Jom sertai pasukan kami! di HASA UiTM</h3>
-                        <a href="https://pengambilanhuitm.uitm.edu.my/login" target="_blank" class="promo-link">https://pengambilanhuitm.uitm.edu.my/login</a>
-                    </div>
-
-                    <div class="action-buttons" id="actionBtns">
-                        <button class="btn-secondary" onclick="resetSwastaForm()">Kira Semula</button>
-                        <button class="btn-print" id="printBtn" onclick="printSwastaResult()">Cetak PDF</button>
+            <div class="survey-box" id="surveyBox">
+                <div class="survey-item">
+                    <span class="survey-q">1. Adakah gaji yang ditawarkan setimpal?</span>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="q1" value="Ya" class="radio-input" onchange="checkSurvey()"> Ya</label>
+                        <label class="radio-label"><input type="radio" name="q1" value="Tidak" class="radio-input" onchange="checkSurvey()"> Tidak</label>
                     </div>
                 </div>
+                <div class="survey-item">
+                    <span class="survey-q">2. Adakah anda akan mempertimbangkan menyertai HASA UiTM setelah melihat anggaran gaji?</span>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="q2" value="Ya" class="radio-input" onchange="checkSurvey()"> Ya</label>
+                        <label class="radio-label"><input type="radio" name="q2" value="Tidak" class="radio-input" onchange="checkSurvey()"> Tidak</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="promo-box" id="promoMessage">
+                <h3>Jom sertai pasukan kami! di HASA UiTM</h3>
+                <a href="https://pengambilanhuitm.uitm.edu.my/login" target="_blank" class="promo-link">https://pengambilanhuitm.uitm.edu.my/login</a>
+            </div>
+
+            <div class="action-buttons" id="actionBtns">
+                <button class="btn-secondary" onclick="resetSwastaForm()">Kira Semula</button>
+                <button class="btn-print" id="printBtn" onclick="printSwastaResult()">Cetak PDF</button>
             </div>
         </div>
     </div>
@@ -709,13 +716,11 @@ body.is-scrolling .theme-btn::before {
     // ===========================================
     // 2. UI LOGIC (NAV, SCROLL, THEME)
     // ===========================================
-    
-    // Global variable untuk simpan nama sebenar
     let currentUserRealName = "Pengguna";
 
     document.addEventListener("DOMContentLoaded", function() {
         loadJawatan();
-        addExperienceRow(); // AUTO SHOW 1ST ROW
+        addExperienceRow(); 
         
         const themeBtn = document.getElementById('themeToggleBtn');
         const body = document.body;
@@ -747,10 +752,8 @@ body.is-scrolling .theme-btn::before {
     const navbar = document.getElementById('mainNavbar');
     const goTop = document.getElementById('goTopBtn');
     
-    // Auto Hide Nav & Button
     function blurButtons() {
         document.getElementById('themeToggleBtn').blur();
-        document.getElementById('petunjukBtn').blur();
     }
 
     window.addEventListener('scroll', function() {
@@ -760,20 +763,14 @@ body.is-scrolling .theme-btn::before {
         goTop.style.display = st > 300 ? 'flex' : 'none';
         if(window.innerWidth <= 900) blurButtons();
     });
-    
+
+    document.addEventListener('touchstart', (e) => {
+        if (!e.target.closest('#themeToggleBtn') && !e.target.closest('#petunjukBtn')) {
+            blurButtons();
+        }
+    });
 
     goTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    const logoutBtn = document.getElementById('logoutBtn');
-    const mobileLogout = document.getElementById('mobileLogout');
-    async function handleLogout() {
-        if(confirm("Log keluar dari sistem?")) {
-            await firebase.auth().signOut();
-            location.href='login.html';
-        }
-    }
-    if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
-    if(mobileLogout) mobileLogout.addEventListener('click', handleLogout);
 
     const pBtn = document.getElementById('petunjukBtn');
     const pPop = document.getElementById('petunjukPopup');
@@ -786,26 +783,32 @@ body.is-scrolling .theme-btn::before {
         });
     }
 
-    // AUTH CHANGE - UPDATE FETCH REAL NAME
+    const logoutBtn = document.getElementById('logoutBtn');
+    const mobileLogout = document.getElementById('mobileLogout');
+    async function handleLogout() {
+        if(confirm("Log keluar dari sistem?")) {
+            await firebase.auth().signOut();
+            location.href='login.html';
+        }
+    }
+    if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    if(mobileLogout) mobileLogout.addEventListener('click', handleLogout);
+
     firebase.auth().onAuthStateChanged(async user => {
         if(!user) { location.href='login.html'; return; }
         
         const nameEl = document.getElementById('navName');
         const avatarEl = document.getElementById('navAvatar');
         
-        // Papar nama sementara
         if(nameEl) nameEl.innerText = user.email.split('@')[0];
 
         try {
             const doc = await db.collection('users').doc(user.uid).get();
             if (doc.exists) {
                 const data = doc.data();
-                
-                // === AMBIL NAMA SEBENAR ===
-                // Priority: fullname -> username -> email
                 currentUserRealName = data.fullname || data.username || user.email;
 
-                if (nameEl) nameEl.innerText = currentUserRealName.split(' ')[0]; // Papar nama pendek di nav
+                if (nameEl) nameEl.innerText = currentUserRealName.split(' ')[0]; 
                 
                 if (avatarEl && data.photoURL) {
                     avatarEl.innerHTML = `<img src="${data.photoURL}" alt="Profile" style="width:100%; height:100%; object-fit:cover;">`;
@@ -824,7 +827,6 @@ body.is-scrolling .theme-btn::before {
         wilayah: document.getElementById('wilayah_swasta'), 
         kategori: document.getElementById('kategoriSwasta'),
         gajiMin: document.getElementById('gajiMinimum'),
-        
         itka: document.getElementById('elaun_itka_sw'),
         itk: document.getElementById('elaun_itk_sw'),
         itp: document.getElementById('elaun_itp_sw'),
@@ -832,7 +834,6 @@ body.is-scrolling .theme-btn::before {
         biw: document.getElementById('elaun_biw_sw'),
         bipk: document.getElementById('elaun_bipk_sw'),
         bip: document.getElementById('elaun_bip_sw'),
-        
         expContainer: document.getElementById('experienceContainer'),
         resultArea: document.getElementById('resultContentSwasta')
     };
@@ -846,7 +847,6 @@ body.is-scrolling .theme-btn::before {
         det.style.display = chk.checked ? 'flex' : 'none';
     }
 
-    // FETCH DATA
     async function loadJawatan() {
         const select = document.getElementById('jawatan_swasta');
         try {
@@ -855,12 +855,10 @@ body.is-scrolling .theme-btn::before {
                 select.innerHTML = '<option value="">Tiada Data Jawatan</option>'; 
                 return; 
             }
-            
             select.innerHTML = '<option value="" selected>-- Sila Pilih --</option>';
             let list = [];
             snapshot.forEach((doc) => list.push(doc.data()));
             list.sort((a, b) => (a.id_susunan || 0) - (b.id_susunan || 0));
-            
             list.forEach((data) => {
                 const option = document.createElement('option');
                 option.value = JSON.stringify(data);
@@ -907,7 +905,6 @@ body.is-scrolling .theme-btn::before {
         });
     }
 
-    // EXP ROW LOGIC
     let expCount = 0;
     window.addExperienceRow = function() {
         expCount++;
@@ -947,18 +944,14 @@ body.is-scrolling .theme-btn::before {
             const d2 = new Date(e);
             
             if(d2 > d1) {
-                // Kira Total Hari
                 const diffTime = Math.abs(d2 - d1);
                 const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                // Kira Pecahan Tahun/Bulan/Hari (Precise)
                 let years = d2.getFullYear() - d1.getFullYear();
                 let months = d2.getMonth() - d1.getMonth();
                 let days = d2.getDate() - d1.getDate();
 
                 if (days < 0) {
                     months--;
-                    // Dapatkan hari dalam bulan sebelumnya
                     let prevMonth = new Date(d2.getFullYear(), d2.getMonth(), 0);
                     days += prevMonth.getDate();
                 }
@@ -967,18 +960,12 @@ body.is-scrolling .theme-btn::before {
                     months += 12;
                 }
 
-                // Kira Layak Tahun (Total Months / 12)
                 const totalMonthsFull = (years * 12) + months;
                 const layakTahun = Math.floor(totalMonthsFull / 12);
 
-                // FORMAT YG DIMINTA: (hari, dalam kurungan jumlah tahun, layak tahun)
-                // Contoh paparan UI: 1096 Hari (3 Tahun, 0 Bulan, 1 Hari) - Layak: 3 Tahun
                 disp.style.display = 'block';
                 disp.innerText = `${totalDays} Hari (${years} Tahun ${months} Bulan ${days} Hari) - Layak: ${layakTahun} Tahun`;
-                
-                // Simpan data raw untuk kegunaan 'Save'
                 disp.dataset.str = `${totalDays} Hari (${years} Tahun ${months} Bulan ${days} Hari) [Layak: ${layakTahun} Tahun]`;
-
             } else {
                 disp.style.display = 'none';
             }
@@ -1005,14 +992,11 @@ body.is-scrolling .theme-btn::before {
                 const d1 = new Date(startVal);
                 const d2 = new Date(endVal);
                 if (d2 > d1) {
-                    // Logic pengiraan gaji masih guna bulan
                     let months = (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
                     if (months > 0) {
                         totalMonths += months;
                         const sDate = d1.toLocaleDateString('ms-MY');
                         const eDate = d2.toLocaleDateString('ms-MY');
-                        
-                        // Gunakan string format khas jika ada
                         const formatStr = disp.innerText || `${months} Bulan`;
 
                         expListHTML += `<div style="font-size:0.9rem; border-bottom:1px dashed #eee; padding:5px 0;">
@@ -1021,16 +1005,10 @@ body.is-scrolling .theme-btn::before {
                             <small style="color:var(--primary); font-weight:600;">${formatStr}</small>
                         </div>`;
                         
-                        // Simpan ke array experienceData dengan format penuh
                         experienceData.push({ 
-                            jawatan: post, 
-                            organisasi: comp, 
-                            gaji_terakhir: sal, 
-                            tarikh_mula: startVal, 
-                            tarikh_tamat: endVal, 
-                            tempoh_bulan_kiraan: months,
-                            // INI FORMAT YANG DISIMPAN KE FIREBASE
-                            tempoh_format_lengkap: formatStr 
+                            jawatan: post, organisasi: comp, gaji_terakhir: sal, 
+                            tarikh_mula: startVal, tarikh_tamat: endVal, 
+                            tempoh_bulan_kiraan: months, tempoh_format_lengkap: formatStr 
                         });
                     }
                 }
@@ -1055,7 +1033,8 @@ body.is-scrolling .theme-btn::before {
         let valPosBasik = isPosBasik ? 100.00 : 0;
         let sijilPosBasik = isPosBasik ? document.getElementById('namaSijilPosBasik').value : "-";
 
-        const grandTotal = gajiBaru + itka + itk + itp + bish + biw + bipk + bip + valPosBasik;
+        const totalElaunOnly = itka + itk + itp + bish + biw + bipk + bip + valPosBasik;
+        const grandTotal = gajiBaru + totalElaunOnly;
 
         // DISPLAY
         document.getElementById('res_jawatan').innerText = els.jawatan.options[els.jawatan.selectedIndex].text;
@@ -1063,34 +1042,34 @@ body.is-scrolling .theme-btn::before {
         document.getElementById('res_kategori').innerText = els.kategori.value;
         document.getElementById('experienceResultList').innerHTML = expListHTML || "<em>Tiada Pengalaman</em>";
         document.getElementById('res_total_year').innerText = yearsCalc + " Tahun";
-        document.getElementById('res_gaji_min').innerText = "RM " + gajiMin.toFixed(2);
         document.getElementById('res_kgt').innerText = "RM " + totalKgt.toFixed(2);
+        document.getElementById('res_gaji_min').innerText = "RM " + gajiMin.toFixed(2);
         document.getElementById('res_gaji_baru').innerText = "RM " + gajiBaru.toFixed(2);
 
         let elaunHTML = "";
-        if (itka > 0) elaunHTML += `<div class="detail-row"><span>ITKA</span><span>RM ${itka.toFixed(2)}</span></div>`;
-        if (itk > 0) elaunHTML += `<div class="detail-row"><span>ITK</span><span>RM ${itk.toFixed(2)}</span></div>`;
-        if (itp > 0) elaunHTML += `<div class="detail-row"><span>ITP</span><span>RM ${itp.toFixed(2)}</span></div>`;
-        if (bish > 0) elaunHTML += `<div class="detail-row"><span>BISH</span><span>RM ${bish.toFixed(2)}</span></div>`;
-        if (biw > 0) elaunHTML += `<div class="detail-row"><span>BIW</span><span>RM ${biw.toFixed(2)}</span></div>`;
-        if (bipk > 0) elaunHTML += `<div class="detail-row"><span>BIPK</span><span>RM ${bipk.toFixed(2)}</span></div>`;
-        if (bip > 0) elaunHTML += `<div class="detail-row"><span>BIP</span><span>RM ${bip.toFixed(2)}</span></div>`;
+        if (itka > 0) elaunHTML += `<div class="detail-row"><span>Imbuhan Tetap Khidmat Awam (ITKA)</span><span>RM ${itka.toFixed(2)}</span></div>`;
+        if (itk > 0) elaunHTML += `<div class="detail-row"><span>Imbuhan Tetap Keraian (ITK)</span><span>RM ${itk.toFixed(2)}</span></div>`;
+        if (itp > 0) elaunHTML += `<div class="detail-row"><span>Imbuhan Tetap Perumahan (ITP)</span><span>RM ${itp.toFixed(2)}</span></div>`;
+        if (bish > 0) elaunHTML += `<div class="detail-row"><span>Bantuan Insentif Sara Hidup (BISH)</span><span>RM ${bish.toFixed(2)}</span></div>`;
+        if (biw > 0) elaunHTML += `<div class="detail-row"><span>Bantuan Insentif Wilayah (BIW)</span><span>RM ${biw.toFixed(2)}</span></div>`;
+        if (bipk > 0) elaunHTML += `<div class="detail-row"><span>Bantuan Insentif Pekerja Khas (BIPK)</span><span>RM ${bipk.toFixed(2)}</span></div>`;
+        if (bip > 0) elaunHTML += `<div class="detail-row"><span>Bantuan Insentif Pakar (BIP)</span><span>RM ${bip.toFixed(2)}</span></div>`;
         if (valPosBasik > 0) elaunHTML += `<div class="detail-row" style="color:#065f46; font-weight:bold;"><span>POS BASIK (${sijilPosBasik})</span><span>RM ${valPosBasik.toFixed(2)}</span></div>`;
 
         document.getElementById('res_elaun').innerHTML = elaunHTML;
+        document.getElementById('res_total_elaun').innerText = "RM " + totalElaunOnly.toFixed(2);
         document.getElementById('res_grand_total').innerText = "RM " + grandTotal.toFixed(2);
 
         lastResult = {
             jawatan: els.jawatan.options[els.jawatan.selectedIndex].text,
             wilayah: els.wilayah.value,
             gajiMin, yearsCalc, totalKgt, gajiBaru, grandTotal,
-            elaun: { itka, itp, bish, biw, bipk, posBasik: valPosBasik },
+            elaun: { itka, itp, bish, biw, bipk, posBasik: valPosBasik, total: totalElaunOnly },
             sijilPosBasik,
-            experienceDataRaw: experienceData, // Pass data untuk print
+            experienceDataRaw: experienceData,
             date: new Date().toLocaleString()
         };
 
-        // RESET SURVEY UI
         document.getElementById('surveyBox').style.display = 'block';
         document.getElementById('promoMessage').style.display = 'none';
         document.getElementById('actionBtns').style.display = 'none';
@@ -1099,19 +1078,14 @@ body.is-scrolling .theme-btn::before {
         els.resultArea.style.display = 'block';
         els.resultArea.scrollIntoView({ behavior: 'smooth' });
 
-        // --- SIMPAN KE FIREBASE (SILENTLY) ---
         const user = auth.currentUser;
         if(user) {
             try {
                 await db.collection('printedSlips').add({
                     uid: user.uid,
-                    
-                    // UPDATE: Guna variable global yang dah fetch nama sebenar
                     nama_penuh: currentUserRealName,
-                    
                     email: user.email,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    
                     jenis_kiraan: "Swasta", 
                     jenis_sektor: "Sektor Swasta", 
                     kategori: els.kategori.value,
@@ -1122,22 +1096,11 @@ body.is-scrolling .theme-btn::before {
                     nilai_kgt: kgtVal,
                     jumlah_kenaikan_kgt: totalKgt,
                     gaji_pokok_baru: gajiBaru,
-                    
-                    // ARRAY PENGALAMAN DENGAN FORMAT LENGKAP
                     senarai_pengalaman: experienceData, 
-                    
-                    itka: itka,
-                    itk: itk,
-                    itp: itp,
-                    bish: bish,
-                    biw: biw,
-                    bipk: bipk,
-                    bip: bip,
-                    bipb: valPosBasik,
-                    nama_sijil_pos_basik: sijilPosBasik,
+                    itka, itk, itp, bish, biw, bipk, bip, 
+                    bipb: valPosBasik, nama_sijil_pos_basik: sijilPosBasik,
                     gaji_bersih: grandTotal
                 });
-                console.log("Data disimpan untuk:", currentUserRealName);
             } catch(e) { console.error("Gagal simpan:", e); }
         }
     };
@@ -1152,19 +1115,14 @@ body.is-scrolling .theme-btn::before {
         }
     }
 
-    window.resetSwastaForm = function() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(() => location.reload(), 800);
-    };
-
+    // ===========================================
+    // 4. PRINT SLIP LOGIC (UPDATED ORDER)
+    // ===========================================
     window.printSwastaResult = function() {
         if(!lastResult) return;
         const d = lastResult;
-        const w = window.open('', '', 'width=900,height=900');
         
         let expRows = "";
-        
-        // Guna data yg dah diproses (ada format string)
         d.experienceDataRaw.forEach(item => {
             expRows += `
                 <tr>
@@ -1177,6 +1135,17 @@ body.is-scrolling .theme-btn::before {
                 </tr>`;
         });
 
+        // ELAUN ROWS GENERATION
+        let elaunRows = "";
+        if(d.elaun.itka > 0) elaunRows += `<tr><td>ITKA</td><td align="right">${d.elaun.itka.toFixed(2)}</td></tr>`;
+        if(d.elaun.itp > 0) elaunRows += `<tr><td>ITP / Perumahan</td><td align="right">${d.elaun.itp.toFixed(2)}</td></tr>`;
+        if(d.elaun.itk > 0) elaunRows += `<tr><td>ITK / Keraian</td><td align="right">${d.elaun.itk.toFixed(2)}</td></tr>`;
+        if(d.elaun.bipk > 0) elaunRows += `<tr><td>BIPK / Kritikal</td><td align="right">${d.elaun.bipk.toFixed(2)}</td></tr>`;
+        if(d.elaun.bip > 0) elaunRows += `<tr><td>BIP / Pakar</td><td align="right">${d.elaun.bip.toFixed(2)}</td></tr>`;
+        if((d.elaun.bish + d.elaun.biw) > 0) elaunRows += `<tr><td>BISH / BIW</td><td align="right">${(d.elaun.bish + d.elaun.biw).toFixed(2)}</td></tr>`;
+        if(d.elaun.posBasik > 0) elaunRows += `<tr><td>Insentif Pos Basik (${d.sijilPosBasik})</td><td align="right">${d.elaun.posBasik.toFixed(2)}</td></tr>`;
+
+        const w = window.open('', '', 'width=900,height=900');
         w.document.write(`
             <html><head><title>Slip Gaji Swasta</title>
             <style>
@@ -1188,60 +1157,78 @@ body.is-scrolling .theme-btn::before {
                 th { background: #065f46; color: white; padding: 10px; text-align: left; }
                 td { border-bottom: 1px solid #ddd; padding: 8px; }
                 .total-row td { background: #ecfdf5; font-weight: bold; font-size: 16px; color: #065f46; }
+                .sub-total td { background: #f9fafb; font-weight: bold; }
                 .watermark { position: fixed; top: 40%; left: 30%; font-size: 80px; opacity: 0.1; transform: rotate(-45deg); font-weight: bold; pointer-events: none; }
+                .section-title { margin-top: 30px; margin-bottom: 10px; font-weight: bold; color: #065f46; border-bottom: 1px solid #065f46; display:inline-block; }
             </style></head><body>
+            
             <div class="watermark">SIMULASI SWASTA</div>
+            
             <div class="header">
                 <img src="image/HASA.png" class="logo" onerror="this.style.display='none'">
-                <div><h2>HOSPITAL AL-SULTAN ABDULLAH</h2><div style="font-size:14px; margin-top:5px;">SIMULASI GAJI LANTIKAN SWASTA</div></div>
+                <div><h2>HASA UITM</h2><div style="font-size:14px; margin-top:5px;">HOSPITAL AL-SULTAN ABDULLAH, UiTM PUNCAK ALAM <BR> SIMULASI GAJI SEKTOR SWASTA</div></div>
             </div>
+
             <table style="margin-bottom:30px;">
                 <tr><td width="200"><strong>Nama Pemohon</strong></td><td>: ${auth.currentUser ? (auth.currentUser.displayName || auth.currentUser.email) : 'Tetamu'}</td></tr>
                 <tr><td><strong>Jawatan</strong></td><td>: ${d.jawatan}</td></tr>
                 <tr><td><strong>Wilayah</strong></td><td>: ${d.wilayah}</td></tr>
                 <tr><td><strong>Tarikh</strong></td><td>: ${d.date}</td></tr>
             </table>
-            <h3>REKOD PENGALAMAN</h3>
+
+            <div class="section-title">REKOD PENGALAMAN</div>
             <table border="1" style="border-color:#eee;">
                 <tr><th>Jawatan</th><th>Organisasi</th><th style="text-align:center;">Tempoh Perkhidmatan</th></tr>
                 ${expRows || '<tr><td colspan="3" align="center">Tiada Rekod</td></tr>'}
-                <tr style="background:#f9f9f9;"><td colspan="2" align="right"><strong>JUMLAH KELAYAKAN</strong></td><td align="center"><strong>${d.yearsCalc} Tahun</strong></td></tr>
+                <tr class="sub-total"><td colspan="2" align="right">JUMLAH KELAYAKAN</td><td align="center">${d.yearsCalc} Tahun</td></tr>
+                <tr class="sub-total"><td colspan="2" align="right">KGT TERKUMPUL</td><td align="center">RM ${d.totalKgt.toFixed(2)}</td></tr>
             </table>
-            <h3>PERINCIAN KEWANGAN</h3>
+
+            <div class="section-title">PENDAPATAN UTAMA</div>
             <table>
-                <tr><th>Perkara</th><th style="text-align:right;">Amaun (RM)</th></tr>
-                <tr><td>Gaji Minimum</td><td align="right">${d.gajiMin.toFixed(2)}</td></tr>
-                <tr><td>Kenaikan KGT</td><td align="right">${d.totalKgt.toFixed(2)}</td></tr>
-                <tr style="background:#f0fdf4;"><td><strong>GAJI POKOK BARU</strong></td><td align="right"><strong>${d.gajiBaru.toFixed(2)}</strong></td></tr>
-                <tr><td>ITKA</td><td align="right">${d.elaun.itka.toFixed(2)}</td></tr>
-                <tr><td>ITP</td><td align="right">${d.elaun.itp.toFixed(2)}</td></tr>
-                ${(d.elaun.bish + d.elaun.biw) > 0 ? `<tr><td>BISH / BIW</td><td align="right">${(d.elaun.bish + d.elaun.biw).toFixed(2)}</td></tr>` : ''}
-                ${d.elaun.posBasik > 0 ? `<tr><td>Insentif Pos Basik (${d.sijilPosBasik})</td><td align="right">${d.elaun.posBasik.toFixed(2)}</td></tr>` : ''}
-                <tr class="total-row"><td>JUMLAH KASAR</td><td align="right">RM ${d.grandTotal.toFixed(2)}</td></tr>
+                <tr><td>Gaji Pokok Minimum (Skim)</td><td align="right">RM ${d.gajiMin.toFixed(2)}</td></tr>
+                <tr class="sub-total"><td>Gaji Pokok Baru (Min + KGT)</td><td align="right">RM ${d.gajiBaru.toFixed(2)}</td></tr>
             </table>
-            <div style="font-size:11px; margin-top:30px; color:#555;">*Ini adalah simulasi komputer sahaja.</div>
+
+            <div class="section-title">PERINCIAN ELAUN</div>
+            <table>
+                <tr><th>Jenis Elaun</th><th style="text-align:right;">Amaun (RM)</th></tr>
+                ${elaunRows}
+                <tr class="sub-total"><td>JUMLAH ELAUN</td><td align="right">RM ${d.elaun.total.toFixed(2)}</td></tr>
+            </table>
+
+            <br>
+            <table>
+                <tr class="total-row"><td>JUMLAH GAJI KASAR</td><td align="right">RM ${d.grandTotal.toFixed(2)}</td></tr>
+            </table>
+
+            <div style="margin-top:20px; padding:10px; border:1px dashed #f97316; background:#fff7ed; color:#c2410c; font-size:11px; text-align:justify;">
+                <strong>PERHATIAN PENTING:</strong><br>
+                Dokumen ini adalah cetakan komputer daripada Sistem Dashboard HASA. Segala nilai yang dipaparkan adalah <strong>SIMULASI ANGGARAN</strong> berdasarkan input pengguna dan data pekeliling semasa. Ia <strong>TIDAK SAH</strong> digunakan sebagai dokumen rasmi untuk tujuan pinjaman bank, urusan undang-undang, atau tuntutan rasmi. Sila rujuk Bahagian Sumber Manusia (BSM) atau Unit Gaji untuk penyata gaji yang sah.
+            </div>
+
+            <div style="font-size:11px; margin-top:30px; color:#555; text-align:center;">*Ini adalah simulasi komputer sahaja.</div>
             <script>setTimeout(() => window.print(), 800);<\/script>
             </body></html>
         `);
         w.document.close();
     };
 
+    window.resetSwastaForm = function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => location.reload(), 800);
+    };
+
     if (history.scrollRestoration) { history.scrollRestoration = 'manual'; }
     window.scrollTo(0, 0);
-// --- SKRIP UNTUK HILANGKAN TOOLTIP MASA SCROLL ---
+
     let scrollTimeout;
-
     window.addEventListener('scroll', function() {
-        // 1. Tambah class 'is-scrolling' pada body bila mula scroll
         document.body.classList.add('is-scrolling');
-
-        // 2. Clear timeout lama jika pengguna masih scroll
         clearTimeout(scrollTimeout);
-
-        // 3. Set timeout baru: Kalau berhenti scroll selama 200ms, buang class tu
         scrollTimeout = setTimeout(function() {
             document.body.classList.remove('is-scrolling');
-        }, 200); // Anda boleh ubah 200 ke nombor lain (milisaat)
+        }, 200);
     });
 </script>
 </body>
