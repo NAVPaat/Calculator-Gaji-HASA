@@ -552,7 +552,7 @@ body.is-scrolling .theme-btn::before {
             <div class="form-section-title" style="margin-top:20px;">MAKLUMAT PGT</div>
             <div class="row">
                 <div class="col">
-                    <label>Dapat PGT Tahun Ini?</label>
+                    <label>Telah Terima PGT Tahun Ini?</label>
                     <select id="awamTelah">
                         <option value="" disabled selected>-- Sila Pilih --</option>
                         <option value="YA">YA</option>
@@ -560,7 +560,7 @@ body.is-scrolling .theme-btn::before {
                     </select>
                 </div>
                 <div class="col">
-                    <label>Bulan Pergerakan Gaji</label>
+                    <label>Bulan Pergerakan Gaji Tahunan</label>
                     <select id="awamPGT">
                         <option value="" disabled selected>-- Pilih Bulan --</option>
                         <option value="Jan">Januari</option>
@@ -602,7 +602,7 @@ body.is-scrolling .theme-btn::before {
                     
                     <div class="form-section-title" style="margin-top:20px;">MAKLUMAT PERGERAKAN GAJI</div>
                     <div class="detail-row"><span>Status PGT Tahun Ini</span><span id="d-pgt-status" style="font-weight:700;">-</span></div>
-                    <div class="detail-row"><span>Bulan Pergerakan Gaji (TPG)</span><span id="d-pgt-month" style="font-weight:700;">-</span></div>
+                    <div class="detail-row"><span>Bulan Pergerakan Gaji Tahunan (PGT)</span><span id="d-pgt-month" style="font-weight:700;">-</span></div>
 
                     <div class="form-section-title" style="margin-top:20px;">PENDAPATAN UTAMA</div>
                     <div class="detail-row"><span>Gaji Pokok</span><span id="d-gaji">-</span></div>
@@ -611,7 +611,7 @@ body.is-scrolling .theme-btn::before {
                     <div class="detail-row"><span>Imbuhan Tetap Khidmat Awam (ITKA)</span><span id="d-itka">-</span></div>
                     <div class="detail-row"><span>Imbuhan Tetap Keraian (ITK)</span><span id="d-itk">-</span></div>
                     <div class="detail-row"><span>Imbuhan Tetap Perumahan (ITP)</span><span id="d-itp">-</span></div>
-                    <div class="detail-row"><span>Bantuan Sara Hidup (BISH)</span><span id="d-bish">-</span></div>
+                    <div class="detail-row"><span>Bantuan Insentif Sara Hidup (BISH)</span><span id="d-bish">-</span></div>
                     <div class="detail-row"><span>Bayaran Insentif Wilayah (BIW)</span><span id="d-biw">-</span></div>
                     <div class="detail-row"><span>Bayaran Insentif Kritikal (BIPK)</span><span id="d-bipk">-</span></div>
                     <div class="detail-row"><span>Bayaran Insentif Pakar (BIP)</span><span id="d-bip">-</span></div>
@@ -1130,7 +1130,7 @@ window.printResult = function() {
                         <td style="padding: 5px 0; color: #0f172a; font-weight: 700; vertical-align: top; text-align: left;">${d.pgtStatus}</td>
                     </tr>
                     <tr style="border-bottom: 1px dashed #f1f5f9;">
-                        <td style="padding: 5px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Bulan TPG</td>
+                        <td style="padding: 5px 0; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; vertical-align: top; text-align: left;">Bulan PGT</td>
                         <td style="padding: 5px 0; color: #64748b; vertical-align: top; text-align: center;">:</td>
                         <td style="padding: 5px 0; color: #0f172a; font-weight: 600; vertical-align: top; text-align: left;">${d.pgtMonth}</td>
                     </tr>
