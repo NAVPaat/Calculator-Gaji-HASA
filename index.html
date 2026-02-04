@@ -75,26 +75,30 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 24px 8%; z-index: 10;
         }
-        .logo { 
+        
+        /* Logo Image Style */
+        .nav-logo-img img {
+            height: 120px; /* Adjust saiz logo di sini */
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* Text Logo Style (Kanan) */
+        .logo-text { 
             font-family: 'Nunito', sans-serif; 
             font-size: 1.8rem; font-weight: 800; 
             color: var(--uitm-purple); 
             display: flex; align-items: center; gap: 8px; 
         }
-        .logo span { color: var(--uitm-light); }
+        .logo-text span { color: var(--uitm-light); }
         
-        .nav-btn {
-            padding: 12px 28px; border-radius: 50px; font-weight: 700; font-size: 0.95rem; text-decoration: none;
-            background: white; border: 2px solid #e2e8f0; color: var(--text-dark);
-            transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            display: flex; align-items: center; gap: 8px; /* Tambah gap untuk jarak icon */
-        }
-        .nav-btn:hover { border-color: var(--uitm-purple); color: var(--uitm-purple); transform: translateY(-2px); }
-
         /* ===== 4. HERO SECTION ===== */
         .container {
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 60px 20px; max-width: 1200px; margin: 0 auto; width: 100%; z-index: 10;
+            text-align: center; 
+            /* UPDATED: Padding top dikurangkan dari 60px ke 10px untuk rapatkan gap */
+            padding: 10px 20px 60px 20px; 
+            max-width: 1200px; margin: 0 auto; width: 100%; z-index: 10;
         }
 
         .badge-wrapper { margin-bottom: 25px; }
@@ -211,14 +215,11 @@
             h1 { font-size: 2.5rem; }
             .cards-grid { grid-template-columns: 1fr; }
 
-            /* --- UPDATED: CENTER LOGO & HIDE BUTTON --- */
-            nav {
-                justify-content: center; /* Logo duduk tengah */
-            }
+            /* Mobile: Kekalkan space-between supaya Logo kiri, Teks kanan */
+            nav { justify-content: space-between; padding: 20px 5%; } 
 
-            .nav-btn {
-                display: none; /* Hilangkan button */
-            }
+            .nav-logo-img img { height: 45px; }
+            .logo-text { font-size: 1.4rem; }
         }
 
     </style>
@@ -230,29 +231,25 @@
     <div class="blob blob-2"></div>
 
     <nav class="fade-up d-1">
-        <div class="logo">
-            <i class="fa-solid fa-calculator" style="color:var(--uitm-purple)"></i>
+        <div class="nav-logo-img">
+            <img src="image/HASA.png" alt="HASA Logo" onerror="this.style.display='none'; document.querySelector('.fa-calculator').style.display='inline-block'">
+            <i class="fa-solid fa-calculator" style="color:var(--uitm-purple); font-size: 2rem; display:none;"></i>
+        </div>
+
+        <div class="logo-text">
             HASA <span>UiTM</span>
         </div>
-        <a href="login.html" class="nav-btn">
-            <span class="btn-text">Log Masuk</span> 
-            <i class="fa-solid fa-arrow-right" style="font-size:0.8rem"></i>
-        </a>
     </nav>
 
     <div class="container">
-        
-        <div class="badge-wrapper fade-up d-1">
-            <div class="badge"><span></span> Sistem Calculator Gaji(2026)</div>
-        </div>
-        
         <h1 class="fade-up d-2">
-            Revolusi Penggajian <br>
-            <span class="highlight">Pantas & Pintar.</span>
+            Selamat Datang ke<br>
+            <span class="highlight">Sistem Simulasi Calculator</span>
+            <span class="highlight">Gaji HASA UiTM</span>
         </h1>
         
         <p class="hero-sub fade-up d-3">
-            Kami sedia membantu! Sistem simulasi gaji mesra pengguna untuk warga UiTM dengan integrasi data masa nyata.
+            Kami sedia membantu!!!<br> Sistem simulasi calculator gaji mesra pengguna untuk warga UiTM dan pemohon dengan integrasi data masa nyata.
         </p>
         
         <div class="cta-group fade-up d-4">
@@ -266,7 +263,7 @@
                 <div class="card-content">
                     <div class="icon-box" style="color: var(--uitm-purple);">🏛️</div>
                     <h3>Sektor Awam</h3>
-                    <p>Modul pintar untuk penjawat awam bawah Skim-U. Auto kira elaun seperti ITKA, ITK, ITP, BISH, BIW, BIPK, dan BIP.</p>
+                    <p>Modul pintar untuk penjawat awam dibawah Skim-U. Auto kira elaun seperti ITKA, ITK, ITP, BISH, BIW, BIPK, dan BIP.</p>
                     
                     <div class="link-text">
                         <i class="fa-solid fa-lock"></i> Log Masuk Diperlukan
@@ -302,7 +299,7 @@
     </div>
 
     <footer class="fade-up d-5">
-        <p>© 2025 HASA UiTM.</p>
+        <p>© 2026 HASA UiTM</p>
     </footer>
 
     <script>
@@ -347,4 +344,3 @@
     </script>
 </body>
 </html>
-
