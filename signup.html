@@ -90,11 +90,7 @@
     /* ===== MAIN WRAPPER ===== */
     .main-wrapper {
         width: 100%; max-width: 440px; padding: 20px; z-index: 10;
-        
-        /* INTERAL SCROLL ONLY IF NEEDED (Clean UI) */
-        max-height: 100vh;
-        overflow-y: auto;
-        scrollbar-width: none;
+        max-height: 100vh; overflow-y: auto; scrollbar-width: none;
     }
     .main-wrapper::-webkit-scrollbar { display: none; }
 
@@ -124,35 +120,14 @@
     .input:focus { outline: none; border-color: #5E2A84; box-shadow: 0 0 0 4px rgba(94, 42, 132, 0.1); }
     
     /* CUSTOM SELECT & ARROW STYLING */
-    .select-wrapper {
-        position: relative;
-        width: 100%;
-    }
+    .select-wrapper { position: relative; width: 100%; }
+    select.input { appearance: none; -webkit-appearance: none; -moz-appearance: none; cursor: pointer; padding-right: 40px; }
 
-    select.input { 
-        appearance: none; -webkit-appearance: none; -moz-appearance: none; 
-        cursor: pointer; 
-        padding-right: 40px; /* Space for arrow */
-    }
-
-    /* The Animated Arrow */
     .custom-arrow {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%); /* Centered vertically, Default Left (As drawn) */
-        pointer-events: none; /* Let click pass through */
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth animation */
-        width: 20px;
-        height: 20px;
-        color: #6b7280;
+        position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 20px; height: 20px; color: #6b7280;
     }
-
-    /* When active (Class added via JS) */
-    .select-wrapper.active .custom-arrow {
-        transform: translateY(-50%) rotate(-90deg); /* Rotate Left to Down */
-        color: #5E2A84; /* Change color when active */
-    }
+    .select-wrapper.active .custom-arrow { transform: translateY(-50%) rotate(-90deg); color: #5E2A84; }
 
     /* Button */
     .btn {
@@ -168,7 +143,6 @@
     .link-center b { font-weight: 600; }
 
     #signupMsg { margin-top: 10px; font-size: 0.85rem; text-align: center; min-height: 20px; }
-    
     .fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -223,8 +197,25 @@
                     </svg>
                 </div>
 
+                <div class="input-group select-wrapper" id="ageWrapper">
+                    <select id="ageRange" class="input" required>
+                        <option value="" disabled selected>Pilih Lingkungan Umur</option>
+                        <option value="25-35">25-35 Tahun</option>
+                        <option value="36-45">36-45 Tahun</option>
+                        <option value="46-55">46-55 Tahun</option>
+                        <option value="selain_itu">Selain Itu</option>
+                    </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="custom-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </div>
+
+                <div class="input-group" id="manualAgeGroup" style="display:none;">
+                    <input id="manualAge" class="input" type="number" placeholder="Sila nyatakan umur anda (Contoh: 23)">
+                </div>
+
                 <div class="input-group">
-                    <input id="password" class="input" type="text" placeholder="Kata Laluan" required>
+                    <input id="password" class="input" type="text" placeholder="Kata Laluan (Min 6 aksara)" required>
                 </div>
 
                 <button id="signupBtn" class="btn btn-primary">
@@ -249,30 +240,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const nameInput = document.getElementById('fullname');
     const btnSpinner = document.getElementById('btnSpinner');
 
-    // ===== GENDER ARROW ANIMATION LOGIC =====
-    const genderSelect = document.getElementById('gender');
-    const genderWrapper = document.getElementById('genderWrapper');
+    // ===== DROPDOWN ANIMATION LOGIC =====
+    function setupDropdown(id, wrapperId) {
+        const el = document.getElementById(id);
+        const wrapper = document.getElementById(wrapperId);
+        el.addEventListener('focus', () => wrapper.classList.add('active'));
+        el.addEventListener('click', () => wrapper.classList.add('active'));
+        el.addEventListener('change', () => { wrapper.classList.remove('active'); el.blur(); });
+        el.addEventListener('blur', () => wrapper.classList.remove('active'));
+    }
 
-    // Bila user tekan/focus -> Rotate arrow ke Bawah
-    genderSelect.addEventListener('focus', () => {
-        genderWrapper.classList.add('active');
-    });
+    setupDropdown('gender', 'genderWrapper');
+    setupDropdown('ageRange', 'ageWrapper');
 
-    // Bila user click (untuk support mouse click)
-    genderSelect.addEventListener('click', () => {
-        // Toggle untuk UX mouse yang lebih baik
-        // (kadang-kadang focus event dah trigger, tapi safety check)
-        genderWrapper.classList.add('active'); 
-    });
+    // ===== AGE LOGIC (SELAIN ITU) =====
+    const ageSelect = document.getElementById('ageRange');
+    const manualAgeGroup = document.getElementById('manualAgeGroup');
+    const manualAgeInput = document.getElementById('manualAge');
 
-    // Bila user pilih item atau click luar (blur) -> Reset arrow ke Kiri
-    genderSelect.addEventListener('change', () => {
-        genderWrapper.classList.remove('active');
-        genderSelect.blur(); // Remove focus lepas pilih supaya arrow reset
-    });
-
-    genderSelect.addEventListener('blur', () => {
-        genderWrapper.classList.remove('active');
+    ageSelect.addEventListener('change', function() {
+        if(this.value === 'selain_itu') {
+            manualAgeGroup.style.display = 'block';
+            manualAgeInput.required = true;
+            manualAgeInput.focus();
+        } else {
+            manualAgeGroup.style.display = 'none';
+            manualAgeInput.required = false;
+            manualAgeInput.value = '';
+        }
     });
 
     // ===== AUTO UPPERCASE NAME =====
@@ -298,12 +293,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const phone  = document.getElementById('phone').value.trim();
         const pwd    = passInput.value;
         const gender = document.getElementById('gender').value;
+        const ageSelection = ageSelect.value;
+        const ageManual = manualAgeInput.value.trim();
 
         setMessage('', '');
 
+        // Determine Final Age
+        let finalAge = '';
+        if (ageSelection === 'selain_itu') {
+            finalAge = ageManual;
+        } else {
+            finalAge = ageSelection;
+        }
+
         // Validation
-        if (!name || !email || !phone || !pwd || !gender) {
-            setMessage('Sila lengkapkan semua ruangan.', '#ef4444'); 
+        if (!name || !email || !phone || !pwd || !gender || !finalAge) {
+            setMessage('Sila lengkapkan semua ruangan termasuk umur.', '#ef4444'); 
             return;
         }
         if (pwd.length < 6) {
@@ -311,17 +316,31 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Determine Role
         let role = 'pengguna';
         if(email.endsWith('@uitm.edu.my')) role = 'pentadbir';
 
         setLoading(true);
 
         try {
-            // MENGGUNAKAN FUNGSI DARI AUTH.JS ANDA
+            // 1. Create User via Auth Function (Creates Auth + Basic Doc)
             await signupUser(name, email, phone, pwd, role, gender);
 
-            // LOG OUT DAN SURUH LOGIN SEMULA
+            // 2. EXPLICITLY SAVE AGE TO FIRESTORE (Fix for Auth.js Limitation)
+            const user = firebase.auth().currentUser;
+            if (user) {
+                await db.collection('users').doc(user.uid).set({
+                    age: finalAge,
+                    // Re-save critical info just in case auth.js missed something
+                    fullname: name,
+                    email: email,
+                    phone: phone,
+                    gender: gender,
+                    role: role,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            }
+
+            // 3. Logout & Redirect
             await firebase.auth().signOut();
 
             setMessage('Pendaftaran berjaya! Sila log masuk semula...', '#10b981'); 
@@ -357,4 +376,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
-
