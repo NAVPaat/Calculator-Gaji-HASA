@@ -380,6 +380,7 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
                     phone: data.phone || data.no_tel || '-',
                     role: data.role || 'user',
                     gender: data.gender || data.jantina || 'Tidak dinyatakan',
+                    age: data.age || data.umur || '', 
                     createdAt: data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt)) : new Date(0)
                 });
             });
@@ -421,7 +422,15 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
 
         let html = '';
         filteredData.forEach(user => {
-            const joinedDate = user.createdAt.toLocaleString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+            // --- UPDATED DATE FORMAT HERE (Forces AM/PM) ---
+            const joinedDate = user.createdAt.toLocaleString('en-MY', { 
+                day: 'numeric', 
+                month: 'short', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: true 
+            });
 
             let genderIcon = '<i class="fa-solid fa-genderless" style="color:var(--text-light)"></i>';
             if (user.gender && (user.gender.toLowerCase() === 'lelaki' || user.gender.toLowerCase() === 'male')) {
@@ -430,13 +439,16 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
                 genderIcon = '<i class="fa-solid fa-venus" style="color:#ec4899"></i>'; 
             }
 
+            // --- UMUR DISPLAY ---
+            let ageDisplay = user.age ? ` • ${user.age} Tahun` : '';
+
             html += `
             <div class="user-row">
                 <div class="info-block">
                     <div class="user-name">${user.fullname || 'Tiada Nama'}</div>
                     <div class="user-meta">
                         <div class="meta-item"><i class="fa-regular fa-envelope" style="color:var(--primary)"></i> ${user.email}</div>
-                        <div class="meta-item">${genderIcon} ${user.gender}</div>
+                        <div class="meta-item">${genderIcon} ${user.gender}${ageDisplay}</div>
                         <div class="meta-item"><i class="fa-solid fa-phone" style="color:var(--success)"></i> ${user.phone}</div>
                         <div class="meta-item"><i class="fa-regular fa-calendar" style="color:#f59e0b"></i> ${joinedDate}</div>
                     </div>
@@ -480,12 +492,13 @@ body.dark-mode .sort-select { background: rgba(0,0,0,0.2); }
         if(globalUserList.length === 0) { alert("Tiada data untuk dieksport."); return; }
         
         let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Nama Penuh,Email,Jantina,No Telefon,Role,Tarikh Daftar\n";
+        csvContent += "Nama Penuh,Email,Jantina,Umur,No Telefon,Role,Tarikh Daftar\n";
 
         globalUserList.forEach(u => {
             const dateStr = u.createdAt.toLocaleString('en-GB'); 
             // Quote date string to preserve format in Excel
-            csvContent += `"${u.fullname}","${u.email}","${u.gender}","${u.phone}","${u.role}","${dateStr}"\n`;
+            const umur = u.age || "";
+            csvContent += `"${u.fullname}","${u.email}","${u.gender}","${umur}","${u.phone}","${u.role}","${dateStr}"\n`;
         });
 
         const encodedUri = encodeURI(csvContent);
