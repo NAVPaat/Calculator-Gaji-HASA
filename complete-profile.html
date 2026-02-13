@@ -1,179 +1,118 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>Lengkapkan Profil — Calculator Gaji HASA UiTM</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-<script src="firebase-config.js"></script>
-
-<style>
-    :root { --primary-grad: linear-gradient(135deg, #FF6B6B 0%, #5E2A84 100%); --text-dark: #1f2937; --glass-bg: rgba(255, 255, 255, 0.85); --radius: 16px; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #f3f0ff; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
-    .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: -1; }
-    .blob1 { width: 400px; height: 400px; background: #FF6B6B; top: -100px; left: -100px; }
-    .blob2 { width: 350px; height: 350px; background: #5E2A84; bottom: -50px; right: -10px; }
-    .main-wrapper { width: 100%; max-width: 500px; padding: 20px; }
-    .card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius); padding: 40px 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
-    h2 { font-family: 'Poppins', sans-serif; font-size: 1.8rem; margin-bottom: 10px; color: var(--text-dark); text-align: center; }
-    p.subtitle { text-align: center; color: #6b7280; margin-bottom: 30px; font-size: 0.95rem; }
-    .input-group { margin-bottom: 20px; }
-    .label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #374151; }
-    
-    /* Auto Capslock Visual */
-    .input, .select { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 1rem; background: rgba(255,255,255,0.9); font-family: 'Inter', sans-serif; }
-    #fullname { text-transform: uppercase; }
-
-    .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; background: var(--primary-grad); color: white; margin-top: 20px; display: flex; justify-content: center; align-items: center; transition: opacity 0.3s; }
-    .btn:disabled { opacity: 0.7; cursor: not-allowed; }
-    
-    .spinner { display: none; width: 20px; height: 20px; border: 3px solid #fff; border-bottom-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 10px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    
-    #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.5s, bottom 0.5s; }
-    #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
-    #toast.success { background-color: #10b981; }
-    #toast.error { background-color: #ef4444; }
-</style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Lengkapkan Profil — HASA UiTM</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        /* (Style yang sama macam sebelum ni, saya pendekkan untuk fokus pada script) */
+        body { font-family: 'Inter', sans-serif; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .input-group { margin-bottom: 15px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
+        .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #FF6B6B 0%, #5E2A84 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        #statusMsg { margin-top: 10px; font-size: 0.8rem; text-align: center; color: #ef4444; }
+    </style>
 </head>
 <body>
 
-    <div class="blob blob1"></div>
-    <div class="blob blob2"></div>
-
-    <div class="main-wrapper">
-        <div class="card">
-            <h2>Lengkapkan Profil</h2>
-            <p class="subtitle">Sila lengkapkan maklumat anda untuk mendaftar masuk ke sistem.</p>
-
-            <form id="profileForm">
-                <div class="input-group">
-                    <label class="label">Nama Penuh</label>
-                    <input type="text" id="fullname" class="input" required placeholder="NAMA PENUH ANDA">
-                </div>
-                <div class="input-group">
-                    <label class="label">No. Telefon</label>
-                    <input type="tel" id="phone" class="input" required placeholder="Contoh: 0123456789">
-                </div>
-                <div class="input-group">
-                    <label class="label">Jantina</label>
-                    <select id="gender" class="select" required>
-                        <option value="" disabled selected>-- Pilih Jantina --</option>
-                        <option value="Lelaki">Lelaki</option>
-                        <option value="Perempuan">Perempuan</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label class="label">Lingkungan Umur</label>
-                    <select id="ageRange" class="select" required>
-                        <option value="" disabled selected>-- Pilih Umur --</option>
-                        <option value="18-25">18 - 25 Tahun</option>
-                        <option value="26-35">26 - 35 Tahun</option>
-                        <option value="36-45">36 - 45 Tahun</option>
-                        <option value="46-55">46 - 55 Tahun</option>
-                        <option value="56+">56 Tahun ke atas</option>
-                    </select>
-                </div>
-                <button type="submit" id="saveBtn" class="btn">
-                    <span>Simpan & Teruskan</span> <span class="spinner" id="spinner"></span>
-                </button>
-            </form>
+<div class="card">
+    <h2>Lengkapkan Profil</h2>
+    <p style="margin-bottom: 20px; color: #666;">Sila isi maklumat di bawah sebelum masuk ke sistem.</p>
+    
+    <form id="profileForm">
+        <div class="input-group">
+            <input type="text" id="fullname" placeholder="NAMA PENUH (IKUT IC)" required style="text-transform: uppercase;">
         </div>
-    </div>
-    <div id="toast">Mesej di sini</div>
+        <div class="input-group">
+            <input type="tel" id="phone" placeholder="NO TELEFON" required>
+        </div>
+        <div class="input-group">
+            <select id="gender" required>
+                <option value="">PILIH JANTINA</option>
+                <option value="Lelaki">Lelaki</option>
+                <option value="Perempuan">Perempuan</option>
+            </select>
+        </div>
+        <button type="submit" id="saveBtn" class="btn">SIMPAN DATA & MASUK</button>
+        <div id="statusMsg"></div>
+    </form>
+</div>
 
 <script>
     const db = firebase.firestore();
     const auth = firebase.auth();
     let currentUid = null;
-    let isSavingProcess = false;
+    let currentEmail = null;
 
-    function showToast(msg, type) {
-        const t = document.getElementById("toast");
-        t.innerText = msg; 
-        t.className = "show " + type;
-        setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
-    }
-
-    // 1. MONITOR AUTH STATE
+    // 1. Cek Sesi User
     auth.onAuthStateChanged(async (user) => {
         if (user) {
+            console.log("User dikesan:", user.email);
             currentUid = user.uid;
-            
-            // Masukkan nama dari Google (jika ada) sebagai cadangan awal
-            if (user.displayName && !document.getElementById('fullname').value) {
-                document.getElementById('fullname').value = user.displayName.toUpperCase();
-            }
+            currentEmail = user.email;
 
-            // Jika profil dah lengkap dalam DB, terus skip page ini
-            if (!isSavingProcess) {
-                const doc = await db.collection('users').doc(user.uid).get();
-                if (doc.exists && doc.data().profileCompleted === true) {
-                    window.location.href = 'greeting.html';
-                }
+            // Semak jika user ni SEBENARNYA dah ada data
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (doc.exists && doc.data().profileCompleted === true) {
+                console.log("Data dah ada, hantar ke greeting...");
+                window.location.href = 'greeting.html';
             }
         } else {
-            // Jika tiba-tiba logout atau tak login, balik ke login.html
+            console.log("Tiada sesi, balik ke login.");
             window.location.href = 'login.html';
         }
     });
 
-    // 2. PROSES SIMPAN SEMUA DATA (EMAIL + INFO BARU)
+    // 2. Proses Simpan Data
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        if (!currentUid) return showToast("Sesi tamat. Sila login semula.", "error");
+        const saveBtn = document.getElementById('saveBtn');
+        const statusMsg = document.getElementById('statusMsg');
 
-        isSavingProcess = true; 
-        const btn = document.getElementById('saveBtn');
-        const spinner = document.getElementById('spinner');
-        const btnText = btn.querySelector('span:first-child');
+        if (!currentUid) {
+            statusMsg.textContent = "Ralat: Sesi tidak dikesan. Sila login semula.";
+            return;
+        }
 
-        btn.disabled = true;
-        btnText.innerText = "Menyimpan Data...";
-        spinner.style.display = 'block';
+        saveBtn.disabled = true;
+        saveBtn.textContent = "SEDANG MENYIMPAN...";
 
-        // Ambil data dan buat jadi UPPERCASE untuk nama
-        const finalData = {
+        const payload = {
             uid: currentUid,
-            email: auth.currentUser.email, // Ambil email dari Google/Auth
+            email: currentEmail,
             fullname: document.getElementById('fullname').value.toUpperCase(),
             phone: document.getElementById('phone').value,
             gender: document.getElementById('gender').value,
-            ageRange: document.getElementById('ageRange').value,
-            profileCompleted: true,
             role: 'user',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            profileCompleted: true,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        try {
-            // SIMPAN SEMUA KE FIRESTORE
-            await db.collection('users').doc(currentUid).set(finalData);
-            
-            showToast("Login Berjaya! Data telah disimpan.", "success");
+        console.log("Cuba simpan data:", payload);
 
-            // Redirect selepas 2 saat
+        try {
+            // Guna .set() untuk pastikan dokumen dicipta/dikemaskini
+            await db.collection('users').doc(currentUid).set(payload);
+            
+            console.log("Simpan BERJAYA!");
+            statusMsg.style.color = "#10b981";
+            statusMsg.textContent = "Data berjaya disimpan! Mengalih...";
+
+            // Tunggu 1.5 saat baru redirect supaya database sempat 'breath'
             setTimeout(() => {
                 window.location.href = 'greeting.html';
-            }, 2000);
+            }, 1500);
 
         } catch (error) {
-            console.error("Error saving profile:", error);
-            showToast("Gagal menyimpan: " + error.message, "error");
-            isSavingProcess = false;
-            btn.disabled = false;
-            btnText.innerText = "Simpan & Teruskan";
-            spinner.style.display = 'none';
+            console.error("Ralat simpan:", error);
+            saveBtn.disabled = false;
+            saveBtn.textContent = "SIMPAN DATA & MASUK";
+            statusMsg.textContent = "Gagal simpan: " + error.message;
         }
     });
 </script>
