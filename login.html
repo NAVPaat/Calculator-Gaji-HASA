@@ -265,48 +265,80 @@
     }
 
     async function checkUserAndRedirect(user) {
-        setMessage('Menyemak profil...', 'normal');
+        setMessage('Sedang memproses data...', 'normal');
         try {
-            const doc = await db.collection('users').doc(user.uid).get();
-            if (doc.exists && doc.data().profileCompleted === true) {
+            const userRef = db.collection('users').doc(user.uid);
+            const doc = await userRef.get();
+
+            // 1. Jika User Sudah Ada
+            if (doc.exists) {
                 setMessage('Login berjaya! Mengalih...', 'success');
                 setTimeout(() => window.location.href = 'greeting.html', 1000);
-            } else {
-                // Jangan buat apa-apa update database di sini, biar page profil yang uruskan
-                window.location.href = 'complete-profile.html';
+            } 
+            // 2. Jika User Baru (Auto-Register)
+            else {
+                setMessage('Mendaftar masuk...', 'normal');
+                
+                // Tentukan Role (Admin vs User)
+                let role = 'user';
+                if (user.email && user.email.endsWith('@uitm.edu.my')) {
+                    role = 'admin';
+                }
+
+                // Simpan Data Terus
+                await userRef.set({
+                    uid: user.uid,
+                    email: user.email,
+                    fullname: user.displayName ? user.displayName.toUpperCase() : 'PENGGUNA',
+                    role: role,
+                    photoURL: user.photoURL || '',
+                    profileCompleted: true, // Auto complete
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                setMessage('Pendaftaran berjaya! Mengalih...', 'success');
+                setTimeout(() => window.location.href = 'greeting.html', 1000);
             }
         } catch (error) {
             console.error(error);
-            setMessage("Ralat: " + error.message, 'error');
+            setMessage("Ralat sistem: " + error.message, 'error');
             setLoading(false, false);
             setLoading(false, true);
         }
     }
 
+    // 1. Email Login
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         setMessage('');
         const email = emailEl.value.trim();
         const password = passInput.value;
         if (!email || !password) return setMessage('Sila isi email dan kata laluan.', 'error');
+        
         setLoading(true, false);
         try {
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
             await checkUserAndRedirect(userCredential.user);
         } catch (err) {
-            setMessage(err.message, 'error');
+            let msg = err.message;
+            if(err.code === 'auth/wrong-password') msg = 'Kata laluan salah.';
+            if(err.code === 'auth/user-not-found') msg = 'Email tidak dijumpai.';
+            setMessage(msg, 'error');
             setLoading(false, false);
         }
     });
 
+    // 2. Google Login (AUTO SAVE)
     googleBtn.addEventListener('click', async () => {
         setMessage('');
         setLoading(true, true);
         const provider = new firebase.auth.GoogleAuthProvider();
         try {
             const result = await auth.signInWithPopup(provider);
+            // Function ini akan handle auto-save kalau user tak wujud
             await checkUserAndRedirect(result.user);
         } catch (error) {
+            console.error(error);
             setMessage(error.message, 'error');
             setLoading(false, true);
         }
