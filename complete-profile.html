@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Lengkapkan Profil — Calculator Gaji HASA UiTM</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script src="firebase-config.js"></script>
+<style>
+    /* Menggunakan tema yang sama dengan Login.html */
+    :root {
+        --primary-grad: linear-gradient(135deg, #FF6B6B 0%, #5E2A84 100%);
+        --text-dark: #1f2937;
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: #f3f0ff;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* BLOBS BACKGROUND */
+    .blob {
+        position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: -1;
+    }
+    .blob1 { width: 400px; height: 400px; background: #FF6B6B; top: -100px; left: -100px; }
+    .blob2 { width: 350px; height: 350px; background: #5E2A84; bottom: -50px; right: -10px; }
+
+    .main-wrapper {
+        width: 100%; max-width: 500px; padding: 20px;
+    }
+
+    .card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.6);
+        border-radius: var(--radius);
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.6rem; margin-bottom: 10px; color: var(--text-dark); text-align: center;
+    }
+    
+    p.subtitle {
+        text-align: center; color: #6b7280; margin-bottom: 25px; font-size: 0.95rem;
+    }
+
+    .input-group { margin-bottom: 15px; }
+    .label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; color: #374151; }
+    
+    .input, .select {
+        width: 100%; padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 10px;
+        font-size: 0.95rem; background: rgba(255,255,255,0.9); font-family: 'Inter', sans-serif;
+    }
+    .input:focus, .select:focus {
+        outline: none; border-color: #5E2A84; box-shadow: 0 0 0 3px rgba(94, 42, 132, 0.1);
+    }
+
+    .btn {
+        width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem;
+        cursor: pointer; background: var(--primary-grad); color: white; margin-top: 10px;
+        transition: transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .spinner {
+        display: none; width: 18px; height: 18px; border: 2px solid #fff; border-bottom-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 10px; vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Avatar Preview */
+    .avatar-preview {
+        width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 15px;
+        background: #ddd; display: flex; align-items: center; justify-content: center;
+        overflow: hidden; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+</style>
+</head>
+<body>
+
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+
+    <div class="main-wrapper">
+        <div class="card">
+            <div class="avatar-preview" id="userAvatar">
+                <img src="https://via.placeholder.com/80" alt="Avatar">
+            </div>
+            <h2>Lengkapkan Profil</h2>
+            <p class="subtitle">Sila lengkapkan maklumat di bawah untuk meneruskan ke sistem.</p>
+
+            <form id="profileForm">
+                <div class="input-group">
+                    <label class="label">Nama Penuh</label>
+                    <input type="text" id="fullname" class="input" required placeholder="Contoh: Ahmad Albab">
+                </div>
+
+                <div class="input-group">
+                    <label class="label">No. Telefon</label>
+                    <input type="tel" id="phone" class="input" required placeholder="Contoh: 0123456789">
+                </div>
+
+                <div class="input-group">
+                    <label class="label">Jantina</label>
+                    <select id="gender" class="select" required>
+                        <option value="" disabled selected>-- Pilih Jantina --</option>
+                        <option value="Lelaki">Lelaki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="label">Lingkungan Umur</label>
+                    <select id="ageRange" class="select" required>
+                        <option value="" disabled selected>-- Pilih Umur --</option>
+                        <option value="18-25">18 - 25 Tahun</option>
+                        <option value="26-35">26 - 35 Tahun</option>
+                        <option value="36-45">36 - 45 Tahun</option>
+                        <option value="46-55">46 - 55 Tahun</option>
+                        <option value="56+">56 Tahun ke atas</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="saveBtn" class="btn">
+                    Simpan & Teruskan <span class="spinner" id="spinner"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    let currentUserUid = null;
+
+    // 1. Check Auth State
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            currentUserUid = user.uid;
+            
+            // Pre-fill data from Google Auth
+            document.getElementById('fullname').value = user.displayName || '';
+            document.getElementById('userAvatar').innerHTML = `<img src="${user.photoURL || 'https://via.placeholder.com/80'}" alt="Profile">`;
+
+            // Check if profile is ALREADY completed (incase user back button)
+            const doc = await db.collection('users').doc(user.uid).get();
+            if (doc.exists && doc.data().profileCompleted === true) {
+                window.location.href = 'greeting.html';
+            }
+
+        } else {
+            // Not logged in? Kick back to login
+            window.location.href = 'login.html';
+        }
+    });
+
+    // 2. Handle Form Submit
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const saveBtn = document.getElementById('saveBtn');
+        const spinner = document.getElementById('spinner');
+        
+        // Lock button
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Menyimpan...";
+        spinner.style.display = 'inline-block';
+
+        const fullname = document.getElementById('fullname').value;
+        const phone = document.getElementById('phone').value;
+        const gender = document.getElementById('gender').value;
+        const ageRange = document.getElementById('ageRange').value;
+
+        try {
+            // Update Firestore User Document
+            await db.collection('users').doc(currentUserUid).set({
+                fullname: fullname,
+                phone: phone,
+                gender: gender,
+                ageRange: ageRange,
+                profileCompleted: true, // IMPORTANT FLAG
+                role: 'user', // Default role if not set
+                email: auth.currentUser.email,
+                photoURL: auth.currentUser.photoURL
+            }, { merge: true }); // Merge keeps existing data like createdAt
+
+            // Redirect to dashboard
+            window.location.href = 'greeting.html';
+
+        } catch (error) {
+            console.error(error);
+            alert("Ralat menyimpan data: " + error.message);
+            saveBtn.disabled = false;
+            saveBtn.innerText = "Simpan & Teruskan";
+            spinner.style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>
