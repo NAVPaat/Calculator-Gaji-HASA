@@ -305,13 +305,13 @@
 
             if (!doc.exists) {
                 // KES 1: User baru (First time login)
-                // Kita create doc asas je, tapi JANGAN set profileCompleted: true
+                // Kita create doc asas, tapi JANGAN set profileCompleted: true
                 await userRef.set({
                     email: user.email,
                     photoURL: user.photoURL,
                     role: 'user',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    profileCompleted: false // Set false sebab belum isi form
+                    profileCompleted: false 
                 });
                 
                 // Redirect ke page isi form
@@ -321,8 +321,9 @@
                 // KES 2: User dah ada dalam database
                 const userData = doc.data();
 
+                // SEMAKAN PENTING: Adakah profil dah lengkap?
                 if (userData.profileCompleted === true) {
-                    // Profile dah lengkap -> Masuk Dashboard
+                    // Profile dah lengkap -> Terus ke Greeting
                     setMessage('Login berjaya!', 'success');
                     setTimeout(() => window.location.href = 'greeting.html', 800);
                 } else {
