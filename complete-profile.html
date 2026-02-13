@@ -16,116 +16,26 @@
 <script src="firebase-config.js"></script>
 
 <style>
-    :root {
-        --primary-grad: linear-gradient(135deg, #FF6B6B 0%, #5E2A84 100%);
-        --text-dark: #1f2937;
-        --glass-bg: rgba(255, 255, 255, 0.85);
-        --radius: 16px;
-    }
-
+    :root { --primary-grad: linear-gradient(135deg, #FF6B6B 0%, #5E2A84 100%); --text-dark: #1f2937; --glass-bg: rgba(255, 255, 255, 0.85); --radius: 16px; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background: #f3f0ff;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow-x: hidden;
-    }
-
-    /* BLOBS BACKGROUND */
-    .blob {
-        position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: -1;
-    }
+    body { font-family: 'Inter', sans-serif; background: #f3f0ff; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: -1; }
     .blob1 { width: 400px; height: 400px; background: #FF6B6B; top: -100px; left: -100px; }
     .blob2 { width: 350px; height: 350px; background: #5E2A84; bottom: -50px; right: -10px; }
-
-    .main-wrapper {
-        width: 100%; max-width: 500px; padding: 20px;
-    }
-
-    .card {
-        background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255,255,255,0.6);
-        border-radius: var(--radius);
-        padding: 30px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-    }
-
-    h2 {
-        font-family: 'Poppins', sans-serif;
-        font-size: 1.6rem; margin-bottom: 10px; color: var(--text-dark); text-align: center;
-    }
-    
-    p.subtitle {
-        text-align: center; color: #6b7280; margin-bottom: 25px; font-size: 0.95rem;
-    }
-
-    .input-group { margin-bottom: 15px; }
-    .label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; color: #374151; }
-    
-    .input, .select {
-        width: 100%; padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 10px;
-        font-size: 0.95rem; background: rgba(255,255,255,0.9); font-family: 'Inter', sans-serif;
-    }
-    .input:focus, .select:focus {
-        outline: none; border-color: #5E2A84; box-shadow: 0 0 0 3px rgba(94, 42, 132, 0.1);
-    }
-
-    .btn {
-        width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem;
-        cursor: pointer; background: var(--primary-grad); color: white; margin-top: 10px;
-        transition: transform 0.1s;
-    }
-    .btn:active { transform: scale(0.98); }
-    .btn:disabled { opacity: 0.7; cursor: not-allowed; }
-
-    .spinner {
-        display: none; width: 18px; height: 18px; border: 2px solid #fff; border-bottom-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 10px; vertical-align: middle;
-    }
+    .main-wrapper { width: 100%; max-width: 500px; padding: 20px; }
+    .card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius); padding: 40px 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+    h2 { font-family: 'Poppins', sans-serif; font-size: 1.8rem; margin-bottom: 10px; color: var(--text-dark); text-align: center; }
+    p.subtitle { text-align: center; color: #6b7280; margin-bottom: 30px; font-size: 0.95rem; }
+    .input-group { margin-bottom: 20px; }
+    .label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #374151; }
+    .input, .select { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 1rem; background: rgba(255,255,255,0.9); font-family: 'Inter', sans-serif; }
+    .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; background: var(--primary-grad); color: white; margin-top: 20px; display: flex; justify-content: center; align-items: center; }
+    .spinner { display: none; width: 20px; height: 20px; border: 3px solid #fff; border-bottom-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 10px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Avatar Preview */
-    .avatar-preview {
-        width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 20px;
-        background: #e5e7eb; display: flex; align-items: center; justify-content: center;
-        overflow: hidden; border: 4px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        position: relative;
-    }
-    .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
-    
-    /* TOAST NOTIFICATION */
-    #toast {
-        visibility: hidden;
-        min-width: 250px;
-        background-color: #333;
-        color: #fff;
-        text-align: center;
-        border-radius: 50px;
-        padding: 16px;
-        position: fixed;
-        z-index: 100;
-        left: 50%;
-        bottom: 30px;
-        transform: translateX(-50%);
-        font-size: 14px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        opacity: 0;
-        transition: opacity 0.5s, bottom 0.5s;
-    }
-    #toast.show {
-        visibility: visible;
-        opacity: 1;
-        bottom: 50px;
-    }
+    #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.5s, bottom 0.5s; }
+    #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
     #toast.success { background-color: #10b981; }
     #toast.error { background-color: #ef4444; }
-
 </style>
 </head>
 <body>
@@ -135,10 +45,6 @@
 
     <div class="main-wrapper">
         <div class="card">
-            <div class="avatar-preview" id="avatarContainer">
-                <img id="profileImage" src="https://via.placeholder.com/90?text=User" alt="Avatar">
-            </div>
-
             <h2>Lengkapkan Profil</h2>
             <p class="subtitle">Sila lengkapkan maklumat di bawah untuk meneruskan ke sistem.</p>
 
@@ -147,12 +53,10 @@
                     <label class="label">Nama Penuh</label>
                     <input type="text" id="fullname" class="input" required placeholder="Nama Penuh Anda">
                 </div>
-
                 <div class="input-group">
                     <label class="label">No. Telefon</label>
                     <input type="tel" id="phone" class="input" required placeholder="Contoh: 0123456789">
                 </div>
-
                 <div class="input-group">
                     <label class="label">Jantina</label>
                     <select id="gender" class="select" required>
@@ -161,7 +65,6 @@
                         <option value="Perempuan">Perempuan</option>
                     </select>
                 </div>
-
                 <div class="input-group">
                     <label class="label">Lingkungan Umur</label>
                     <select id="ageRange" class="select" required>
@@ -173,100 +76,85 @@
                         <option value="56+">56 Tahun ke atas</option>
                     </select>
                 </div>
-
                 <button type="submit" id="saveBtn" class="btn">
-                    Simpan & Teruskan <span class="spinner" id="spinner"></span>
+                    <span>Simpan & Teruskan</span> <span class="spinner" id="spinner"></span>
                 </button>
             </form>
         </div>
     </div>
-
     <div id="toast">Mesej di sini</div>
 
 <script>
     const db = firebase.firestore();
     const auth = firebase.auth();
-    let currentUserUid = null;
-    let photoURL = "";
+    let currentUid = null;
 
-    // Fungsi Toast
-    function showToast(message, type = 'success') {
-        const x = document.getElementById("toast");
-        x.className = "show " + type;
-        x.innerText = message;
-        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    function showToast(msg, type) {
+        const t = document.getElementById("toast");
+        t.innerText = msg; t.className = "show " + type;
+        setTimeout(() => t.className = t.className.replace("show", ""), 3000);
     }
 
-    // 1. Check Auth State
+    // 1. TUNGGU AUTH STATE
     auth.onAuthStateChanged(async (user) => {
         if (user) {
-            currentUserUid = user.uid;
+            currentUid = user.uid;
+            // Jika user Google ada displayName, isi siap-siap
+            if(user.displayName) document.getElementById('fullname').value = user.displayName;
             
-            // Auto-fill Data dari Google
-            document.getElementById('fullname').value = user.displayName || '';
-            
-            // Handle Profile Picture
-            if (user.photoURL) {
-                photoURL = user.photoURL;
-                document.getElementById('profileImage').src = photoURL;
-            }
-
-            // Check if profile is ALREADY completed (incase user back button)
-            const doc = await db.collection('users').doc(user.uid).get();
+            // Check kalau user dah siap profile, tak perlu isi lagi
+            const doc = await db.collection('users').doc(currentUid).get();
             if (doc.exists && doc.data().profileCompleted === true) {
                 window.location.href = 'greeting.html';
             }
-
         } else {
-            // Not logged in? Kick back to login
             window.location.href = 'login.html';
         }
     });
 
-    // 2. Handle Form Submit
+    // 2. SIMPAN DATA
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const saveBtn = document.getElementById('saveBtn');
+        const btn = document.getElementById('saveBtn');
         const spinner = document.getElementById('spinner');
-        
-        // Lock button
-        saveBtn.disabled = true;
-        saveBtn.innerText = "Menyimpan...";
-        spinner.style.display = 'inline-block';
+        const btnText = btn.querySelector('span:first-child');
 
-        const fullname = document.getElementById('fullname').value;
-        const phone = document.getElementById('phone').value;
-        const gender = document.getElementById('gender').value;
-        const ageRange = document.getElementById('ageRange').value;
+        // Pastikan User ID wujud
+        if (!currentUid) {
+            return showToast("Ralat: Pengguna tidak ditemui. Sila refresh.", "error");
+        }
+
+        btn.disabled = true;
+        btnText.innerText = "Menyimpan...";
+        spinner.style.display = 'block';
+
+        const data = {
+            fullname: document.getElementById('fullname').value,
+            phone: document.getElementById('phone').value,
+            gender: document.getElementById('gender').value,
+            ageRange: document.getElementById('ageRange').value,
+            profileCompleted: true, // WAJIB TRUE
+            role: 'user', // Default role
+            email: auth.currentUser.email, // Pastikan email saved
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
 
         try {
-            // Update Firestore User Document
-            await db.collection('users').doc(currentUserUid).set({
-                fullname: fullname,
-                phone: phone,
-                gender: gender,
-                ageRange: ageRange,
-                profileCompleted: true, // FLAG PENTING
-                role: 'user',
-                email: auth.currentUser.email,
-                photoURL: photoURL || auth.currentUser.photoURL // Simpan gambar
-            }, { merge: true }); // Merge supaya tak hilang data lama
-
+            // Guna SET dengan MERGE supaya tak padam data lama (created_at dll)
+            await db.collection('users').doc(currentUid).set(data, { merge: true });
+            
             showToast("Profil berjaya disimpan!", "success");
-
-            // Tunggu 1.5 saat supaya user nampak toast, kemudian redirect
+            
             setTimeout(() => {
                 window.location.href = 'greeting.html';
             }, 1500);
 
         } catch (error) {
-            console.error(error);
-            showToast("Ralat: " + error.message, "error");
-            
-            // Reset button
-            saveBtn.disabled = false;
-            saveBtn.innerText = "Simpan & Teruskan";
+            console.error("Save Error:", error);
+            showToast("Gagal menyimpan: " + error.message, "error");
+            btn.disabled = false;
+            btnText.innerText = "Simpan & Teruskan";
             spinner.style.display = 'none';
         }
     });
