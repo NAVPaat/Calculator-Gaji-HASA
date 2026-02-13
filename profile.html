@@ -30,8 +30,8 @@
         --border: #e2e8f0;
         --input-bg: #f8fafc;
         --shadow-card: 0 20px 40px -10px rgba(0,0,0,0.1);
-        --success: #10b981; /* Warna untuk notification berjaya */
-        --danger: #ef4444;  /* Warna untuk notification logout/error */
+        --success: #10b981; 
+        --danger: #ef4444;  
     }
 
     body.dark-mode {
@@ -61,7 +61,7 @@
     .b1 { top: -10%; left: -10%; width: 500px; height: 500px; background: var(--primary); }
     .b2 { bottom: -10%; right: -10%; width: 500px; height: 500px; background: var(--secondary); }
 
-    /* ================= TOAST NOTIFICATION (BARU) ================= */
+    /* ================= TOAST NOTIFICATION ================= */
     .toast-container {
         position: fixed; top: 30px; left: 50%;
         transform: translateX(-50%); z-index: 9999;
@@ -129,7 +129,7 @@
     .content-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px 4%; }
 
     .profile-card {
-        width: 100%; max-width: 1100px; height: 80vh; max-height: 650px;
+        width: 100%; max-width: 1100px; height: 80vh; max-height: 700px;
         background: var(--surface); border-radius: 24px; box-shadow: var(--shadow-card);
         border: 1px solid var(--border); display: flex; overflow: hidden;
     }
@@ -155,6 +155,8 @@
 
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
     .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
+    
+    /* Input & Select Styling */
     .input-box { width: 100%; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 0.9rem; font-family: 'Poppins', sans-serif; transition: 0.3s; }
     .input-box:focus { border-color: var(--primary); }
     .input-box[readonly] { opacity: 0.7; cursor: not-allowed; border-style: dashed; }
@@ -270,6 +272,27 @@
                 <div class="form-grid">
                     <div class="form-group"><label>Nama Penuh</label><input type="text" id="inpFullname" class="input-box"></div>
                     <div class="form-group"><label>Telefon</label><input type="text" id="inpPhone" class="input-box"></div>
+                    
+                    <div class="form-group">
+                        <label>Jantina</label>
+                        <select id="inpGender" class="input-box">
+                            <option value="" disabled selected>Pilih Jantina</option>
+                            <option value="Lelaki">Lelaki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Lingkungan Umur</label>
+                        <select id="inpAgeRange" class="input-box">
+                            <option value="" disabled selected>Pilih Umur</option>
+                            <option value="18-25">18 - 25 Tahun</option>
+                            <option value="26-35">26 - 35 Tahun</option>
+                            <option value="36-45">36 - 45 Tahun</option>
+                            <option value="46-55">46 - 55 Tahun</option>
+                            <option value="56+">56 Tahun ke atas</option>
+                        </select>
+                    </div>
+
                     <div class="form-group"><label>Peranan</label><input type="text" id="inpRole" class="input-box" readonly></div>
                     <div class="form-group"><label>Tarikh Daftar</label><input type="text" id="inpDate" class="input-box" readonly></div>
                 </div>
@@ -294,7 +317,7 @@
     <button id="themeToggle" class="theme-btn"><i class="fa-solid fa-moon"></i></button>
 
 <script>
-    // 1. TOAST NOTIFICATION FUNCTION (BARU)
+    // 1. TOAST NOTIFICATION FUNCTION
     function showToast(message, type = 'success') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
@@ -307,7 +330,6 @@
         toast.innerHTML = `${icon} <span>${message}</span>`;
         container.appendChild(toast);
 
-        // Remove after 3 seconds
         setTimeout(() => {
             toast.style.opacity = '0';
             toast.style.transform = 'translateY(-20px)';
@@ -359,6 +381,10 @@
             mainName: document.getElementById('mainName'), mainAvatar: document.getElementById('mainAvatar'),
             displayRole: document.getElementById('displayRole'), displayEmail: document.getElementById('displayEmail'),
             inpFullname: document.getElementById('inpFullname'), inpPhone: document.getElementById('inpPhone'),
+            
+            // Tambahan Element Baru
+            inpGender: document.getElementById('inpGender'), inpAgeRange: document.getElementById('inpAgeRange'),
+            
             inpRole: document.getElementById('inpRole'), inpDate: document.getElementById('inpDate')
         };
 
@@ -374,6 +400,11 @@
                 const d = doc.data();
                 if(d.fullname) name = d.fullname;
                 if(d.phone) els.inpPhone.value = d.phone;
+                
+                // Fetch Data Jantina & Umur
+                if(d.gender) els.inpGender.value = d.gender;
+                if(d.ageRange) els.inpAgeRange.value = d.ageRange;
+
                 if(d.photoURL) photo = d.photoURL;
                 if(d.role) { els.inpRole.value = d.role; els.displayRole.innerText = d.role; }
             }
@@ -397,15 +428,24 @@
         const user = firebase.auth().currentUser;
         const newName = document.getElementById('inpFullname').value.trim();
         const newPhone = document.getElementById('inpPhone').value.trim();
+        const newGender = document.getElementById('inpGender').value; // Ambil nilai jantina
+        const newAgeRange = document.getElementById('inpAgeRange').value; // Ambil nilai umur
+
         if(!newName) return showToast("Sila masukkan nama.", 'error');
 
         try {
             await user.updateProfile({ displayName: newName });
-            await firebase.firestore().collection('users').doc(user.uid).set({ fullname: newName, phone: newPhone }, { merge: true });
+            
+            // Simpan semua data ke Firestore
+            await firebase.firestore().collection('users').doc(user.uid).set({ 
+                fullname: newName, 
+                phone: newPhone,
+                gender: newGender, 
+                ageRange: newAgeRange
+            }, { merge: true });
             
             showToast("Profil berjaya dikemaskini!", 'success');
             
-            // Update UI instant tanpa reload
             document.getElementById('navName').innerText = newName.split(' ')[0];
             document.getElementById('mainName').innerText = newName;
             
@@ -420,9 +460,8 @@
             try {
                 await firebase.auth().currentUser.updatePassword(newPass);
                 showToast("Kata laluan berjaya ditukar! Sila login semula.", 'success');
-                document.getElementById('inpNewPass').value = ''; // Kosongkan input
+                document.getElementById('inpNewPass').value = ''; 
                 
-                // Logout selepas 2 saat
                 setTimeout(async () => {
                     await firebase.auth().signOut();
                     window.location.href = 'login.html';
@@ -436,7 +475,7 @@
         const file = input.files[0];
         const user = firebase.auth().currentUser;
         
-        showToast("Sedang memuat naik gambar...", 'success'); // Noti sedang upload
+        showToast("Sedang memuat naik gambar...", 'success');
 
         try {
             const ref = firebase.storage().ref(`profile_photos/${user.uid}`);
@@ -446,7 +485,7 @@
             await firebase.firestore().collection('users').doc(user.uid).set({ photoURL: url }, { merge: true });
             
             showToast("Gambar profil berjaya ditukar!", 'success');
-            setTimeout(()=> location.reload(), 1500); // Reload sekejap untuk refresh avatar semua tempat
+            setTimeout(()=> location.reload(), 1500); 
         } catch(e) { showToast("Gagal upload: " + e.message, 'error'); }
     }
 
@@ -456,7 +495,7 @@
             setTimeout(async () => {
                 await firebase.auth().signOut(); 
                 location.href='login.html'; 
-            }, 1500); // Delay 1.5 saat supaya noti nampak
+            }, 1500); 
         }
     };
     document.getElementById('mobileLogout').addEventListener('click', handleLogout);
