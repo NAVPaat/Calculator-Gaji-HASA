@@ -44,7 +44,7 @@
 
     /* ===== LEFT SIDE (BRANDING) ===== */
     .branding-section {
-        flex: 1; /* Ambil 50% ruang */
+        flex: 1; 
         background: var(--primary-grad);
         position: relative;
         display: flex;
@@ -55,7 +55,6 @@
         overflow: hidden;
     }
 
-    /* Floating Blobs (Kini dalam branding section) */
     .blob {
         position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.4; z-index: 0;
         animation: float 10s ease-in-out infinite; pointer-events: none;
@@ -70,7 +69,7 @@
 
     .branding-content {
         position: relative;
-        z-index: 1; /* Duduk atas blobs */
+        z-index: 1; 
         max-width: 450px;
         margin: 0 auto;
     }
@@ -84,7 +83,6 @@
         font-size: 1.1rem; line-height: 1.5; opacity: 0.9;
     }
 
-    /* Button Kembali (Versi Putih untuk background gelap) */
     .back-nav-white {
         position: absolute; top: 30px; left: 30px; z-index: 10;
         display: flex; align-items: center; gap: 8px;
@@ -98,12 +96,12 @@
 
     /* ===== RIGHT SIDE (FORM) ===== */
     .form-section {
-        flex: 1; /* Ambil 50% ruang */
+        flex: 1; 
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 20px;
-        background: #f9fafb; /* Latar belakang cerah sedikit */
+        background: #f9fafb;
     }
 
     .form-wrapper {
@@ -120,7 +118,6 @@
         margin-bottom: 25px; color: var(--text-dark); text-align: center;
     }
 
-    /* ===== FORM ELEMENTS (Sama macam sebelum ni) ===== */
     .input-group { margin-bottom: 15px; position: relative; }
     .input {
         width: 100%; padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 10px;
@@ -160,31 +157,16 @@
     .spinner-dark { border-color: #333; border-bottom-color: transparent; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ===== MOBILE RESPONSIVE (Stacking) ===== */
+    /* ===== MOBILE RESPONSIVE ===== */
     @media (max-width: 768px) {
-        .split-container { flex-direction: column; } /* Jadi memanjang ke bawah */
-        
-        .branding-section {
-            flex: none; /* Tak perlu ambil separuh tinggi */
-            padding: 40px 20px;
-            text-align: center;
-            min-height: 250px; /* Tinggi minimum untuk header */
-        }
+        .split-container { flex-direction: column; }
+        .branding-section { flex: none; padding: 40px 20px; text-align: center; min-height: 250px; }
         .back-nav-white { top: 20px; left: 20px; }
         .app-title { font-size: 1.8rem; }
         .app-subtitle { font-size: 1rem; }
-        .blob1, .blob2 { width: 200px; height: 200px; } /* Kecilkan blobs */
-
-        .form-section {
-            flex: none; /* Biar dia ambil ruang yang tinggal */
-            padding: 30px 20px;
-            background: white; /* Tukar jadi putih penuh di mobile */
-            border-top-left-radius: 25px;
-            border-top-right-radius: 25px;
-            margin-top: -25px; /* Tarik naik sikit supaya bertindih */
-            z-index: 2;
-        }
-        .form-wrapper { box-shadow: none; padding: 10px 0; } /* Hilangkan bayang di mobile */
+        .blob1, .blob2 { width: 200px; height: 200px; }
+        .form-section { flex: none; padding: 30px 20px; background: white; border-top-left-radius: 25px; border-top-right-radius: 25px; margin-top: -25px; z-index: 2; }
+        .form-wrapper { box-shadow: none; padding: 10px 0; }
     }
 </style>
 </head>
@@ -250,7 +232,6 @@
     </div>
 
 <script>
-// ===== LOGIN FUNCTIONALITY (Kekal sama) =====
 (() => {
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -283,18 +264,19 @@
         }
     }
 
-async function checkUserAndRedirect(user) {
+    // LOGIK BARU: Semak profil tanpa simpan data awal
+    async function checkUserAndRedirect(user) {
         setMessage('Menyemak profil...', 'normal');
         try {
             const doc = await db.collection('users').doc(user.uid).get();
             
-            // Jika dokumen wujud DAN profile sudah lengkap
+            // Jika dokumen wujud DAN profileCompleted adalah true, terus ke greeting
             if (doc.exists && doc.data().profileCompleted === true) {
                 setMessage('Login berjaya! Mengalih...', 'success');
                 setTimeout(() => window.location.href = 'greeting.html', 1000);
             } else {
-                // Jika user baru ATAU profile belum lengkap, terus ke complete-profile
-                // Kita tak simpan apa-apa lagi kat sini.
+                // Jika user baru ATAU profile belum lengkap, terus ke page lengkapkan maklumat
+                // Kita TIDAK buat .set() di sini lagi.
                 window.location.href = 'complete-profile.html';
             }
         } catch (error) {
@@ -303,7 +285,7 @@ async function checkUserAndRedirect(user) {
             setLoading(false, false);
             setLoading(false, true);
         }
-    }}
+    }
 
     // 1. EMAIL LOGIN
     form.addEventListener('submit', async (e) => {
@@ -355,4 +337,3 @@ async function checkUserAndRedirect(user) {
 </script>
 </body>
 </html>
-
