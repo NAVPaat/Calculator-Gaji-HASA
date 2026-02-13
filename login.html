@@ -264,75 +264,59 @@
         }
     }
 
-    // LOGIK BARU: Semak profil tanpa simpan data awal
     async function checkUserAndRedirect(user) {
         setMessage('Menyemak profil...', 'normal');
         try {
             const doc = await db.collection('users').doc(user.uid).get();
-            
-            // Jika dokumen wujud DAN profileCompleted adalah true, terus ke greeting
             if (doc.exists && doc.data().profileCompleted === true) {
                 setMessage('Login berjaya! Mengalih...', 'success');
                 setTimeout(() => window.location.href = 'greeting.html', 1000);
             } else {
-                // Jika user baru ATAU profile belum lengkap, terus ke page lengkapkan maklumat
-                // Kita TIDAK buat .set() di sini lagi.
+                // Jangan buat apa-apa update database di sini, biar page profil yang uruskan
                 window.location.href = 'complete-profile.html';
             }
         } catch (error) {
             console.error(error);
-            setMessage("Ralat data: " + error.message, 'error');
+            setMessage("Ralat: " + error.message, 'error');
             setLoading(false, false);
             setLoading(false, true);
         }
     }
 
-    // 1. EMAIL LOGIN
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         setMessage('');
-
         const email = emailEl.value.trim();
         const password = passInput.value;
-
         if (!email || !password) return setMessage('Sila isi email dan kata laluan.', 'error');
-
         setLoading(true, false);
         try {
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
             await checkUserAndRedirect(userCredential.user);
         } catch (err) {
-            let msg = err.message;
-            if(err.code === 'auth/wrong-password') msg = 'Kata laluan salah.';
-            if(err.code === 'auth/user-not-found') msg = 'Email tidak dijumpai.';
-            setMessage(msg, 'error');
+            setMessage(err.message, 'error');
             setLoading(false, false);
         }
     });
 
-    // 2. GOOGLE LOGIN
     googleBtn.addEventListener('click', async () => {
         setMessage('');
         setLoading(true, true);
         const provider = new firebase.auth.GoogleAuthProvider();
-        
         try {
             const result = await auth.signInWithPopup(provider);
             await checkUserAndRedirect(result.user);
         } catch (error) {
-            console.error(error);
             setMessage(error.message, 'error');
             setLoading(false, true);
         }
     });
 
-    // Toggle Password
     showBtn.addEventListener('click', () => {
         const type = passInput.type === 'password' ? 'text' : 'password';
         passInput.type = type;
         showBtn.style.color = type === 'text' ? '#5E2A84' : '#9ca3af';
     });
-
 })();
 </script>
 </body>
