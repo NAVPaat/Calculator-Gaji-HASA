@@ -337,7 +337,34 @@
     }
 
     /* =========================================
-       5. RESPONSIVE MOBILE
+       5. ATTENTION MODAL STYLES (NEW)
+       ========================================= */
+    .attention-body {
+        text-align: center;
+        display: flex; flex-direction: column; gap: 20px; align-items: center;
+    }
+    .attention-icon {
+        font-size: 3rem; color: #F59E0B; margin-bottom: 10px;
+        animation: pulse 2s infinite;
+    }
+    .attention-text {
+        font-size: 1rem; color: var(--text-main); line-height: 1.6;
+    }
+    .attention-btn {
+        background: var(--primary); color: white; border: none; padding: 12px 30px;
+        border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.3s;
+        display: inline-flex; align-items: center; gap: 10px;
+    }
+    .attention-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3); }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    /* =========================================
+       6. RESPONSIVE MOBILE
        ========================================= */
     @media (max-width: 900px) {
         body { height: auto; overflow-y: auto; }
@@ -552,8 +579,7 @@
                     <i class="fa-solid fa-times"></i>
                 </button>
             </div>
-            <div id="modalBody">
-                </div>
+            <div id="modalBody"></div>
         </div>
     </div>
 
@@ -592,6 +618,31 @@
         </div>
     </div>
 
+    <div id="attentionModal" class="modal-overlay" onclick="closeAttentionModal(event)">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-triangle-exclamation" style="color:#F59E0B; margin-right:10px;"></i> PERHATIAN</h2>
+                <button class="close-btn" onclick="closeAttentionModal(event)" title="Tutup">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="attention-body">
+                <div class="attention-icon"><i class="fa-regular fa-bell"></i></div>
+                <p class="attention-text">
+                    <b>Selamat Datang!</b><br>
+                    Sila pastikan anda <b>mengemaskini maklumat profil</b> anda terlebih dahulu sebelum membuat sebarang pengiraan gaji.<br><br>
+                    Selepas menggunakan sistem ini, jangan lupa untuk meninggalkan <b>Maklum Balas</b> anda dengan menekan butang <i class="fa-solid fa-comment-dots" style="color:var(--primary);"></i> di bahagian bawah kiri skrin.
+                </p>
+                
+                <button class="attention-btn" onclick="goToProfile()">
+                    <i class="fa-solid fa-user-pen"></i> Kemaskini Profil Sekarang
+                </button>
+                <p style="font-size:0.85rem; color:var(--text-light); cursor:pointer; text-decoration:underline;" onclick="closeAttentionModal(null, true)">Tutup dan Teruskan ke Dashboard</p>
+            </div>
+        </div>
+    </div>
+
 <script>
     // ===================================
     // 1. POP-OUT GUIDE MODAL LOGIC
@@ -615,7 +666,7 @@
         }
     }
 
-// ===================================
+    // ===================================
     // 2. FEEDBACK LOGIC (UPDATED)
     // ===================================
     let selectedRating = 0;
@@ -799,7 +850,35 @@
     updateClock();
 
     // ===================================
-    // 5. FIREBASE LOGIC
+    // 5. ATTENTION MODAL LOGIC (NEW)
+    // ===================================
+    // Fungsi untuk buka modal perhatian secara automatik
+    function showAttentionModal() {
+        // Semak jika user dah pernah tutup modal ni dalam sesi ini
+        if (!sessionStorage.getItem('attentionSeen')) {
+            setTimeout(() => {
+                document.getElementById('attentionModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }, 1000); // Muncul selepas 1 saat
+        }
+    }
+
+    function closeAttentionModal(e, force = false) {
+        if (force || (e && (e.target === document.getElementById('attentionModal') || e.target.closest('.close-btn')))) {
+            document.getElementById('attentionModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            // Simpan status bahawa user dah tengok modal ni
+            sessionStorage.setItem('attentionSeen', 'true');
+        }
+    }
+
+    function goToProfile() {
+        sessionStorage.setItem('attentionSeen', 'true');
+        window.location.href = 'profile.html';
+    }
+
+    // ===================================
+    // 6. FIREBASE LOGIC
     // ===================================
     firebase.auth().onAuthStateChanged(async user => {
         if(!user){ window.location.href='login.html'; return; }
@@ -835,6 +914,9 @@
                     navMenu.insertAdjacentHTML('beforeend', adminLinks);
                 }
             }
+            
+            // Panggil modal perhatian selepas data user berjaya load
+            showAttentionModal();
 
         } catch(e) { console.error("Error loading dashboard:", e); }
     });
@@ -853,5 +935,3 @@
 </script>
 </body>
 </html>
-
-
