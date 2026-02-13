@@ -14,8 +14,8 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <script src="firebase-config.js"></script>
+
 <style>
-    /* Menggunakan tema yang sama dengan Login.html */
     :root {
         --primary-grad: linear-gradient(135deg, #FF6B6B 0%, #5E2A84 100%);
         --text-dark: #1f2937;
@@ -92,11 +92,39 @@
 
     /* Avatar Preview */
     .avatar-preview {
-        width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 15px;
-        background: #ddd; display: flex; align-items: center; justify-content: center;
-        overflow: hidden; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 20px;
+        background: #e5e7eb; display: flex; align-items: center; justify-content: center;
+        overflow: hidden; border: 4px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        position: relative;
     }
     .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+    
+    /* TOAST NOTIFICATION */
+    #toast {
+        visibility: hidden;
+        min-width: 250px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 50px;
+        padding: 16px;
+        position: fixed;
+        z-index: 100;
+        left: 50%;
+        bottom: 30px;
+        transform: translateX(-50%);
+        font-size: 14px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        opacity: 0;
+        transition: opacity 0.5s, bottom 0.5s;
+    }
+    #toast.show {
+        visibility: visible;
+        opacity: 1;
+        bottom: 50px;
+    }
+    #toast.success { background-color: #10b981; }
+    #toast.error { background-color: #ef4444; }
 
 </style>
 </head>
@@ -107,16 +135,17 @@
 
     <div class="main-wrapper">
         <div class="card">
-            <div class="avatar-preview" id="userAvatar">
-                <img src="https://via.placeholder.com/80" alt="Avatar">
+            <div class="avatar-preview" id="avatarContainer">
+                <img id="profileImage" src="https://via.placeholder.com/90?text=User" alt="Avatar">
             </div>
+
             <h2>Lengkapkan Profil</h2>
             <p class="subtitle">Sila lengkapkan maklumat di bawah untuk meneruskan ke sistem.</p>
 
             <form id="profileForm">
                 <div class="input-group">
                     <label class="label">Nama Penuh</label>
-                    <input type="text" id="fullname" class="input" required placeholder="Contoh: Ahmad Albab">
+                    <input type="text" id="fullname" class="input" required placeholder="Nama Penuh Anda">
                 </div>
 
                 <div class="input-group">
@@ -152,19 +181,35 @@
         </div>
     </div>
 
+    <div id="toast">Mesej di sini</div>
+
 <script>
     const db = firebase.firestore();
     const auth = firebase.auth();
     let currentUserUid = null;
+    let photoURL = "";
+
+    // Fungsi Toast
+    function showToast(message, type = 'success') {
+        const x = document.getElementById("toast");
+        x.className = "show " + type;
+        x.innerText = message;
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
 
     // 1. Check Auth State
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             currentUserUid = user.uid;
             
-            // Pre-fill data from Google Auth
+            // Auto-fill Data dari Google
             document.getElementById('fullname').value = user.displayName || '';
-            document.getElementById('userAvatar').innerHTML = `<img src="${user.photoURL || 'https://via.placeholder.com/80'}" alt="Profile">`;
+            
+            // Handle Profile Picture
+            if (user.photoURL) {
+                photoURL = user.photoURL;
+                document.getElementById('profileImage').src = photoURL;
+            }
 
             // Check if profile is ALREADY completed (incase user back button)
             const doc = await db.collection('users').doc(user.uid).get();
@@ -202,18 +247,24 @@
                 phone: phone,
                 gender: gender,
                 ageRange: ageRange,
-                profileCompleted: true, // IMPORTANT FLAG
-                role: 'user', // Default role if not set
+                profileCompleted: true, // FLAG PENTING
+                role: 'user',
                 email: auth.currentUser.email,
-                photoURL: auth.currentUser.photoURL
-            }, { merge: true }); // Merge keeps existing data like createdAt
+                photoURL: photoURL || auth.currentUser.photoURL // Simpan gambar
+            }, { merge: true }); // Merge supaya tak hilang data lama
 
-            // Redirect to dashboard
-            window.location.href = 'greeting.html';
+            showToast("Profil berjaya disimpan!", "success");
+
+            // Tunggu 1.5 saat supaya user nampak toast, kemudian redirect
+            setTimeout(() => {
+                window.location.href = 'greeting.html';
+            }, 1500);
 
         } catch (error) {
             console.error(error);
-            alert("Ralat menyimpan data: " + error.message);
+            showToast("Ralat: " + error.message, "error");
+            
+            // Reset button
             saveBtn.disabled = false;
             saveBtn.innerText = "Simpan & Teruskan";
             spinner.style.display = 'none';
