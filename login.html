@@ -283,32 +283,27 @@
         }
     }
 
-    async function checkUserAndRedirect(user) {
+async function checkUserAndRedirect(user) {
         setMessage('Menyemak profil...', 'normal');
         try {
             const doc = await db.collection('users').doc(user.uid).get();
             
-            if (doc.exists) {
-                const data = doc.data();
-                if (data.profileCompleted === true || (data.fullname && data.phone)) {
-                    setMessage('Login berjaya! Mengalih...', 'success');
-                    setTimeout(() => window.location.href = 'greeting.html', 1000);
-                } else {
-                    window.location.href = 'complete-profile.html';
-                }
+            // Jika dokumen wujud DAN profile sudah lengkap
+            if (doc.exists && doc.data().profileCompleted === true) {
+                setMessage('Login berjaya! Mengalih...', 'success');
+                setTimeout(() => window.location.href = 'greeting.html', 1000);
             } else {
-                await db.collection('users').doc(user.uid).set({
-                    email: user.email,
-                    role: 'user',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                // Jika user baru ATAU profile belum lengkap, terus ke complete-profile
+                // Kita tak simpan apa-apa lagi kat sini.
                 window.location.href = 'complete-profile.html';
             }
         } catch (error) {
             console.error(error);
             setMessage("Ralat data: " + error.message, 'error');
+            setLoading(false, false);
+            setLoading(false, true);
         }
-    }
+    }}
 
     // 1. EMAIL LOGIN
     form.addEventListener('submit', async (e) => {
@@ -360,3 +355,4 @@
 </script>
 </body>
 </html>
+
