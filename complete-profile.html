@@ -29,11 +29,11 @@
     .input-group { margin-bottom: 20px; }
     .label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #374151; }
     
-    /* AUTO CAPSLOCK VISUAL */
+    /* Auto Capslock Visual */
     .input, .select { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 1rem; background: rgba(255,255,255,0.9); font-family: 'Inter', sans-serif; }
     #fullname { text-transform: uppercase; }
 
-    .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; background: var(--primary-grad); color: white; margin-top: 20px; display: flex; justify-content: center; align-items: center; }
+    .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; background: var(--primary-grad); color: white; margin-top: 20px; display: flex; justify-content: center; align-items: center; transition: opacity 0.3s; }
     .btn:disabled { opacity: 0.7; cursor: not-allowed; }
     
     .spinner { display: none; width: 20px; height: 20px; border: 3px solid #fff; border-bottom-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 10px; }
@@ -53,7 +53,7 @@
     <div class="main-wrapper">
         <div class="card">
             <h2>Lengkapkan Profil</h2>
-            <p class="subtitle">Sila lengkapkan maklumat di bawah untuk meneruskan ke sistem.</p>
+            <p class="subtitle">Sila lengkapkan maklumat anda untuk mendaftar masuk ke sistem.</p>
 
             <form id="profileForm">
                 <div class="input-group">
@@ -95,82 +95,82 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
     let currentUid = null;
-    let isSubmitting = false; // Guard untuk menghalang redirect awal
+    let isSavingProcess = false;
 
     function showToast(msg, type) {
         const t = document.getElementById("toast");
-        t.innerText = msg; t.className = "show " + type;
-        setTimeout(() => t.className = t.className.replace("show", ""), 3000);
+        t.innerText = msg; 
+        t.className = "show " + type;
+        setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
     }
 
-    // 1. TUNGGU AUTH STATE
+    // 1. MONITOR AUTH STATE
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             currentUid = user.uid;
             
-            // Auto-fill nama dari Google (jika ada) dan tukar ke Uppercase
-            if(user.displayName && !document.getElementById('fullname').value) {
+            // Masukkan nama dari Google (jika ada) sebagai cadangan awal
+            if (user.displayName && !document.getElementById('fullname').value) {
                 document.getElementById('fullname').value = user.displayName.toUpperCase();
             }
-            
-            // Redirect jika profile dah siap, KECUALI jika tengah dalam proses submit
-            if (!isSubmitting) {
-                const doc = await db.collection('users').doc(currentUid).get();
+
+            // Jika profil dah lengkap dalam DB, terus skip page ini
+            if (!isSavingProcess) {
+                const doc = await db.collection('users').doc(user.uid).get();
                 if (doc.exists && doc.data().profileCompleted === true) {
                     window.location.href = 'greeting.html';
                 }
             }
         } else {
+            // Jika tiba-tiba logout atau tak login, balik ke login.html
             window.location.href = 'login.html';
         }
     });
 
-    // 2. SIMPAN DATA
+    // 2. PROSES SIMPAN SEMUA DATA (EMAIL + INFO BARU)
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        if (!currentUid) {
-            return showToast("Ralat: Sesi pengguna tidak ditemui.", "error");
-        }
+        if (!currentUid) return showToast("Sesi tamat. Sila login semula.", "error");
 
-        isSubmitting = true; // Aktifkan kunci redirect
+        isSavingProcess = true; 
         const btn = document.getElementById('saveBtn');
         const spinner = document.getElementById('spinner');
         const btnText = btn.querySelector('span:first-child');
 
         btn.disabled = true;
-        btnText.innerText = "Sila Tunggu...";
+        btnText.innerText = "Menyimpan Data...";
         spinner.style.display = 'block';
 
-        // Data yang akan disimpan
-        const data = {
-            fullname: document.getElementById('fullname').value.toUpperCase(), // Paksa Capslock
+        // Ambil data dan buat jadi UPPERCASE untuk nama
+        const finalData = {
+            uid: currentUid,
+            email: auth.currentUser.email, // Ambil email dari Google/Auth
+            fullname: document.getElementById('fullname').value.toUpperCase(),
             phone: document.getElementById('phone').value,
             gender: document.getElementById('gender').value,
             ageRange: document.getElementById('ageRange').value,
-            profileCompleted: true, 
-            role: 'user', 
-            email: auth.currentUser.email,
+            profileCompleted: true,
+            role: 'user',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
         try {
-            // Simpan ke collection 'users' mengikut UID
-            await db.collection('users').doc(currentUid).set(data, { merge: true });
+            // SIMPAN SEMUA KE FIRESTORE
+            await db.collection('users').doc(currentUid).set(finalData);
             
-            showToast("Login Berjaya! Profil dikemaskini.", "success");
-            
-            // Beri masa user nampak toast sebelum pindah page
+            showToast("Login Berjaya! Data telah disimpan.", "success");
+
+            // Redirect selepas 2 saat
             setTimeout(() => {
                 window.location.href = 'greeting.html';
             }, 2000);
 
         } catch (error) {
-            console.error("Save Error:", error);
+            console.error("Error saving profile:", error);
             showToast("Gagal menyimpan: " + error.message, "error");
-            
-            // Reset balik button kalau ralat
-            isSubmitting = false;
+            isSavingProcess = false;
             btn.disabled = false;
             btnText.innerText = "Simpan & Teruskan";
             spinner.style.display = 'none';
