@@ -19,46 +19,27 @@
     :root { --primary-grad: linear-gradient(135deg, #FF6B6B 0%, #5E2A84 100%); --text-dark: #1f2937; --glass-bg: rgba(255, 255, 255, 0.85); --radius: 16px; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: #f3f0ff; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
-    
     .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: -1; }
     .blob1 { width: 400px; height: 400px; background: #FF6B6B; top: -100px; left: -100px; }
     .blob2 { width: 350px; height: 350px; background: #5E2A84; bottom: -50px; right: -10px; }
-    
     .main-wrapper { width: 100%; max-width: 500px; padding: 20px; }
     .card { background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius); padding: 40px 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
-    
     h2 { font-family: 'Poppins', sans-serif; font-size: 1.8rem; margin-bottom: 10px; color: var(--text-dark); text-align: center; }
     p.subtitle { text-align: center; color: #6b7280; margin-bottom: 30px; font-size: 0.95rem; }
-    
     .input-group { margin-bottom: 20px; }
     .label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: #374151; }
     
-    .input, .select { 
-        width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 10px; 
-        font-size: 1rem; background: rgba(255,255,255,0.9); font-family: 'Inter', sans-serif; 
-    }
+    /* INPUT AUTO CAPSLOCK */
+    .input, .select { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 1rem; background: rgba(255,255,255,0.9); font-family: 'Inter', sans-serif; }
+    #fullname { text-transform: uppercase; } /* Visual capslock masa taip */
 
-    /* Auto Capslock Visual */
-    #fullname { text-transform: uppercase; }
-
-    .btn { 
-        width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: 600; 
-        font-size: 1rem; cursor: pointer; background: var(--primary-grad); color: white; 
-        margin-top: 20px; display: flex; justify-content: center; align-items: center; 
-        transition: opacity 0.3s;
-    }
+    .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; background: var(--primary-grad); color: white; margin-top: 20px; display: flex; justify-content: center; align-items: center; }
     .btn:disabled { opacity: 0.7; cursor: not-allowed; }
-
+    
     .spinner { display: none; width: 20px; height: 20px; border: 3px solid #fff; border-bottom-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-left: 10px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     
-    #toast { 
-        visibility: hidden; min-width: 250px; background-color: #333; color: #fff; 
-        text-align: center; border-radius: 50px; padding: 16px; position: fixed; 
-        z-index: 100; left: 50%; bottom: 30px; transform: translateX(-50%); 
-        font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; 
-        transition: opacity 0.5s, bottom 0.5s; 
-    }
+    #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.5s, bottom 0.5s; }
     #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
     #toast.success { background-color: #10b981; }
     #toast.error { background-color: #ef4444; }
@@ -114,41 +95,36 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
     let currentUid = null;
-    let isProcessing = false; // Flag untuk elakkan pertembungan redirect
+    let isSaving = false; // Elakkan redirect kacau proses saving
 
     function showToast(msg, type) {
         const t = document.getElementById("toast");
         t.innerText = msg; 
         t.className = "show " + type;
+        console.log("Toast triggered:", msg);
         setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
     }
 
-    // 1. MONITOR AUTH STATE
+    // 1. TUNGGU AUTH STATE
     auth.onAuthStateChanged(async (user) => {
         if (user) {
-            console.log("User Logged In:", user.uid);
             currentUid = user.uid;
+            console.log("User detected:", currentUid);
             
-            // Masukkan nama dari Gmail jika medan nama masih kosong
-            const nameField = document.getElementById('fullname');
-            if (user.displayName && !nameField.value) {
-                nameField.value = user.displayName.toUpperCase();
+            // Auto fill nama dari Google (Convert to Uppercase)
+            if(user.displayName && !document.getElementById('fullname').value) {
+                document.getElementById('fullname').value = user.displayName.toUpperCase();
             }
-
-            // Check status profil jika tidak tengah 'submitting'
-            if (!isProcessing) {
-                try {
-                    const doc = await db.collection('users').doc(currentUid).get();
-                    if (doc.exists && doc.data().profileCompleted === true) {
-                        console.log("Profile already complete. Redirecting...");
-                        window.location.href = 'greeting.html';
-                    }
-                } catch (err) {
-                    console.error("Firestore Check Error:", err);
+            
+            // Cek jika profil sudah lengkap (Hanya redirect kalau bukan tengah klik save)
+            if (!isSaving) {
+                const doc = await db.collection('users').doc(currentUid).get();
+                if (doc.exists && doc.data().profileCompleted === true) {
+                    window.location.href = 'greeting.html';
                 }
             }
         } else {
-            console.log("No user found. Redirecting to login...");
+            console.log("No user, returning to login");
             window.location.href = 'login.html';
         }
     });
@@ -157,18 +133,21 @@
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        if (!currentUid || isProcessing) return;
+        if (!currentUid) {
+            return showToast("Ralat: ID Pengguna tidak dijumpai.", "error");
+        }
 
-        isProcessing = true; // Lock proses
+        isSaving = true; // Kunci supaya onAuthStateChanged tak redirect awal
         const btn = document.getElementById('saveBtn');
         const spinner = document.getElementById('spinner');
         const btnText = btn.querySelector('span:first-child');
 
         btn.disabled = true;
-        btnText.innerText = "Sedang Menyimpan...";
+        btnText.innerText = "Menyimpan...";
         spinner.style.display = 'block';
 
-        const userData = {
+        // Data yang akan disimpan (Nama dipastikan Capslock)
+        const data = {
             fullname: document.getElementById('fullname').value.toUpperCase(),
             phone: document.getElementById('phone').value,
             gender: document.getElementById('gender').value,
@@ -179,26 +158,24 @@
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        console.log("Attempting to save data for:", currentUid, userData);
-
         try {
-            // Gunakan SET dengan MERGE supaya data lain (seperti created_at) tak hilang
-            await db.collection('users').doc(currentUid).set(userData, { merge: true });
+            console.log("Sending data to Firebase...");
             
-            console.log("Data successfully saved to Firestore!");
-            showToast("Profil berjaya dikemaskini!", "success");
-
-            // Beri masa 2 saat untuk toast muncul sebelum pindah page
+            // Guna await supaya kod berhenti kat sini sampai Firebase balas "OK"
+            await db.collection('users').doc(currentUid).set(data, { merge: true });
+            
+            console.log("Save successful!");
+            showToast("Profil Berjaya Disimpan!", "success");
+            
+            // Tunggu 2 saat supaya user nampak noti hijau tu
             setTimeout(() => {
                 window.location.href = 'greeting.html';
             }, 2000);
 
         } catch (error) {
-            console.error("Firestore Save Error:", error);
-            showToast("Ralat Simpan: " + error.message, "error");
-            
-            // Reset butang jika gagal
-            isProcessing = false;
+            console.error("Firebase Error:", error);
+            showToast("Gagal Simpan: " + error.message, "error");
+            isSaving = false;
             btn.disabled = false;
             btnText.innerText = "Simpan & Teruskan";
             spinner.style.display = 'none';
