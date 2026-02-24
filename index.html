@@ -23,6 +23,13 @@
             --pastel-pink: #FFB5E8;
             --pastel-blue: #B5DEFF;
             --pastel-green: #C3FBD8;
+            
+            /* Footer Variables */
+            --surface: rgba(255, 255, 255, 0.85);
+            --border: rgba(255, 255, 255, 0.6);
+            --primary: #4c1d95;
+            --text-main: #1e293b;
+            --text-light: #64748b;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -204,10 +211,136 @@
         .d-3 { animation-delay: 0.3s; } .d-4 { animation-delay: 0.4s; }
         .d-5 { animation-delay: 0.6s; }
 
-        footer {
-            text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500;
-            margin-top: auto; border-top: 1px solid #e2e8f0;
-            background: rgba(255,255,255,0.5); backdrop-filter: blur(5px);
+        /* ===== 7. MODERN FOOTER ===== */
+        .modern-footer {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+            padding: 60px 5% 20px;
+            margin-top: 60px;
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto 40px auto;
+        }
+
+        .footer-brand h3 {
+            color: var(--primary);
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-brand p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .footer-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        .footer-links a {
+            display: block;
+            color: var(--text-light);
+            text-decoration: none;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            transition: color 0.3s, transform 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            transform: translateX(8px);
+        }
+
+        .footer-contact p {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .footer-contact i {
+            color: var(--primary);
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            margin-top: 3px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--primary);
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .social-icons a:hover {
+            background: var(--primary);
+            color: #ffffff;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+            color: var(--text-light);
+            font-size: 0.85rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         /* ===== RESPONSIVE & MOBILE NAV BUTTON UPDATE ===== */
@@ -220,6 +353,19 @@
 
             .nav-logo-img img { height: 45px; }
             .logo-text { font-size: 1.4rem; }
+            
+            .footer-bottom {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .footer-bottom {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
         }
 
     </style>
@@ -293,13 +439,53 @@
                     </div>
                 </div>
             </div>
-
         </div>
-
     </div>
 
-    <footer class="fade-up d-5">
-        <p>© 2026 HASA UiTM</p>
+    <footer class="modern-footer fade-up d-5">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>
+                    <img src="image/HASA.png" alt="Logo" style="height: 35px;" onerror="this.style.display='none'"> 
+                    HASA UiTM
+                </h3>
+                <p>Sistem Simulasi Calculator Gaji pintar yang direka khas untuk memudahkan pengiraan gaji penjawat awam dan swasta secara pantas.</p>
+            </div>
+
+            <div class="footer-links">
+                <h4 class="footer-title">Pautan Pantas</h4>
+                <a href="login.html"><i class="fa-solid fa-angle-right" style="font-size: 0.8em; margin-right: 5px;"></i> Log Masuk</a>
+                <a href="signup.html"><i class="fa-solid fa-angle-right" style="font-size: 0.8em; margin-right: 5px;"></i> Daftar Akaun Baru</a>
+            </div>
+
+            <div class="footer-contact">
+                <h4 class="footer-title">Hubungi Kami</h4>
+                <p><i class="fa-solid fa-location-dot"></i> <span>Hospital Al-Sultan Abdullah, UiTM Puncak Alam, 42300 Bandar Puncak Alam, Selangor</span></p>
+                <p><i class="fa-solid fa-phone"></i> <span>+03-3396 3357</span></p>
+                <p><i class="fa-solid fa-envelope"></i> <span>ruzaini0610@uitm.edu.my</span></p>
+            </div>
+
+            <div class="footer-social">
+                <h4 class="footer-title">Ikuti Kami</h4>
+                <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 10px;">Ketahui perkembangan dan informasi terkini dari kami.</p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/HospitalUiTMOfficial/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+                    <a href="https://twitter.com/hasauitm" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                        <i class="fa-brands fa-twitter"></i>
+                    </a>
+                    <a href="https://www.instagram.com/hasauitmofficial/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; <span id="currentYear">2026</span> Hospital Al-Sultan Abdullah (HASA) UiTM. Hak Cipta Terpelihara.</p>
+            <p>Dibangunkan untuk kemudahan calon pemohon.</p>
+        </div>
     </footer>
 
     <script>
@@ -340,6 +526,9 @@
             setTimeout(function() {
                 window.scrollTo(0, 0);
             }, 10);
+            
+            // Auto update year in footer
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
         };
     </script>
 </body>
