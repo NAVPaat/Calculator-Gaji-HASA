@@ -7,7 +7,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -30,7 +30,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Outfit', sans-serif;
         background: #f3f0ff;
         color: var(--text-dark);
         
@@ -76,8 +76,9 @@
         border: 1px solid rgba(255, 255, 255, 0.4);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         text-decoration: none; color: #5E2A84;
-        font-weight: 600; font-size: 0.9rem;
+        font-weight: 600; font-size: 0.95rem;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: 'Outfit', sans-serif;
     }
     .back-nav-float:hover { background: white; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(94, 42, 132, 0.15); color: #4c1d6e; }
     .back-nav-float svg { width: 20px; height: 20px; transition: transform 0.3s ease; }
@@ -103,22 +104,31 @@
     }
 
     .card h2 {
-        font-family: 'Poppins', sans-serif; font-size: 1.6rem; font-weight: 700; margin-bottom: 5px;
+        font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; margin-bottom: 5px;
         background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        text-align: center;
+        text-align: center; letter-spacing: 0.5px;
     }
-    .card p.subtitle { text-align: center; color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem; }
+    .card p.subtitle { text-align: center; color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; font-weight: 400; }
 
     /* ===== FORM ===== */
     .input-group { margin-bottom: 12px; position: relative; }
     
     .input {
         width: 100%; padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 10px;
-        font-size: 0.95rem; background: rgba(255,255,255,0.9);
-        font-family: 'Inter', sans-serif; color: var(--text-dark);
+        font-size: 1rem; background: rgba(255,255,255,0.9);
+        font-family: 'Outfit', sans-serif; color: var(--text-dark); font-weight: 500;
     }
+    .input::placeholder { font-weight: 400; color: #9ca3af; }
     .input:focus { outline: none; border-color: #5E2A84; box-shadow: 0 0 0 4px rgba(94, 42, 132, 0.1); }
     
+    /* PASSWORD SHOW/HIDE WRAPPER */
+    .password-wrap { position: relative; }
+    .show-pass-btn {
+        position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+        background: none; border: none; cursor: pointer; color: #9ca3af; padding: 5px;
+        display: flex; align-items: center; justify-content: center;
+    }
+
     /* CUSTOM SELECT & ARROW STYLING */
     .select-wrapper { position: relative; width: 100%; }
     select.input { appearance: none; -webkit-appearance: none; -moz-appearance: none; cursor: pointer; padding-right: 40px; }
@@ -131,18 +141,19 @@
 
     /* Button */
     .btn {
-        width: 100%; padding: 12px; border: none; border-radius: 10px;
-        font-weight: 600; font-size: 1rem; cursor: pointer;
+        width: 100%; padding: 14px; border: none; border-radius: 10px;
+        font-weight: 700; font-size: 1.05rem; cursor: pointer;
         display: flex; justify-content: center; align-items: center; gap: 10px;
-        font-family: 'Inter', sans-serif; background: var(--primary-grad); color: white;
+        font-family: 'Outfit', sans-serif; background: var(--primary-grad); color: white;
         box-shadow: 0 10px 20px -5px rgba(94, 42, 132, 0.3); margin-top: 15px;
+        letter-spacing: 0.5px;
     }
     .btn:active { transform: scale(0.98); }
     
-    .link-center { text-align: center; margin-top: 15px; display: block; color: #5E2A84; text-decoration: none; font-size: 0.9rem; }
-    .link-center b { font-weight: 600; }
+    .link-center { text-align: center; margin-top: 18px; display: block; color: #5E2A84; text-decoration: none; font-size: 0.95rem; font-weight: 500; }
+    .link-center b { font-weight: 700; }
 
-    #signupMsg { margin-top: 10px; font-size: 0.85rem; text-align: center; min-height: 20px; }
+    #signupMsg { margin-top: 10px; font-size: 0.9rem; text-align: center; min-height: 20px; font-weight: 500; }
     .fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -175,15 +186,15 @@
             <form onsubmit="event.preventDefault();"> 
                 
                 <div class="input-group">
-                    <input id="fullname" class="input" type="text" placeholder="NAMA PENUH" required>
+                    <input id="fullname" class="input" type="text" placeholder="Nama Penuh" required>
                 </div>
 
                 <div class="input-group">
-                    <input id="email" class="input" type="email" placeholder="Email" required>
+                    <input id="email" class="input" type="email" placeholder="Alamat Emel" required>
                 </div>
 
                 <div class="input-group">
-                    <input id="phone" class="input" type="tel" placeholder="No Telefon" required>
+                    <input id="phone" class="input" type="tel" placeholder="No. Telefon" required>
                 </div>
 
                 <div class="input-group select-wrapper" id="genderWrapper">
@@ -214,8 +225,18 @@
                     <input id="manualAge" class="input" type="number" placeholder="Sila nyatakan umur anda (Contoh: 23)">
                 </div>
 
-                <div class="input-group">
-                    <input id="password" class="input" type="text" placeholder="Kata Laluan (Min 6 aksara)" required>
+                <div class="input-group password-wrap">
+                    <input id="password" class="input" type="password" placeholder="Kata Laluan" required>
+                    <button type="button" class="show-pass-btn" id="showPassBtn1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                </div>
+
+                <div class="input-group password-wrap">
+                    <input id="confirmPassword" class="input" type="password" placeholder="Sahkan Kata Laluan" required>
+                    <button type="button" class="show-pass-btn" id="showPassBtn2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
                 </div>
 
                 <button id="signupBtn" class="btn btn-primary">
@@ -237,8 +258,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const signupBtn = document.getElementById('signupBtn');
     const msg = document.getElementById('signupMsg');
     const passInput = document.getElementById('password');
+    const confirmPassInput = document.getElementById('confirmPassword'); 
     const nameInput = document.getElementById('fullname');
     const btnSpinner = document.getElementById('btnSpinner');
+
+    // Show/Hide Password Logic
+    const showBtn1 = document.getElementById('showPassBtn1');
+    const showBtn2 = document.getElementById('showPassBtn2');
+
+    showBtn1.addEventListener('click', () => {
+        const type = passInput.type === 'password' ? 'text' : 'password';
+        passInput.type = type;
+        showBtn1.style.color = type === 'text' ? '#5E2A84' : '#9ca3af';
+    });
+
+    showBtn2.addEventListener('click', () => {
+        const type = confirmPassInput.type === 'password' ? 'text' : 'password';
+        confirmPassInput.type = type;
+        showBtn2.style.color = type === 'text' ? '#5E2A84' : '#9ca3af';
+    });
 
     // ===== DROPDOWN ANIMATION LOGIC =====
     function setupDropdown(id, wrapperId) {
@@ -292,6 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const email  = document.getElementById('email').value.trim();
         const phone  = document.getElementById('phone').value.trim();
         const pwd    = passInput.value;
+        const confirmPwd = confirmPassInput.value; 
         const gender = document.getElementById('gender').value;
         const ageSelection = ageSelect.value;
         const ageManual = manualAgeInput.value.trim();
@@ -307,10 +346,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Validation
-        if (!name || !email || !phone || !pwd || !gender || !finalAge) {
+        if (!name || !email || !phone || !pwd || !confirmPwd || !gender || !finalAge) {
             setMessage('Sila lengkapkan semua ruangan termasuk umur.', '#ef4444'); 
             return;
         }
+        
+        // Semak Kata Laluan Sama
+        if (pwd !== confirmPwd) {
+            setMessage('Kata laluan tidak sepadan. Sila cuba lagi.', '#ef4444');
+            return;
+        }
+
         if (pwd.length < 6) {
             setMessage('Kata laluan mesti sekurang-kurangnya 6 aksara.', '#ef4444'); 
             return;
