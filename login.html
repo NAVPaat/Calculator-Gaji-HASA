@@ -7,7 +7,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -27,7 +27,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Outfit', sans-serif;
         background: #fff;
         color: var(--text-dark);
         min-height: 100vh;
@@ -75,19 +75,20 @@
     }
 
     .app-title {
-        font-family: 'Poppins', sans-serif; font-weight: 800;
-        font-size: 2.5rem; line-height: 1.2; margin-bottom: 15px;
-        text-transform: uppercase; letter-spacing: -0.5px;
+        font-family: 'Outfit', sans-serif; font-weight: 800;
+        font-size: 2.8rem; line-height: 1.2; margin-bottom: 15px;
+        letter-spacing: -0.5px;
     }
     .app-subtitle {
         font-size: 1.1rem; line-height: 1.5; opacity: 0.9;
+        font-weight: 400;
     }
 
     .back-nav-white {
         position: absolute; top: 30px; left: 30px; z-index: 10;
         display: flex; align-items: center; gap: 8px;
-        color: white; text-decoration: none; font-weight: 600; font-size: 0.9rem;
-        padding: 8px 12px; border-radius: 20px;
+        color: white; text-decoration: none; font-weight: 600; font-size: 0.95rem;
+        padding: 8px 14px; border-radius: 20px;
         background: rgba(255,255,255,0.1); backdrop-filter: blur(5px);
         transition: background 0.2s;
     }
@@ -114,27 +115,42 @@
     }
 
     .form-wrapper h2 {
-        font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 600;
+        font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800;
         margin-bottom: 25px; color: var(--text-dark); text-align: center;
+        letter-spacing: 0.5px;
     }
 
     .input-group { margin-bottom: 15px; position: relative; }
     .input {
-        width: 100%; padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 10px;
-        font-size: 0.95rem; background: #fff; font-family: 'Inter', sans-serif;
+        width: 100%; padding: 12px 16px; border: 1px solid #e5e7eb; border-radius: 10px;
+        font-size: 1rem; background: #fff; font-family: 'Outfit', sans-serif;
+        color: var(--text-dark); font-weight: 500;
         transition: border-color 0.2s;
     }
-    .input:focus { outline: none; border-color: #5E2A84; }
+    .input::placeholder { font-weight: 400; color: #9ca3af; }
+    .input:focus { outline: none; border-color: #5E2A84; box-shadow: 0 0 0 4px rgba(94, 42, 132, 0.1); }
 
     .password-wrap { position: relative; }
     .show-pass-btn {
         position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
         background: none; border: none; cursor: pointer; color: #9ca3af; padding: 5px;
+        display: flex; align-items: center; justify-content: center;
     }
 
+    /* REMEMBER ME WRAPPER */
+    .remember-wrapper {
+        display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
+        font-size: 0.95rem; color: var(--text-muted); font-weight: 500;
+    }
+    .remember-wrapper input[type="checkbox"] {
+        width: 16px; height: 16px; cursor: pointer; accent-color: #5E2A84;
+    }
+    .remember-wrapper label { cursor: pointer; }
+
     .btn {
-        width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 600; font-size: 0.95rem;
-        cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; font-family: 'Inter', sans-serif;
+        width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; font-size: 1.05rem;
+        cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; font-family: 'Outfit', sans-serif;
+        letter-spacing: 0.5px;
     }
     .btn-primary {
         background: var(--primary-grad); color: white; box-shadow: 0 5px 15px -3px rgba(94, 42, 132, 0.3);
@@ -143,14 +159,14 @@
         background: white; color: #374151; border: 1px solid #e5e7eb;
     }
 
-    .divider { display: flex; align-items: center; margin: 20px 0; color: #9ca3af; font-size: 0.8rem; font-weight: 500; }
+    .divider { display: flex; align-items: center; margin: 20px 0; color: #9ca3af; font-size: 0.9rem; font-weight: 500; }
     .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e5e7eb; }
     .divider span { padding: 0 10px; }
 
     .links-wrapper { text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
-    .link { color: #5E2A84; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+    .link { color: #5E2A84; text-decoration: none; font-size: 0.95rem; font-weight: 600; }
     
-    #loginMsg { margin-top: 15px; font-size: 0.85rem; text-align: center; min-height: 18px; }
+    #loginMsg { margin-top: 15px; font-size: 0.9rem; text-align: center; min-height: 18px; font-weight: 500; }
 
     .spinner { width: 16px; height: 16px; border: 2px solid; border-radius: 50%; display: none; animation: spin 0.8s linear infinite; }
     .spinner-white { border-color: #fff; border-bottom-color: transparent; }
@@ -162,7 +178,7 @@
         .split-container { flex-direction: column; }
         .branding-section { flex: none; padding: 40px 20px; text-align: center; min-height: 250px; }
         .back-nav-white { top: 20px; left: 20px; }
-        .app-title { font-size: 1.8rem; }
+        .app-title { font-size: 2rem; }
         .app-subtitle { font-size: 1rem; }
         .blob1, .blob2 { width: 200px; height: 200px; }
         .form-section { flex: none; padding: 30px 20px; background: white; border-top-left-radius: 25px; border-top-right-radius: 25px; margin-top: -25px; z-index: 2; }
@@ -196,7 +212,7 @@
 
                 <form id="loginForm" novalidate>
                     <div class="input-group">
-                        <input id="email" class="input" type="email" placeholder="Alamat Email" required autocomplete="email">
+                        <input id="email" class="input" type="email" placeholder="Alamat Emel" required autocomplete="email">
                     </div>
 
                     <div class="input-group password-wrap">
@@ -206,8 +222,13 @@
                         </button>
                     </div>
 
+                    <div class="remember-wrapper">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">Ingat saya</label>
+                    </div>
+
                     <button id="loginBtn" type="submit" class="btn btn-primary">
-                        <span>Login</span>
+                        <span>Log Masuk</span>
                         <span id="loginSpinner" class="spinner spinner-white"></span>
                     </button>
 
@@ -215,7 +236,7 @@
 
                     <button type="button" id="googleBtn" class="btn btn-google">
                         <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)"><path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/><path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/><path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.734 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"/><path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/></g></svg>
-                        <span>Login dengan Google</span>
+                        <span>Log Masuk dengan Google</span>
                         <span id="googleSpinner" class="spinner spinner-dark"></span>
                     </button>
                     
@@ -244,8 +265,18 @@
     const loginMsg = document.getElementById('loginMsg');
     const showBtn = document.getElementById('showPassBtn');
     
+    // Remember Me Checkbox Element
+    const rememberMeCheck = document.getElementById('rememberMe');
+    
     const loginSpinner = document.getElementById('loginSpinner');
     const googleSpinner = document.getElementById('googleSpinner');
+
+    // 1. AUTO-FILL DARI LOCALSTORAGE JIKA ADA
+    if (localStorage.getItem('savedEmail') && localStorage.getItem('savedPassword')) {
+        emailEl.value = localStorage.getItem('savedEmail');
+        passInput.value = localStorage.getItem('savedPassword');
+        rememberMeCheck.checked = true;
+    }
 
     function setMessage(text, type) {
         loginMsg.textContent = text || '';
@@ -270,29 +301,27 @@
             const userRef = db.collection('users').doc(user.uid);
             const doc = await userRef.get();
 
-            // 1. Jika User Sudah Ada
+            // Jika User Sudah Ada
             if (doc.exists) {
-                setMessage('Login berjaya! Mengalih...', 'success');
+                setMessage('Log masuk berjaya! Mengalih...', 'success');
                 setTimeout(() => window.location.href = 'greeting.html', 1000);
             } 
-            // 2. Jika User Baru (Auto-Register)
+            // Jika User Baru (Auto-Register)
             else {
                 setMessage('Mendaftar masuk...', 'normal');
                 
-                // Tentukan Role (Admin vs User)
                 let role = 'user';
                 if (user.email && user.email.endsWith('@uitm.edu.my')) {
                     role = 'admin';
                 }
 
-                // Simpan Data Terus
                 await userRef.set({
                     uid: user.uid,
                     email: user.email,
                     fullname: user.displayName ? user.displayName.toUpperCase() : 'PENGGUNA',
                     role: role,
                     photoURL: user.photoURL || '',
-                    profileCompleted: true, // Auto complete
+                    profileCompleted: true, 
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
@@ -307,14 +336,23 @@
         }
     }
 
-    // 1. Email Login
+    // 2. EMAIL LOGIN SUBMIT DENGAN LOGIK "REMEMBER ME"
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         setMessage('');
         const email = emailEl.value.trim();
         const password = passInput.value;
-        if (!email || !password) return setMessage('Sila isi email dan kata laluan.', 'error');
+        if (!email || !password) return setMessage('Sila isi emel dan kata laluan.', 'error');
         
+        // Simpan atau Buang dari LocalStorage berdasarkan status checkbox
+        if (rememberMeCheck.checked) {
+            localStorage.setItem('savedEmail', email);
+            localStorage.setItem('savedPassword', password);
+        } else {
+            localStorage.removeItem('savedEmail');
+            localStorage.removeItem('savedPassword');
+        }
+
         setLoading(true, false);
         try {
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
@@ -322,20 +360,19 @@
         } catch (err) {
             let msg = err.message;
             if(err.code === 'auth/wrong-password') msg = 'Kata laluan salah.';
-            if(err.code === 'auth/user-not-found') msg = 'Email tidak dijumpai.';
+            if(err.code === 'auth/user-not-found') msg = 'Emel tidak dijumpai.';
             setMessage(msg, 'error');
             setLoading(false, false);
         }
     });
 
-    // 2. Google Login (AUTO SAVE)
+    // 3. GOOGLE LOGIN
     googleBtn.addEventListener('click', async () => {
         setMessage('');
         setLoading(true, true);
         const provider = new firebase.auth.GoogleAuthProvider();
         try {
             const result = await auth.signInWithPopup(provider);
-            // Function ini akan handle auto-save kalau user tak wujud
             await checkUserAndRedirect(result.user);
         } catch (error) {
             console.error(error);
@@ -344,6 +381,7 @@
         }
     });
 
+    // 4. TOGGLE MATA PASSWORD
     showBtn.addEventListener('click', () => {
         const type = passInput.type === 'password' ? 'text' : 'password';
         passInput.type = type;
