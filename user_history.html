@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Rekod Kiraan Saya — HASA UiTM</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Amiri:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<style>
+    /* =========================================
+       1. VARIABLES & THEME (OREN / TANGERINE)
+       ========================================= */
+    :root {
+        --primary: #BA2953;       
+        --primary-dark: #DC6386;  
+        --secondary: #EDAEC0;     
+        
+        --bg-body: #F3F4F6;       
+        --surface: rgba(255, 255, 255, 0.85);
+        --surface-glass: rgba(255, 255, 255, 0.98);
+        
+        --text-main: #1f2937;
+        --text-light: #6b7280;
+        --border: rgba(255,255,255,0.6);
+        
+        --shadow-nav: 0 4px 30px rgba(0,0,0,0.05);
+        --shadow-card: 0 8px 32px 0 rgba(249, 115, 22, 0.1); 
+
+        --success: #10b981; 
+        --warning: #f59e0b;
+    }
+
+    body.dark-mode {
+        --bg-body: #0f172a;       
+        --surface: rgba(30, 41, 59, 0.85); 
+        --surface-glass: rgba(15, 23, 42, 0.98);
+        
+        --text-main: #f8fafc;     
+        --text-light: #94a3b8;    
+        --border: rgba(255,255,255,0.08);
+        
+        --shadow-nav: 0 4px 30px rgba(0,0,0,0.3);
+        --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex; flex-direction: column;
+        overflow-x: hidden;
+        transition: background-color 0.3s ease;
+    }
+
+    /* =========================================
+       2. BACKGROUND 
+       ========================================= */
+    .bg-container {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        overflow: hidden; z-index: -1; pointer-events: none;
+    }
+    .bg-blob { 
+        position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5;
+        will-change: transform, filter; animation: floatAndColor 20s infinite alternate linear;
+    }
+    .b1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--primary); }
+    .b2 { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: var(--secondary); animation-delay: -10s; }
+
+    @keyframes floatAndColor {
+        0% { transform: translate3d(0, 0, 0) scale(1); filter: blur(80px) hue-rotate(0deg); }
+        50% { transform: translate3d(20px, 40px, 0) scale(1.1); }
+        100% { transform: translate3d(-10px, 10px, 0) scale(0.9); filter: blur(80px) hue-rotate(60deg); }
+    }
+
+    /* =========================================
+       3. NAVBAR 
+       ========================================= */
+    .navbar {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 15px 5%; margin: 20px;
+        background: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        border-radius: 50px; box-shadow: var(--shadow-nav);
+        position: sticky; top: 20px; z-index: 1000;
+        transition: transform 0.4s ease, opacity 0.4s ease;
+        border: 1px solid var(--border);
+    }
+    .navbar.nav-hidden { transform: translateY(-150%); opacity: 0; }
+
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.4rem; color: var(--primary); text-decoration: none;}
+    .brand img { height: 32px; }
+
+    .nav-center { display: flex; gap: 30px; }
+    .nav-link { color: var(--text-light); font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: 0.3s; position: relative; }
+    .nav-link:hover, .nav-link.active { color: var(--primary); }
+    .nav-link.active::after { content:''; position: absolute; bottom:-5px; left:50%; transform:translateX(-50%); width: 6px; height: 6px; background: var(--primary); border-radius: 50%; }
+
+    .user-pill {
+        display: flex; align-items: center; gap: 12px; background: var(--bg-body); padding: 5px 5px 5px 20px;
+        border-radius: 50px; cursor: pointer; transition: all 0.3s ease; border: 1px solid transparent;
+    }
+    .text-container { display: flex; flex-direction: column; align-items: flex-end; overflow: hidden; height: 20px; justify-content: center; position: relative; width: 100px; }
+    .user-name { font-weight: 600; font-size: 0.9rem; color: var(--text-main); position: absolute; right: 0; transition: 0.3s; text-transform: uppercase; white-space: nowrap; }
+    .logout-text { font-weight: 700; font-size: 0.9rem; color: #ef4444; position: absolute; right: 0; transform: translateY(20px); opacity: 0; transition: 0.3s; }
+
+    .avatar { 
+        width: 38px; height: 38px; background: var(--primary); color: white; 
+        border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+        font-weight: 700; transition: 0.3s; overflow: hidden; border: 2px solid var(--surface); box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .user-pill:hover { background: #fee2e2; border-color: #ef4444; }
+    .user-pill:hover .user-name { transform: translateY(-20px); opacity: 0; }
+    .user-pill:hover .logout-text { transform: translateY(0); opacity: 1; }
+
+    .hamburger { display: none; font-size: 1.5rem; color: var(--text-main); cursor: pointer; }
+
+    /* =========================================
+       4. HISTORY CONTENT (DENGAN DETAIL EXPAND)
+       ========================================= */
+    .container { max-width: 1000px; margin: 0 auto; padding: 20px 20px 100px 20px; flex: 1; width: 100%; }
+    
+    .page-header { margin-bottom: 30px; text-align: center; }
+    .page-header h1 { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin-bottom: 5px; }
+    .page-header p { color: var(--text-light); font-size: 1rem; }
+
+    .stats-summary { display: flex; gap: 20px; margin-bottom: 40px; justify-content: center; flex-wrap: wrap; }
+    .stat-box { 
+        background: var(--surface); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        padding: 20px 30px; border-radius: 20px; border: 1px solid var(--border);
+        box-shadow: var(--shadow-card); text-align: center; min-width: 200px;
+    }
+    .stat-box h4 { font-size: 0.85rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+    .stat-box .val { font-size: 2rem; font-weight: 800; color: var(--primary); }
+
+    .record-list { display: flex; flex-direction: column; gap: 15px; }
+    
+    .record-card {
+        background: var(--surface); backdrop-filter: blur(12px); border-radius: 20px; padding: 20px 25px;
+        border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        display: flex; flex-direction: column; transition: all 0.3s ease; cursor: pointer; overflow: hidden;
+    }
+    .record-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: var(--primary); }
+
+    .record-main { display: flex; justify-content: space-between; align-items: center; width: 100%; pointer-events: none; }
+    .record-card > * { pointer-events: none; } 
+    .record-dropdown { pointer-events: auto; } 
+
+    .record-left { display: flex; align-items: center; gap: 20px; }
+    
+    .sector-icon {
+        width: 55px; height: 55px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; flex-shrink: 0;
+    }
+    .icon-awam { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .icon-swasta { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+    .record-details h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+    .record-details p { font-size: 0.85rem; color: var(--text-light); display: flex; align-items: center; gap: 6px; }
+
+    .record-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .record-amount { font-size: 1.4rem; font-weight: 800; color: var(--text-main); }
+    
+    .badge { font-size: 0.7rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge-awam { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .badge-swasta { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    .expand-hint { font-size: 0.75rem; color: var(--text-light); margin-top: 5px; display: flex; align-items: center; gap: 5px; transition: 0.3s; }
+    .record-card.expanded .expand-hint i { transform: rotate(180deg); }
+
+    /* DROPDOWN DETAILS */
+    .record-dropdown { max-height: 0; opacity: 0; transition: all 0.5s ease-in-out; overflow: hidden; cursor: default; }
+    .record-card.expanded .record-dropdown { max-height: 3000px; opacity: 1; margin-top: 20px; }
+    
+    .detail-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        background: var(--bg-body); padding: 18px; border-radius: 12px;
+        border: 1px solid var(--border); font-size: 0.9rem;
+    }
+    .detail-item { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border); padding-bottom: 6px; }
+    .detail-item span { color: var(--text-light); font-weight: 500; }
+    .detail-item strong { color: var(--text-main); font-weight: 700; text-align: right; }
+
+    /* PENGALAMAN SWASTA STYLES */
+    .pengalaman-section {
+        margin-top: 15px; padding-top: 15px; border-top: 2px dashed var(--border);
+    }
+    .pengalaman-title {
+        font-weight: 700; color: var(--primary); margin-bottom: 10px; font-size: 0.95rem; text-transform: uppercase;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .pengalaman-card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+        padding: 12px 15px; margin-bottom: 10px; font-size: 0.85rem; line-height: 1.6;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    }
+    .pengalaman-card-row {
+        display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border);
+        padding-bottom: 4px; margin-bottom: 4px;
+    }
+    .pengalaman-card-row:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+    .pengalaman-card-row span { color: var(--text-light); }
+    .pengalaman-card-row strong { color: var(--text-main); text-align: right; }
+
+    .empty-state { text-align: center; padding: 60px 20px; background: var(--surface); border-radius: 20px; border: 2px dashed rgba(249, 115, 22, 0.3); }
+    .empty-state i { font-size: 3rem; color: var(--text-light); margin-bottom: 15px; opacity: 0.5; }
+    .empty-state p { color: var(--text-main); font-size: 1.1rem; margin-bottom: 20px; font-weight: 500;}
+    
+    .btn-create { display: inline-block; background: var(--primary); color: white; text-decoration: none; padding: 10px 25px; border-radius: 12px; font-weight: 600; transition: 0.3s; }
+    .btn-create:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+    /* LOADING SPINNER */
+    .loader-container { display: flex; justify-content: center; padding: 50px; }
+    .loader { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* =========================================
+       5. FLOATING BUTTONS (TEMA & GO TOP)
+       ========================================= */
+    .theme-btn {
+        position: fixed; left: 30px; bottom: 30px;
+        width: 50px; height: 50px; background: var(--surface-glass); color: var(--text-main); 
+        border: 2px solid var(--border); border-radius: 50%; font-size: 1.2rem; cursor: pointer; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 2000; display: flex; align-items: center; justify-content: center;
+        transition: all 0.3s ease;
+    }
+    .theme-btn:hover { transform: scale(1.1); color: var(--primary); }
+
+    .go-top-btn {
+        position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(100px);
+        width: 55px; height: 55px; background: var(--primary); color: white; border: none; border-radius: 50%;
+        font-size: 1.3rem; cursor: pointer; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+        z-index: 2000; display: flex; align-items: center; justify-content: center;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); opacity: 0; pointer-events: none;
+    }
+    .go-top-btn.visible { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+    .go-top-btn:hover { background: var(--primary-dark); transform: translateX(-50%) translateY(-5px); }
+
+    /* =========================================
+       6. RESPONSIVE MOBILE
+       ========================================= */
+    @media (max-width: 900px) {
+        .navbar { margin: 15px; border-radius: 30px; padding: 15px 20px; top: 0; width: auto; }
+        .nav-center { 
+            display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; 
+            background: var(--surface-glass); border-radius: 25px; margin-top: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            gap: 15px; text-align: center; max-height: 0; overflow: hidden; opacity: 0; padding: 0 20px; 
+            transition: all 0.4s ease; border: 1px solid var(--border); z-index: 9999;
+        }
+        .nav-center.active { max-height: 500px; opacity: 1; padding: 25px 20px; }
+        .user-pill { display: none; }
+        .hamburger { display: block; }
+
+        .record-main { flex-direction: column; align-items: flex-start; gap: 15px; }
+        .record-right { width: 100%; align-items: flex-start; flex-direction: row; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 15px; }
+        .detail-grid { grid-template-columns: 1fr; }
+
+        .theme-btn { left: -25px; border-radius: 0 50% 50% 0; width: 60px; padding-left: 20px; opacity: 0.7; }
+        .theme-btn:hover, .theme-btn:active { left: 0; opacity: 1; padding-left: 0; width: 50px; border-radius: 50%; }
+    }
+</style>
+</head>
+<body>
+
+    <div class="bg-container">
+        <div class="bg-blob b1"></div>
+        <div class="bg-blob b2"></div>
+    </div>
+
+    <nav class="navbar" id="mainNavbar">
+        <a href="dashboard.html" class="brand">
+            <img src="image/HASA.png" alt="Logo" onerror="this.style.display='none'">
+            <span>HASA UiTM</span>
+        </a>
+
+        <div class="nav-center" id="navMenu">
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="contohawam.html" class="nav-link">Kiraan Awam</a>
+            <a href="swasta.html" class="nav-link">Kiraan Swasta</a>
+            <a href="user_history.html" class="nav-link active">Rekod Kiraan</a>
+            <a href="profile.html" class="nav-link">Profile</a>
+            <a href="#" class="nav-link" id="mobileLogout" style="display:none; color:#ef4444; font-weight:bold;">LOG KELUAR</a>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:15px;">
+            <div class="user-pill" id="logoutBtn" title="Tekan untuk Log Keluar">
+                <div class="text-container">
+                    <span class="user-name" id="navName">Loading...</span>
+                    <span class="logout-text">Log Keluar</span>
+                </div>
+                <div class="avatar" id="navAvatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            </div>
+            <div class="hamburger" onclick="toggleMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Rekod Pengiraan Saya</h1>
+            <p>Sejarah simulasi gaji yang telah anda jalankan. Tekan pada kad untuk lihat perincian penuh.</p>
+        </div>
+
+        <div class="stats-summary">
+            <div class="stat-box">
+                <h4>Jumlah Rekod</h4>
+                <div class="val" id="totalRecords">0</div>
+            </div>
+            <div class="stat-box">
+                <h4>Simulasi Terakhir</h4>
+                <div class="val" id="lastRecordDate" style="font-size: 1.2rem; margin-top: 10px; color: var(--text-main);">Tiada</div>
+            </div>
+        </div>
+
+        <div id="historyContainer" class="record-list">
+            <div class="loader-container"><div class="loader"></div></div>
+        </div>
+    </div>
+
+    <button id="themeToggle" class="theme-btn" title="Tukar Tema">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <button id="goTopBtn" class="go-top-btn" title="Kembali ke Atas">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+<script>
+    // ===========================================
+    // 1. FIREBASE CONFIGURATION
+    // ===========================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyDcCimpduiHdGyEmWHivg2tz_GkEgbnxf8",
+        authDomain: "data-staff-6hha55.firebaseapp.com",
+        projectId: "data-staff-6hha55",
+        storageBucket: "data-staff-6hha55.firebasestorage.app",
+        messagingSenderId: "834544418876",
+        appId: "1:834544418876:web:71b355bd0f3faf73244339",
+        measurementId: "G-1VE4LRETY9"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const navbar = document.getElementById('mainNavbar');
+    const goTop = document.getElementById('goTopBtn');
+
+    // SCROLL LOGIC UNTUK NAVBAR & GO TO TOP
+    let scrollTimeoutBtn;
+    
+    window.addEventListener('scroll', () => {
+        let st = window.scrollY || document.documentElement.scrollTop;
+        
+        // Sembunyi Navbar bila scroll
+        if (st > 100) navbar.classList.add('nav-hidden');
+        else navbar.classList.remove('nav-hidden');
+
+        // Logik Go To Top (Tengah)
+        if (st > 300) {
+            goTop.classList.add('visible');
+            clearTimeout(scrollTimeoutBtn); // Reset masa
+            
+            // Hilangkan secara automatik selepas 2 saat jika tak scroll
+            scrollTimeoutBtn = setTimeout(() => {
+                goTop.classList.remove('visible');
+            }, 2000);
+        } else {
+            goTop.classList.remove('visible');
+            clearTimeout(scrollTimeoutBtn);
+        }
+    });
+
+    goTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // MOBILE MENU TOGGLE
+    function toggleMenu() {
+        document.getElementById('navMenu').classList.toggle('active');
+        if(window.innerWidth <= 900) {
+            document.getElementById('mobileLogout').style.display = 'block';
+        }
+    }
+
+    // THEME LOGIC
+    const themeBtn = document.getElementById('themeToggle');
+    const body = document.body;
+
+    function updateThemeIcon() {
+        if(body.classList.contains('dark-mode')) {
+            themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        } else {
+            themeBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+        }
+    }
+
+    if(localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+        updateThemeIcon();
+    }
+
+    themeBtn.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+        updateThemeIcon();
+    });
+
+    // LOGOUT LOGIC
+    const handleLogout = async (e) => {
+        if(e) e.preventDefault();
+        if(confirm("Log keluar dari sistem?")) {
+            await firebase.auth().signOut();
+            window.location.href = 'login.html';
+        }
+    };
+    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+    document.getElementById('mobileLogout').addEventListener('click', handleLogout);
+
+
+    // ==========================================
+    // LOGIK KLIK KAD & KLIK LUAR (TUTUP KAD)
+    // ==========================================
+    
+    // Fungsi untuk toggle card (Buka / Tutup)
+    window.toggleCard = function(clickedCard, event) {
+        // Jika klik di dalam butiran / dropdown, jangan buat apa-apa (supaya tak tertutup bila highlight teks)
+        if (event.target.closest('.record-dropdown')) {
+            return;
+        }
+
+        // Tutup kad lain yang sedang terbuka
+        document.querySelectorAll('.record-card.expanded').forEach(card => {
+            if (card !== clickedCard) {
+                card.classList.remove('expanded');
+            }
+        });
+
+        // Buka / tutup kad yang diklik
+        clickedCard.classList.toggle('expanded');
+    };
+
+    // Fungsi klik di luar kotak -> akan tutup mana-mana kad yang terbuka
+    document.addEventListener('click', function(event) {
+        // Semak jika tempat yang diklik BUKAN tergolong di dalam elemen berkelas 'record-card'
+        if (!event.target.closest('.record-card')) {
+            document.querySelectorAll('.record-card.expanded').forEach(card => {
+                card.classList.remove('expanded');
+            });
+        }
+    });
+
+
+    // ==========================================
+    // DATA FETCHING & FIREBASE LOGIC
+    // ==========================================
+    auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            // 1. SET USER INFO IN NAVBAR (Admin Panel Dibuang)
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            const data = userDoc.data() || {};
+            
+            let firstName = user.email.split('@')[0];
+            if (data && data.fullname) {
+                firstName = data.fullname.split(' ')[0];
+            }
+
+            document.getElementById('navName').innerText = firstName;
+            const avatarEl = document.getElementById('navAvatar');
+            if (data.photoURL) {
+                avatarEl.innerHTML = `<img src="${data.photoURL}" alt="Profile" style="width:100%; height:100%; object-fit:cover;">`;
+                avatarEl.style.backgroundColor = 'transparent';
+                avatarEl.style.border = '2px solid white';
+            } else {
+                avatarEl.innerText = firstName.charAt(0).toUpperCase();
+            }
+
+            // =========================================================
+            // 2. FETCH HISTORY (TARIK REKOD USER YANG LOGIN SAHAJA)
+            // =========================================================
+            const container = document.getElementById('historyContainer');
+            
+            let recordsMap = new Map();
+
+            // PANGGILAN 1: Cari guna UID
+            try {
+                const snapUid = await db.collection('printedSlips').where('uid', '==', user.uid).get();
+                snapUid.forEach(doc => { recordsMap.set(doc.id, { id: doc.id, ...doc.data() }); });
+            } catch (err) { console.warn("Query UID error:", err); }
+
+            // PANGGILAN 2: Cari guna E-mel 
+            try {
+                if (user.email) {
+                    const snapEmail = await db.collection('printedSlips').where('email', '==', user.email).get();
+                    snapEmail.forEach(doc => { recordsMap.set(doc.id, { id: doc.id, ...doc.data() }); });
+                }
+            } catch (err) { console.warn("Query Email error:", err); }
+
+            let records = Array.from(recordsMap.values());
+
+            // JIKA TIADA REKOD
+            if (records.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <p>Tiada rekod pengiraan dijumpai untuk akaun anda.</p>
+                        <a href="contohawam.html" class="btn-create">Mula Kira Sekarang</a>
+                    </div>`;
+                document.getElementById('totalRecords').innerText = '0';
+                document.getElementById('lastRecordDate').innerText = '-';
+                return;
+            }
+
+            // Susun data dari TERKINI ke LAMA
+            records.sort((a, b) => {
+                let dateA = a.timestamp ? (a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp)) : new Date(0);
+                let dateB = b.timestamp ? (b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp)) : new Date(0);
+                return dateB - dateA; 
+            });
+
+            // Update Statistik Dashboard
+            document.getElementById('totalRecords').innerText = records.length;
+            let latestRecordDate = records[0].timestamp ? (records[0].timestamp.toDate ? records[0].timestamp.toDate() : new Date(records[0].timestamp)) : new Date();
+            document.getElementById('lastRecordDate').innerText = latestRecordDate.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' });
+
+            // Generate HTML
+            let html = '';
+            records.forEach(rec => {
+                let isAwam = true;
+                if (rec.jenis_sektor && rec.jenis_sektor.toLowerCase().includes('swasta')) isAwam = false;
+                if (rec.jenis_kiraan && rec.jenis_kiraan.toLowerCase().includes('swasta')) isAwam = false;
+
+                const bgIcon = isAwam ? 'icon-awam' : 'icon-swasta';
+                const faIcon = isAwam ? 'fa-building-columns' : 'fa-briefcase';
+                const badgeClass = isAwam ? 'badge-awam' : 'badge-swasta';
+                const lblSector = isAwam ? 'Sektor Awam' : 'Sektor Swasta';
+                
+                let recDate = new Date();
+                if (rec.timestamp) { recDate = rec.timestamp.toDate ? rec.timestamp.toDate() : new Date(rec.timestamp); }
+                const dateStr = recDate.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' });
+                const timeStr = recDate.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+                
+                let gaji = rec.gaji_bersih || rec.jumlah_kasar || rec.jumlahKasar || 0;
+                const gajiBersihNum = parseFloat(gaji);
+                const gajiBersihStr = gajiBersihNum.toLocaleString('ms-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                // ============================================
+                // GENERATOR PERINCIAN/DETAIL KIRAAN
+                // ============================================
+                let detailsHTML = `<div class="detail-grid">`;
+                
+                // Helper Function utk Teks/Tahun
+                const addDetailText = (label, value) => {
+                    if (value !== undefined && value !== null && value !== "" && value !== "-") {
+                        detailsHTML += `<div class="detail-item"><span>${label}:</span> <strong>${value}</strong></div>`;
+                    }
+                };
+
+                // Helper Function utk RM (Duit)
+                const addDetailRM = (label, value) => {
+                    if (value !== undefined && value !== null && value !== "" && value !== 0 && value !== "0" && value !== "0.00") {
+                        let num = parseFloat(value);
+                        if (!isNaN(num) && num !== 0) {
+                            detailsHTML += `<div class="detail-item"><span>${label}:</span> <strong>RM ${num.toLocaleString('ms-MY', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong></div>`;
+                        }
+                    }
+                };
+
+                // Susun Atur Perincian Asas
+                addDetailText('Jawatan', rec.jawatan_terpilih || rec.jawatan);
+                addDetailText('Kategori', rec.kategori);
+                addDetailText('Wilayah', rec.wilayah_asal || rec.wilayah);
+                
+                // Pengalaman Kerja (Tahun)
+                if (!isAwam) {
+                    let peng = rec.jumlah_tahun_pengalaman || rec.pengalaman || rec.tahun_pengalaman;
+                    if(peng !== undefined) addDetailText('Pengalaman Kerja Layak', peng + " Tahun");
+                }
+
+                // Pendapatan & Elaun
+                if(isAwam) {
+                    addDetailRM('Gaji Pokok', rec.gaji_pokok || rec.gajiPokok);
+                    addDetailRM('KGT Tahun Ini', rec.nilai_kgt || rec.kgt);
+                    addDetailRM('KGT Tambahan', rec.kgt_tambahan || rec.kgtTambahan);
+                } else {
+                    addDetailRM('Gaji Permulaan (Min)', rec.gaji_pokok_asal || rec.gaji_pokok || rec.gajiPokok);
+                    addDetailRM('Jumlah Kenaikan KGT', rec.jumlah_kenaikan_kgt || rec.totalKgt);
+                    addDetailRM('Gaji Pokok Baru', rec.gaji_pokok_baru || rec.gajiBaru);
+                }
+                
+                // Elaun Umum
+                addDetailRM('ITKA', rec.itka);
+                addDetailRM('ITK', rec.itk);
+                addDetailRM('ITP', rec.itp);
+                addDetailRM('BISH', rec.bish);
+                addDetailRM('BIW', rec.biw);
+                addDetailRM('BIPK', rec.bipk);
+                addDetailRM('BIP', rec.bip);
+                addDetailRM('Pos Basik', rec.bipb || rec.posBasik);
+
+                // Khas Swasta
+                addDetailRM('Elaun Tetap', rec.elaun_tetap || rec.elaunTetap);
+                
+                // Potongan (Biasanya Swasta)
+                addDetailRM('Potongan KWSP', rec.kwsp || rec.potongan_kwsp);
+                addDetailRM('Potongan PERKESO', rec.perkeso || rec.potongan_perkeso);
+                addDetailRM('Potongan SIP', rec.sip || rec.potongan_sip);
+                addDetailRM('Jumlah Potongan', rec.jumlah_potongan || rec.jumlahPotongan);
+
+                // Gaji Kasar / Bersih (Pecahan utk swasta jika ada)
+                let gajiKasarNum = rec.gaji_kasar || rec.jumlah_kasar || rec.jumlahKasar;
+                if(!isAwam && gajiKasarNum) {
+                    addDetailRM('Anggaran Gaji Kasar', gajiKasarNum);
+                }
+
+                detailsHTML += `</div>`; // Tutup detail-grid
+
+                // ============================================
+                // SENARAI PENGALAMAN TERDAHULU (JIKA ADA)
+                // ============================================
+                let expList = rec.senarai_pengalaman || rec.pengalaman_terdahulu || rec.pengalamanList || rec.pengalamanArr;
+                
+                if (!isAwam && Array.isArray(expList) && expList.length > 0) {
+                    detailsHTML += `
+                    <div class="pengalaman-section">
+                        <div class="pengalaman-title"><i class="fa-solid fa-briefcase"></i> Rekod Pengalaman Terdahulu</div>
+                    `;
+                    
+                    expList.forEach((exp) => {
+                        let jawatan = exp.jawatan || exp.jawatan_terdahulu || '-';
+                        let syarikat = exp.organisasi || exp.nama_organisasi || exp.syarikat || '-';
+                        let gajiAkhir = parseFloat(exp.gaji_terakhir || exp.gaji_pokok_terakhir || exp.gajiAkhir || 0);
+                        let mula = exp.tarikh_mula || exp.mula || '-';
+                        let tamat = exp.tarikh_tamat || exp.tamat || '-';
+                        
+                        let gajiStr = (!isNaN(gajiAkhir) && gajiAkhir > 0) ? `RM ${gajiAkhir.toLocaleString('ms-MY', {minimumFractionDigits:2, maximumFractionDigits:2})}` : '-';
+
+                        detailsHTML += `
+                        <div class="pengalaman-card">
+                            <div class="pengalaman-card-row">
+                                <span>Organisasi:</span> <strong>${syarikat}</strong>
+                            </div>
+                            <div class="pengalaman-card-row">
+                                <span>Jawatan:</span> <strong>${jawatan}</strong>
+                            </div>
+                            <div class="pengalaman-card-row">
+                                <span>Gaji Terakhir:</span> <strong>${gajiStr}</strong>
+                            </div>
+                            <div class="pengalaman-card-row">
+                                <span>Tempoh:</span> <strong>${mula} hingga ${tamat}</strong>
+                            </div>
+                        </div>`;
+                    });
+                    
+                    detailsHTML += `</div>`; // Tutup pengalaman-section
+                }
+
+                html += `
+                <div class="record-card" onclick="toggleCard(this, event)">
+                    <div class="record-main">
+                        <div class="record-left">
+                            <div class="sector-icon ${bgIcon}">
+                                <i class="fa-solid ${faIcon}"></i>
+                            </div>
+                            <div class="record-details">
+                                <h3>${rec.jawatan_terpilih || rec.jawatan || "Simulasi Gaji"}</h3>
+                                <p><i class="fa-regular fa-calendar-days"></i> ${dateStr} &nbsp; <i class="fa-regular fa-clock" style="margin-left:5px;"></i> ${timeStr}</p>
+                            </div>
+                        </div>
+                        <div class="record-right">
+                            <div class="record-amount">RM ${gajiBersihStr}</div>
+                            <div class="badge ${badgeClass}">${lblSector}</div>
+                            <div class="expand-hint"><i class="fa-solid fa-chevron-down"></i> Klik untuk perincian</div>
+                        </div>
+                    </div>
+                    
+                    <div class="record-dropdown">
+                        ${detailsHTML}
+                    </div>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+
+        } catch (error) {
+            console.error("Ralat memuatkan rekod:", error);
+            document.getElementById('historyContainer').innerHTML = `
+                <div class="empty-state" style="border-color: #ef4444;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>
+                    <p style="color: var(--text-main); font-weight:bold;">Gagal memuatkan rekod data.</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">${error.message}</p>
+                </div>`;
+        }
+    });
+</script>
+</body>
+</html>
