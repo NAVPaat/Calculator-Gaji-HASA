@@ -227,8 +227,17 @@ input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px 
             <span style="font-size:0.8rem; color:var(--text-light);" id="statusText">Sila pilih jawatan atau tambah baru</span>
         </div>
         
-        <input type="hidden" id="docId"> <label>Nama Jawatan (Skim)</label>
-        <input type="text" id="namaJawatan" placeholder="Contoh: Pegawai Teknologi (F41)">
+        <input type="hidden" id="docId"> 
+        
+        <div style="margin-bottom: 15px;">
+            <label>Nama Jawatan (Skim)</label>
+            <input type="text" id="namaJawatan" placeholder="Contoh: Pegawai Teknologi (F41)">
+        </div>
+
+        <div>
+            <label>Kategori</label>
+            <input type="text" id="kategori" placeholder="Contoh: Kumpulan Pengurusan dan Profesional">
+        </div>
 
         <div class="grid-form" style="margin-top:15px;">
             <div><label>Gaji Pokok Min (RM)</label><input type="number" id="gaji" placeholder="0.00"></div>
@@ -482,6 +491,7 @@ if (!sessionStorage.getItem('admin_verified')) {
         document.getElementById('selectJawatan').value = "";
         
         document.getElementById('namaJawatan').value = "";
+        document.getElementById('kategori').value = ""; // TAMBAHAN KATEGORI
         document.getElementById('gaji').value = "";
         document.getElementById('kgt').value = "";
         document.getElementById('itka').value = "";
@@ -510,6 +520,7 @@ if (!sessionStorage.getItem('admin_verified')) {
             document.getElementById('docId').value = job.id;
             
             document.getElementById('namaJawatan').value = job.nama_jawatan || job.Nama_Jawatan || '';
+            document.getElementById('kategori').value = job.kategori || job.Kategori || ''; // TAMBAHAN KATEGORI
             document.getElementById('gaji').value = job.gaji_pokok || job.Gaji_Pokok || 0;
             document.getElementById('kgt').value = job.nilai_kgt || job.Nilai_KGT || 0;
             document.getElementById('itka').value = job.itka || job.ITKA || 0;
@@ -534,11 +545,13 @@ if (!sessionStorage.getItem('admin_verified')) {
     async function saveData() {
         const id = document.getElementById('docId').value;
         const nama = document.getElementById('namaJawatan').value;
+        const kategori = document.getElementById('kategori').value; // TAMBAHAN KATEGORI
 
         if(!nama) return alert("Sila masukkan Nama Jawatan");
 
         const payload = {
             nama_jawatan: nama,
+            kategori: kategori, // TAMBAHAN KATEGORI
             gaji_pokok: parseFloat(document.getElementById('gaji').value) || 0,
             nilai_kgt: parseFloat(document.getElementById('kgt').value) || 0,
             itka: parseFloat(document.getElementById('itka').value) || 0,
